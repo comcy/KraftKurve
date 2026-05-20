@@ -1,0 +1,10 @@
+
+> api@1.0.0 dev C:\w\KraftKurve\apps\api
+> tsx watch src/main.ts
+
+[Auth] Admin already exists (admin@kraftkurve.local), auto-bootstrap skipped.
+KraftKurve API listening on http://localhost:3000
+22:40:56 [tsx] Return key Rerunning...
+c[Auth] Admin already exists (admin@kraftkurve.local), auto-bootstrap skipped.
+KraftKurve API listening on http://localhost:3000
+ ELIFECYCLE  Command failed with exit code 3221225786.

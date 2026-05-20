@@ -1,0 +1,52 @@
+<main class="profile-page">
+  <section class="profile-card">
+    <h1>Profil</h1>
+    <p class="sub">Persoenliche Einstellungen pro User.</p>
+
+    @if (loading()) {
+      <p>Lade Profil...</p>
+    } @else {
+      <dl class="user-meta">
+        <div>
+          <dt>Name</dt>
+          <dd>{{ displayName() }}</dd>
+        </div>
+        <div>
+          <dt>E-Mail</dt>
+          <dd>{{ email() }}</dd>
+        </div>
+      </dl>
+
+      <form class="goal-form" (submit)="saveGoal($event)">
+        <label for="proteinGoal">Ernaehrungsziel Protein (g / Tag)</label>
+        <input
+          id="proteinGoal"
+          name="proteinGoal"
+          type="number"
+          min="1"
+          max="9999"
+          step="1"
+          [ngModel]="proteinGoalDraft()"
+          (ngModelChange)="proteinGoalDraft.set($event === '' ? null : +$event)"
+          placeholder="z.B. 150"
+        />
+
+        <div class="actions">
+          <button type="submit" [disabled]="saving()">
+            {{ saving() ? 'Speichere...' : 'Speichern' }}
+          </button>
+          <button type="button" class="secondary" (click)="clearGoal()" [disabled]="saving()">
+            Leeren
+          </button>
+        </div>
+      </form>
+
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+      @if (success()) {
+        <p class="success">{{ success() }}</p>
+      }
+    }
+  </section>
+</main>

@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Distribution output
+dist/
+
+# Package manager
+pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+build/
+coverage/
+.angular/
+.cache/
+tmp/
+temp/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Runtime data (NDJSON persistence)
+data/
+apps/api/data/
+*.ndjson
+
+# IDE / Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

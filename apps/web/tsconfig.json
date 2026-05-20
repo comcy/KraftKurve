@@ -1,0 +1,149 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "data-access-admin": [
+        "./projects/data-access-admin/src/public-api"
+      ],
+      "data-access-auth": [
+        "./projects/data-access-auth/src/public-api"
+      ],
+      "data-access-nutrition": [
+        "./projects/data-access-nutrition/src/public-api"
+      ],
+      "data-access-progress": [
+        "./projects/data-access-progress/src/public-api"
+      ],
+      "data-access-training": [
+        "./projects/data-access-training/src/public-api"
+      ],
+      "feature-admin": [
+        "./projects/feature-admin/src/public-api"
+      ],
+      "feature-auth": [
+        "./projects/feature-auth/src/public-api"
+      ],
+      "feature-nutrition": [
+        "./projects/feature-nutrition/src/public-api"
+      ],
+      "feature-progress": [
+        "./projects/feature-progress/src/public-api"
+      ],
+      "feature-training": [
+        "./projects/feature-training/src/public-api"
+      ],
+      "shared-models": [
+        "./projects/shared-models/src/public-api"
+      ],
+      "shared-utils": [
+        "./projects/shared-utils/src/public-api"
+      ]
+    },
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/app-shell/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/feature-auth/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/feature-auth/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/feature-training/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/feature-training/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/feature-nutrition/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/feature-nutrition/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/feature-progress/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/feature-progress/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/feature-admin/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/feature-admin/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/data-access-auth/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/data-access-auth/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/data-access-training/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/data-access-training/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/data-access-nutrition/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/data-access-nutrition/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/data-access-progress/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/data-access-progress/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/data-access-admin/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/data-access-admin/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/shared-models/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared-models/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/shared-utils/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared-utils/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/app-shell/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/app-training/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/app-admin/tsconfig.app.json"
+    }
+  ]
+}

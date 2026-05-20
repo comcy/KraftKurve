@@ -1,0 +1,112 @@
+export const AUTH_PAGE_STYLES = `
+:host {
+  display: block;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at top right, rgba(255, 166, 0, 0.18), transparent 32%),
+    linear-gradient(180deg, #fcfaf5 0%, #f3efe6 100%);
+  color: #1f1d17;
+}
+
+.auth-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.auth-card {
+  width: min(100%, 28rem);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(31, 29, 23, 0.08);
+  border-radius: 1.5rem;
+  box-shadow: 0 1.5rem 4rem rgba(31, 29, 23, 0.12);
+  padding: 1.5rem;
+  backdrop-filter: blur(14px);
+}
+
+.auth-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8a5a00;
+}
+
+.auth-title {
+  margin: 0;
+  font: 700 clamp(1.8rem, 5vw, 2.5rem) / 1.05 'Segoe UI', sans-serif;
+}
+
+.auth-copy {
+  margin: 0.75rem 0 1.5rem;
+  color: #5b564a;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.auth-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.auth-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.auth-input {
+  width: 100%;
+  border: 1px solid #d5cfbf;
+  border-radius: 0.95rem;
+  background: #fffdf8;
+  padding: 0.95rem 1rem;
+  font: inherit;
+  color: inherit;
+}
+
+.auth-input:focus {
+  outline: 2px solid rgba(201, 118, 0, 0.2);
+  border-color: #c97600;
+}
+
+.auth-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #b42318;
+}
+
+.auth-banner {
+  border-radius: 0.95rem;
+  padding: 0.9rem 1rem;
+  background: #fff1ef;
+  border: 1px solid #f7c5bf;
+}
+
+.auth-submit {
+  border: 0;
+  border-radius: 999px;
+  padding: 1rem 1.2rem;
+  font: 700 1rem/1 inherit;
+  color: white;
+  background: linear-gradient(135deg, #1f1d17 0%, #8a5a00 100%);
+}
+
+.auth-submit[disabled] {
+  opacity: 0.65;
+}
+
+.auth-footer {
+  margin: 0.5rem 0 0;
+  color: #5b564a;
+}
+
+.auth-link {
+  color: #8a5a00;
+  font-weight: 700;
+  text-decoration: none;
+}
+`;
