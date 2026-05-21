@@ -1,11 +1,21 @@
 import { Routes } from '@angular/router';
-import { authGuard, userGuard } from 'data-access-auth';
+import { authGuard, userGuard, adminGuard } from 'data-access-auth';
+import { RoleRedirectComponent } from './role-redirect.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  {
+    path: '',
+    canActivate: [authGuard],
+    component: RoleRedirectComponent,
+  },
   {
     path: 'auth',
     loadChildren: () => import('feature-auth').then((m) => m.AUTH_ROUTES),
+  },
+  {
+    path: 'admin',
+    canActivate: [authGuard, adminGuard],
+    loadChildren: () => import('feature-admin').then((m) => m.ADMIN_ROUTES),
   },
   {
     path: 'dashboard',
@@ -30,9 +40,10 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
-    canActivate: [authGuard, userGuard],
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/profile/profile.page').then((m) => m.ProfilePage),
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: '' },
 ];
+

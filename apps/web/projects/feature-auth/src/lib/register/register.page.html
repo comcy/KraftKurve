@@ -1,0 +1,69 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <p class="auth-eyebrow">Admin invite only</p>
+    <h1 class="auth-title">Registrieren</h1>
+    <p class="auth-copy">Nur mit gültigem Invite-Code. Danach ist der Zugang direkt aktiv.</p>
+
+    <form class="auth-form" [formRoot]="registerForm">
+      @if (registerForm().errors().length) {
+        <div class="auth-banner" aria-live="polite">
+          @for (error of registerForm().errors(); track trackError($index, error)) {
+            <p class="auth-error">{{ error.message }}</p>
+          }
+        </div>
+      }
+
+      <label class="auth-field">
+        <span class="auth-label">Invite-Code</span>
+        <input class="auth-input" type="text" [formField]="registerForm.inviteCode" />
+        @if (registerForm.inviteCode().touched() && registerForm.inviteCode().errors().length) {
+          @for (error of registerForm.inviteCode().errors(); track trackError($index, error)) {
+            <p class="auth-error">{{ error.message }}</p>
+          }
+        }
+      </label>
+
+      <label class="auth-field">
+        <span class="auth-label">Anzeigename</span>
+        <input class="auth-input" type="text" [formField]="registerForm.displayName" />
+        @if (registerForm.displayName().touched() && registerForm.displayName().errors().length) {
+          @for (error of registerForm.displayName().errors(); track trackError($index, error)) {
+            <p class="auth-error">{{ error.message }}</p>
+          }
+        }
+      </label>
+
+      <label class="auth-field">
+        <span class="auth-label">E-Mail</span>
+        <input class="auth-input" type="email" [formField]="registerForm.email" />
+        @if (registerForm.email().touched() && registerForm.email().errors().length) {
+          @for (error of registerForm.email().errors(); track trackError($index, error)) {
+            <p class="auth-error">{{ error.message }}</p>
+          }
+        }
+      </label>
+
+      <label class="auth-field">
+        <span class="auth-label">Passwort</span>
+        <input class="auth-input" type="password" [formField]="registerForm.password" />
+        @if (registerForm.password().touched() && registerForm.password().errors().length) {
+          @for (error of registerForm.password().errors(); track trackError($index, error)) {
+            <p class="auth-error">{{ error.message }}</p>
+          }
+        }
+      </label>
+
+      <button class="auth-submit" type="submit" [disabled]="registerForm().submitting()">
+        @if (registerForm().submitting()) {
+          Registrierung...
+        } @else {
+          Account anlegen
+        }
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Bereits registriert? <a class="auth-link" routerLink="/auth/login">Zum Login</a>
+    </p>
+  </div>
+</section>

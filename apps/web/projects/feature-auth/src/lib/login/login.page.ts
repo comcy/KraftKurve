@@ -15,58 +15,8 @@ interface LoginModel {
   selector: 'lib-login',
   imports: [FormField, FormRoot, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <section class="auth-page">
-      <div class="auth-card">
-        <p class="auth-eyebrow">KraftKurve</p>
-        <h1 class="auth-title">Willkommen zurück</h1>
-        <p class="auth-copy">Login für Shell, Training und Admin.</p>
-
-        <form class="auth-form" [formRoot]="loginForm">
-          @if (loginForm().errors().length) {
-            <div class="auth-banner" aria-live="polite">
-              @for (error of loginForm().errors(); track trackError($index, error)) {
-                <p class="auth-error">{{ error.message }}</p>
-              }
-            </div>
-          }
-
-          <label class="auth-field">
-            <span class="auth-label">E-Mail</span>
-            <input class="auth-input" type="email" [formField]="loginForm.email" />
-            @if (loginForm.email().touched() && loginForm.email().errors().length) {
-              @for (error of loginForm.email().errors(); track trackError($index, error)) {
-                <p class="auth-error">{{ error.message }}</p>
-              }
-            }
-          </label>
-
-          <label class="auth-field">
-            <span class="auth-label">Passwort</span>
-            <input class="auth-input" type="password" [formField]="loginForm.password" />
-            @if (loginForm.password().touched() && loginForm.password().errors().length) {
-              @for (error of loginForm.password().errors(); track trackError($index, error)) {
-                <p class="auth-error">{{ error.message }}</p>
-              }
-            }
-          </label>
-
-          <button class="auth-submit" type="submit" [disabled]="loginForm().submitting()">
-            @if (loginForm().submitting()) {
-              Anmeldung...
-            } @else {
-              Einloggen
-            }
-          </button>
-        </form>
-
-        <p class="auth-footer">
-          Noch kein Zugang? <a class="auth-link" routerLink="/auth/register">Mit Invite registrieren</a>
-        </p>
-      </div>
-    </section>
-  `,
-  styles: [AUTH_PAGE_STYLES],
+  templateUrl: './login.page.html',
+  styleUrl: '../auth-page.scss',
 })
 export class LoginPage {
   private readonly authService = inject(AuthService);
@@ -114,16 +64,21 @@ export class LoginPage {
   );
 
   private isValidRole(userRole?: string): boolean {
-    const expectedRoles = this.getExpectedRoles(this.appId);
     if (this.appId === 'admin') {
       return userRole === 'admin';
     }
-    // shell, training: expect user
+    if (this.appId === 'shell') {
+      // Allow both in shell, but dashboard will show different content
+      return userRole === 'user' || userRole === 'admin';
+    }
+    // training app: expect user
     return userRole === 'user';
   }
 
   private getExpectedRoles(appId: AppId): string {
-    return appId === 'admin' ? 'Admin' : 'User';
+    if (appId === 'admin') return 'Admin';
+    if (appId === 'shell') return 'User oder Admin';
+    return 'User';
   }
 }
 

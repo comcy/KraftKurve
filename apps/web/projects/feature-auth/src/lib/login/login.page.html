@@ -1,0 +1,49 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <p class="auth-eyebrow">KraftKurve</p>
+    <h1 class="auth-title">Willkommen zurück</h1>
+    <p class="auth-copy">Login für Shell, Training und Admin.</p>
+
+    <form class="auth-form" [formRoot]="loginForm">
+      @if (loginForm().errors().length) {
+        <div class="auth-banner" aria-live="polite">
+          @for (error of loginForm().errors(); track trackError($index, error)) {
+            <p class="auth-error">{{ error.message }}</p>
+          }
+        </div>
+      }
+
+      <label class="auth-field">
+        <span class="auth-label">E-Mail</span>
+        <input class="auth-input" type="email" [formField]="loginForm.email" />
+        @if (loginForm.email().touched() && loginForm.email().errors().length) {
+          @for (error of loginForm.email().errors(); track trackError($index, error)) {
+            <p class="auth-error">{{ error.message }}</p>
+          }
+        }
+      </label>
+
+      <label class="auth-field">
+        <span class="auth-label">Passwort</span>
+        <input class="auth-input" type="password" [formField]="loginForm.password" />
+        @if (loginForm.password().touched() && loginForm.password().errors().length) {
+          @for (error of loginForm.password().errors(); track trackError($index, error)) {
+            <p class="auth-error">{{ error.message }}</p>
+          }
+        }
+      </label>
+
+      <button class="auth-submit" type="submit" [disabled]="loginForm().submitting()">
+        @if (loginForm().submitting()) {
+          Anmeldung...
+        } @else {
+          Einloggen
+        }
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Noch kein Zugang? <a class="auth-link" routerLink="/auth/register">Mit Invite registrieren</a>
+    </p>
+  </div>
+</section>

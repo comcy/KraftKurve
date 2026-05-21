@@ -29,6 +29,11 @@ export class ProfilePage implements OnInit {
     this.displayName.set(user?.displayName ?? '');
     this.email.set(user?.email ?? '');
 
+    if (user?.role === 'admin') {
+      this.loading.set(false);
+      return;
+    }
+
     this.loading.set(true);
     this.error.set(null);
     try {
@@ -39,6 +44,10 @@ export class ProfilePage implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  protected isAdmin(): boolean {
+    return this.authService.getCurrentUser()?.role === 'admin';
   }
 
   protected async saveGoal(event: Event): Promise<void> {

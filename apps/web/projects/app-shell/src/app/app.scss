@@ -1,0 +1,71 @@
+.app-layout {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f9f6ed 0%, #f7f7f7 55%, #ffffff 100%);
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #ffffffd9;
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid #e6e0cf;
+}
+
+.app-nav {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0.8rem 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.app-logo {
+  font-weight: 700;
+  margin-right: 0.7rem;
+  color: #3a2a05;
+  text-decoration: none;
+}
+
+.nav-link {
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: #2a2a2a;
+
+  &.active {
+    background: #eee6d0;
+    font-weight: 600;
+  }
+}
+
+.spacer {
+  margin-left: auto;
+}
+
+.login-btn, .logout-btn {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #cec4aa;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: #2a2a2a;
+}
+
+.logout-btn {
+  background: #fff;
+  cursor: pointer;
+}
+
+.profile-btn {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #cec4aa;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #2a2a2a;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}

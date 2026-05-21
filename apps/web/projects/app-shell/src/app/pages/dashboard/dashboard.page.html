@@ -1,0 +1,83 @@
+<main class="dashboard-container">
+  <section class="dashboard-header">
+    <div class="header-text">
+      <h1 class="title">KraftKurve Dashboard</h1>
+      <p class="subtitle">Live Uebersicht fuer laufenden Zyklus</p>
+    </div>
+    <a routerLink="/training/new" class="start-training-btn">+ Training starten</a>
+  </section>
+
+  @if (loading()) {
+    <p>Lade Dashboard...</p>
+  }
+
+  @if (error()) {
+    <p class="error-msg">{{ error() }}</p>
+  }
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <h3 class="card-title">Template Erinnerungen</h3>
+      @if (!reminders().length) {
+        <p class="empty-msg">Keine auslaufenden Vorlagen.</p>
+      } @else {
+        <ul class="stat-list">
+          @for (item of reminders(); track item.templateId) {
+            <li>
+              {{ item.templateName }} -
+              @if (item.status === 'expired') {
+                abgelaufen seit {{ -item.daysRemaining }} Tagen
+              } @else {
+                endet in {{ item.daysRemaining }} Tagen
+              }
+            </li>
+          }
+        </ul>
+      }
+    </article>
+
+    <article class="stat-card">
+      <h3 class="card-title">Gewichtsvorschlaege bei Stagnation</h3>
+      @if (!suggestions().length) {
+        <p class="empty-msg">Keine Stagnation erkannt.</p>
+      } @else {
+        <ul class="stat-list">
+          @for (suggestion of suggestions(); track suggestion.exerciseName + suggestion.muscleGroup) {
+            <li>
+              {{ suggestion.exerciseName }}:
+              {{ suggestion.currentBestWeightKg }}kg -> {{ suggestion.suggestedWeightKg }}kg
+              ({{ suggestion.suggestionType }}, completion {{ suggestion.observedCompletionRatio * 100 }}%)
+            </li>
+          }
+        </ul>
+      }
+    </article>
+  </section>
+
+  <section class="heatmap-section">
+    <h3 class="card-title">Body Heatmap ({{ heatmap().days }} Tage)</h3>
+    <p class="heatmap-summary">
+      Gesamt: {{ heatmap().totalCompletedSets }} / {{ heatmap().totalSets }} erledigte Saetze
+    </p>
+
+    <div class="heatmap-grid">
+      @for (row of heatmapRows(); track row.muscle) {
+        <article class="muscle-card">
+          <div class="muscle-name">{{ row.muscle }}</div>
+          <div class="muscle-stats">{{ row.completed }} / {{ row.total }} done</div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width.%]="row.percent"
+            ></div>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="footer-links">
+    <a routerLink="/training" class="footer-link">Zum Training</a>
+    <a routerLink="/nutrition" class="footer-link">Zur Nutrition</a>
+  </section>
+</main>

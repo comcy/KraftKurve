@@ -1,0 +1,30 @@
+.admin-dashboard {
+  padding: 1.2rem;
+  max-width: 920px;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.admin-title {
+  margin: 0;
+}
+
+.admin-subtitle {
+  margin: 0;
+  color: #666;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-link {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #d4cbaa;
+  border-radius: 0.55rem;
+  text-decoration: none;
+  color: #2b2b2b;
+}
