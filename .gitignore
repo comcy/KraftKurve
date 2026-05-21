@@ -36,6 +36,7 @@ apps/api/data/
 # IDE / Editor
 .idea/
 .vscode/*
+.vscode
 !.vscode/extensions.json
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -45,3 +46,4 @@ apps/api/data/
 # OS files
 .DS_Store
 Thumbs.db
+

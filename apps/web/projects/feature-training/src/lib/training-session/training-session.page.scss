@@ -1,0 +1,152 @@
+:host {
+  display: block;
+}
+
+.session-page {
+  padding: 2rem;
+  max-width: 46rem;
+  display: grid;
+  gap: 1.2rem;
+  margin: 0 auto;
+}
+
+.session-error {
+  margin: 0;
+  color: #b42318;
+}
+
+.progress-section {
+  padding: 0.9rem;
+  border: 1px solid #d8d8d8;
+  border-radius: 0.75rem;
+}
+
+.progress-section h3 {
+  margin-top: 0;
+}
+
+.progress-label {
+  margin: 0 0 0.6rem;
+}
+
+.progress-bar-track {
+  height: 10px;
+  background: #ececec;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1f1d17, #8a5a00);
+  transition: width 0.3s ease;
+}
+
+.session-form,
+.exercise-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.form-error-banner {
+  padding: 0.75rem;
+  border: 1px solid #f7c5bf;
+  background: #fff1ef;
+  border-radius: 0.75rem;
+  color: #b42318;
+}
+
+.form-error-banner p {
+  margin: 0;
+}
+
+.field-error {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: #b42318;
+}
+
+.exercise-section {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.exercise-form {
+  padding: 0.9rem;
+  border: 1px solid #d8d8d8;
+  border-radius: 0.75rem;
+}
+
+.exercise-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.exercise-card {
+  padding: 0.9rem;
+  border: 1px solid #d8d8d8;
+  border-radius: 0.75rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.exercise-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.exercise-muscle {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.history-hint {
+  padding: 0.5rem 0.7rem;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.history-label {
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.set-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.no-sets {
+  margin: 0;
+  color: #666;
+}
+
+.set-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.set-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.set-actions {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}

@@ -1,0 +1,188 @@
+<main class="session-page">
+  <a routerLink="/session">← Zurück</a>
+  <h2>Training Session</h2>
+
+  @if (loading()) {
+    <p>Lade Session...</p>
+  }
+
+  @if (sessionError()) {
+    <p class="session-error">{{ sessionError() }}</p>
+  }
+
+  @if (sessionId()) {
+    <section class="progress-section">
+      <h3>Fortschritt aktuelles Training</h3>
+      <p class="progress-label">
+        {{ progress().completedSets }} / {{ progress().totalSets }} Saetze erledigt
+        ({{ progress().completionPercent }}%)
+      </p>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" [style.width.%]="progress().completionPercent"></div>
+      </div>
+    </section>
+  }
+
+  <form [formGroup]="sessionForm" (ngSubmit)="onSessionSubmit()" class="session-form">
+    @if (sessionServerError()) {
+      <div class="form-error-banner" aria-live="polite">
+        <p>{{ sessionServerError() }}</p>
+      </div>
+    }
+
+    <label>
+      Datum
+      <input type="date" formControlName="date" />
+      @if (sessionForm.controls.date.touched && sessionForm.controls.date.hasError('required')) {
+        <p class="field-error">Datum ist erforderlich.</p>
+      }
+    </label>
+
+    <label>
+      Template
+      <select formControlName="templateType">
+        <option value="push">Push</option>
+        <option value="pull">Pull</option>
+        <option value="legs">Legs</option>
+        <option value="full-body">Full Body</option>
+        <option value="custom">Custom</option>
+      </select>
+      @if (sessionForm.controls.templateType.touched && sessionForm.controls.templateType.hasError('required')) {
+        <p class="field-error">Template ist erforderlich.</p>
+      }
+    </label>
+
+    <label>
+      Notiz
+      <textarea rows="4" formControlName="note"></textarea>
+    </label>
+
+    <button type="submit" [disabled]="sessionSubmitting()">
+      @if (sessionSubmitting()) { Speichere... } @else { Speichern }
+    </button>
+
+    @if (sessionId()) {
+      <button type="button" (click)="onDelete()" [disabled]="deleting()">
+        @if (deleting()) { Lösche... } @else { Session löschen }
+      </button>
+    }
+  </form>
+
+  @if (sessionId()) {
+    <section class="exercise-section">
+      <h3>Uebungen</h3>
+
+      <form [formGroup]="exerciseForm" (ngSubmit)="onExerciseSubmit()" class="exercise-form">
+        @if (exerciseServerError()) {
+          <div class="form-error-banner" aria-live="polite">
+            <p>{{ exerciseServerError() }}</p>
+          </div>
+        }
+
+        <label>
+          Uebungsname
+          <input type="text" formControlName="exerciseName" />
+          @if (exerciseForm.controls.exerciseName.touched && exerciseForm.controls.exerciseName.hasError('required')) {
+            <p class="field-error">Uebungsname ist erforderlich.</p>
+          }
+        </label>
+
+        <label>
+          Muskelgruppe
+          <select formControlName="muscleGroup">
+            <option value="chest">Chest</option>
+            <option value="back">Back</option>
+            <option value="shoulders">Shoulders</option>
+            <option value="biceps">Biceps</option>
+            <option value="triceps">Triceps</option>
+            <option value="forearms">Forearms</option>
+            <option value="abs">Abs</option>
+            <option value="glutes">Glutes</option>
+            <option value="quads">Quads</option>
+            <option value="hamstrings">Hamstrings</option>
+            <option value="calves">Calves</option>
+            <option value="full-body">Full Body</option>
+            <option value="cardio">Cardio</option>
+          </select>
+          @if (exerciseForm.controls.muscleGroup.touched && exerciseForm.controls.muscleGroup.hasError('required')) {
+            <p class="field-error">Muskelgruppe ist erforderlich.</p>
+          }
+        </label>
+
+        <label>
+          Notiz
+          <input type="text" formControlName="note" />
+        </label>
+
+        <button type="submit" [disabled]="exerciseSubmitting()">
+          @if (exerciseSubmitting()) { Fuege hinzu... } @else { Uebung hinzufuegen }
+        </button>
+      </form>
+
+      @if (!exerciseList().length) {
+        <p>Keine Uebungen vorhanden.</p>
+      } @else {
+        <div class="exercise-list">
+          @for (exercise of exerciseList(); track exercise.id) {
+            <article class="exercise-card">
+              <div class="exercise-header">
+                <div>
+                  <strong>{{ exercise.exerciseName }}</strong>
+                  <div class="exercise-muscle">{{ exercise.muscleGroup }}</div>
+                </div>
+                <button type="button" (click)="onDeleteExercise(exercise.id)">Loeschen</button>
+              </div>
+
+              @if (lastHistoryByName()[exercise.exerciseName]) {
+                <div class="history-hint" aria-label="Letztes Trainingsresultat">
+                  <span class="history-label">Letztes Mal ({{ lastHistoryByName()[exercise.exerciseName]!.sessionDate }}):</span>
+                  <span>
+                    @for (s of lastHistoryByName()[exercise.exerciseName]!.sets; track s.order) {
+                      {{ s.reps }} × {{ s.weightKg }}kg{{ !$last ? ' · ' : '' }}
+                    }
+                  </span>
+                  <button type="button" (click)="onApplyLastSet(exercise.exerciseName)">Übernehmen</button>
+                </div>
+              }
+
+              <form [formGroup]="setForm" class="set-form">
+                <label>
+                  Reps
+                  <input type="number" formControlName="reps" />
+                </label>
+                <label>
+                  Gewicht (kg)
+                  <input type="number" formControlName="weightKg" />
+                </label>
+                <button type="button" (click)="onAddSet(exercise.id)">+ Satz</button>
+              </form>
+
+              @if (!setsByExercise()[exercise.id]?.length) {
+                <p class="no-sets">Noch keine Saetze.</p>
+              } @else {
+                <ul class="set-list">
+                  @for (set of setsByExercise()[exercise.id]; track set.id) {
+                    <li class="set-item">
+                      <span>Satz {{ set.order }}: {{ set.reps }} reps @ {{ set.weightKg }}kg</span>
+                      <span class="set-actions">
+                        <label>
+                          <input
+                            type="checkbox"
+                            [checked]="set.done"
+                            (change)="onToggleSetDone(exercise.id, set)"
+                          />
+                          done
+                        </label>
+                        <button type="button" (click)="onDeleteSet(exercise.id, set.id)">x</button>
+                      </span>
+                    </li>
+                  }
+                </ul>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</main>

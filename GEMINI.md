@@ -40,9 +40,13 @@ Dieses Dokument dient als zentrale Wissensbasis für KI-Agenten in diesem Projek
 - Prefere a11y ready html elements
 - Always use the `takeUntilDestroy` operator when handling Observables and always use `ReplaySubject` instead of simple `Subject`
 - Always use reactive-forms
-- Always use variables instead of strings in html templates, variables are declared ass class members in the related component
+- Always use variables instead of strings in html templates, variables are declared as private class members in the related component
 - Always use deep-linking approach when navigating, especially query parameters for API calls should be reflected in the URL (route)  
 - Always generate UI components with responsiveness to have an optimized view on mobile devices (iPhone 15 an newer, iPad 10" / 11" / 12" / 13")
+- Use angular signals for UI states but NOT for business data
+- Use rxjs for business data but NOT for UI states
+- Do not subscribe on Observables in ngOnInit
+- Always store user related session information like search, filter and sorting parameters or auth information in local or session storage 
 
 ### Frontend: UI/UX
 - Always create a file `UI.md` under `docs/` which contains a description of the UI / UX concept we approach and update it if UI changes happened. Sacrifice grammar for the sake of concision.  
