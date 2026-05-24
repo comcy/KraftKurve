@@ -13,6 +13,7 @@ import {
   idempotencyRecordRepository,
   nutritionEntryRepository,
   foodItemRepository,
+  nutritionSettingsRepository,
 } from './container';
 import { AuthService } from './modules/auth/auth.service';
 import { createAuthRouter } from './modules/auth/auth.routes';
@@ -41,6 +42,7 @@ const nutritionService = new NutritionService(
   nutritionEntryRepository,
   foodItemRepository,
   userRepository,
+  nutritionSettingsRepository,
 );
 
 // Routes

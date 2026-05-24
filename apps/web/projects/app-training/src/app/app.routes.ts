@@ -1,16 +1,22 @@
 import { Routes } from '@angular/router';
-import { authGuard } from 'data-access-auth';
+import { authGuard } from 'lib-auth-data-access';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'session', pathMatch: 'full' },
+  { path: '', redirectTo: 'overview', pathMatch: 'full' },
+  {
+    path: 'overview',
+    canActivate: [authGuard],
+    loadComponent: () => import('lib-training-feature-overview').then((m) => m.TrainingOverviewPage),
+  },
   {
     path: 'session',
     canActivate: [authGuard],
-    loadChildren: () => import('feature-training').then((m) => m.TRAINING_ROUTES),
+    loadComponent: () => import('lib-training-feature-session').then((m) => m.TrainingSessionPage),
   },
   {
-    path: 'auth',
-    loadChildren: () => import('feature-auth').then((m) => m.AUTH_ROUTES),
+    path: 'session/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('lib-training-feature-session').then((m) => m.TrainingSessionPage),
   },
-  { path: '**', redirectTo: 'session' },
+  { path: '**', redirectTo: 'overview' },
 ];

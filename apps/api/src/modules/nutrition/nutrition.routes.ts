@@ -39,8 +39,9 @@ const updateFoodItemSchema = z
   })
   .refine((v) => Object.keys(v).length > 0, { message: 'No fields to update' });
 
-const setProteinGoalSchema = z.object({
-  proteinGoalG: z.number().min(1).max(9999).nullable(),
+const setNutritionSettingsSchema = z.object({
+  proteinGoalG: z.number().min(1).max(9999).nullable().optional(),
+  proteinPresets: z.array(z.number().min(1).max(999)).length(3).optional(),
 });
 
 interface WriteResult {
@@ -112,22 +113,41 @@ export function createNutritionRouter(
     res.status(200).json({ summary });
   });
 
-  // ── User protein goal ────────────────────────────────────────────────────
-  router.get('/goal', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const goal = await nutritionService.getProteinGoal(req.user!.sub);
-    res.status(200).json(goal);
+  // ── User nutrition settings ───────────────────────────────────────────────
+  router.get('/settings', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const settings = await nutritionService.getNutritionSettings(req.user!.sub);
+    res.status(200).json(settings);
   });
 
-  router.put('/goal', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const parsed = setProteinGoalSchema.safeParse(req.body);
+  router.put('/settings', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const parsed = setNutritionSettingsSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.flatten() });
       return;
     }
 
     await handleIdempotentWrite(req, res, async () => {
-      const goal = await nutritionService.setProteinGoal(req.user!.sub, parsed.data.proteinGoalG);
-      return { status: 200, body: goal };
+      const settings = await nutritionService.setNutritionSettings(req.user!.sub, parsed.data);
+      return { status: 200, body: settings };
+    });
+  });
+
+  // Backward compatibility
+  router.get('/goal', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const settings = await nutritionService.getNutritionSettings(req.user!.sub);
+    res.status(200).json({ proteinGoalG: settings.proteinGoalG });
+  });
+
+  router.put('/goal', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const schema = z.object({ proteinGoalG: z.number().min(1).max(9999).nullable() });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+    await handleIdempotentWrite(req, res, async () => {
+      const settings = await nutritionService.setNutritionSettings(req.user!.sub, { proteinGoalG: parsed.data.proteinGoalG });
+      return { status: 200, body: { proteinGoalG: settings.proteinGoalG } };
     });
   });
 

@@ -1,0 +1,54 @@
+<main class="login-container">
+  <section class="log-card auth-tactical-card">
+    <div class="log-header tape">AUTH_TERMINAL</div>
+    <div class="log-content">
+      <div class="login-banner-wrapper">
+        <img src="banner.png" alt="KraftKurve Banner" class="login-banner">
+      </div>
+
+      <div class="login-header">
+        <h1 class="label-caps">Access_Portal</h1>
+        <p class="data-mono">IDENTIFY_YOURSELF</p>
+      </div>
+
+      @if (submitting()) {
+        <mat-progress-bar mode="indeterminate" class="login-progress"></mat-progress-bar>
+      }
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        @if (serverError()) {
+          <div class="error-banner tactical-border">
+            <mat-icon>error_outline</mat-icon>
+            <span class="data-mono">{{ serverError() }}</span>
+          </div>
+        }
+
+        <mat-form-field appearance="outline" class="full-width tactical-field">
+          <mat-label class="label-caps">E-MAIL</mat-label>
+          <input matInput type="email" formControlName="email" autocomplete="email" placeholder="USER@KRAFTKURVE.COM">
+          @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
+            <mat-error class="data-mono">INVALID_EMAIL_FORMAT</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width tactical-field">
+          <mat-label class="label-caps">PASSWORD</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="current-password" placeholder="********">
+          @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+            <mat-error class="data-mono">MIN_8_CHARS_REQUIRED</mat-error>
+          }
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="submit" class="submit-btn tactical-btn primary" [disabled]="submitting() || loginForm.invalid">
+          {{ submitting() ? 'AUTHENTICATING...' : 'LOGIN' }}
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p class="label-caps">NEW_RECRUIT?</p>
+        <a mat-button color="accent" routerLink="/auth/register" class="tactical-btn secondary">REQUEST_ACCESS</a>
+      </div>
+    </div>
+  </section>
+</main>
+

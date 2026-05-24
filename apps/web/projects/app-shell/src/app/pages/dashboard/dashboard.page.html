@@ -1,83 +1,122 @@
 <main class="dashboard-container">
+  <!-- App Launchers (Widgets) -->
+  <section class="launcher-grid">
+    @for (app of apps; track app.label) {
+      <a [routerLink]="app.route" class="launcher-card-link" *ifPermission="app.permission">
+        <mat-card class="launcher-card">
+          <div class="icon-wrapper" [style.background-color]="app.color">
+            <mat-icon>{{ app.icon }}</mat-icon>
+          </div>
+          <span class="launcher-label">{{ app.label }}</span>
+        </mat-card>
+      </a>
+    }
+
+    <a routerLink="/admin" class="launcher-card-link" *ifPermission="'VIEW_ADMIN_DASHBOARD'">
+      <mat-card class="launcher-card">
+        <div class="icon-wrapper admin-color">
+          <mat-icon>settings</mat-icon>
+        </div>
+        <span class="launcher-label">Admin</span>
+      </mat-card>
+    </a>
+  </section>
+
+  <mat-divider class="section-divider"></mat-divider>
+
+  <!-- Title Section -->
   <section class="dashboard-header">
     <div class="header-text">
       <h1 class="title">KraftKurve Dashboard</h1>
       <p class="subtitle">Live Uebersicht fuer laufenden Zyklus</p>
     </div>
-    <a routerLink="/training/new" class="start-training-btn">+ Training starten</a>
+    <button mat-flat-button color="primary" routerLink="/training/new">
+      <mat-icon>add</mat-icon> Training starten
+    </button>
   </section>
 
   @if (loading()) {
-    <p>Lade Dashboard...</p>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   }
 
   @if (error()) {
-    <p class="error-msg">{{ error() }}</p>
+    <mat-card class="error-card">
+      <mat-card-content>{{ error() }}</mat-card-content>
+    </mat-card>
   }
 
+  <!-- Data Widgets -->
   <section class="stats-grid">
-    <article class="stat-card">
-      <h3 class="card-title">Template Erinnerungen</h3>
-      @if (!reminders().length) {
-        <p class="empty-msg">Keine auslaufenden Vorlagen.</p>
-      } @else {
-        <ul class="stat-list">
-          @for (item of reminders(); track item.templateId) {
-            <li>
-              {{ item.templateName }} -
-              @if (item.status === 'expired') {
-                abgelaufen seit {{ -item.daysRemaining }} Tagen
-              } @else {
-                endet in {{ item.daysRemaining }} Tagen
-              }
-            </li>
-          }
-        </ul>
-      }
-    </article>
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <mat-card-title>Template Erinnerungen</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (!reminders().length) {
+          <p class="empty-msg">Keine auslaufenden Vorlagen.</p>
+        } @else {
+          <mat-list>
+            @for (item of reminders(); track item.templateId) {
+              <mat-list-item>
+                <mat-icon matListItemIcon color="warn">event</mat-icon>
+                <span matListItemTitle>{{ item.templateName }}</span>
+                <span matListItemLine>
+                  @if (item.status === 'expired') {
+                    abgelaufen seit {{ -item.daysRemaining }} Tagen
+                  } @else {
+                    endet in {{ item.daysRemaining }} Tagen
+                  }
+                </span>
+              </mat-list-item>
+            }
+          </mat-list>
+        }
+      </mat-card-content>
+    </mat-card>
 
-    <article class="stat-card">
-      <h3 class="card-title">Gewichtsvorschlaege bei Stagnation</h3>
-      @if (!suggestions().length) {
-        <p class="empty-msg">Keine Stagnation erkannt.</p>
-      } @else {
-        <ul class="stat-list">
-          @for (suggestion of suggestions(); track suggestion.exerciseName + suggestion.muscleGroup) {
-            <li>
-              {{ suggestion.exerciseName }}:
-              {{ suggestion.currentBestWeightKg }}kg -> {{ suggestion.suggestedWeightKg }}kg
-              ({{ suggestion.suggestionType }}, completion {{ suggestion.observedCompletionRatio * 100 }}%)
-            </li>
-          }
-        </ul>
-      }
-    </article>
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <mat-card-title>Stagnation Vorschlaege</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (!suggestions().length) {
+          <p class="empty-msg">Keine Stagnation erkannt.</p>
+        } @else {
+          <mat-list>
+            @for (suggestion of suggestions(); track suggestion.exerciseName + suggestion.muscleGroup) {
+              <mat-list-item>
+                <mat-icon matListItemIcon color="accent">trending_down</mat-icon>
+                <span matListItemTitle>{{ suggestion.exerciseName }}</span>
+                <span matListItemLine>
+                  {{ suggestion.currentBestWeightKg }}kg -> {{ suggestion.suggestedWeightKg }}kg
+                </span>
+              </mat-list-item>
+            }
+          </mat-list>
+        }
+      </mat-card-content>
+    </mat-card>
   </section>
 
-  <section class="heatmap-section">
-    <h3 class="card-title">Body Heatmap ({{ heatmap().days }} Tage)</h3>
-    <p class="heatmap-summary">
-      Gesamt: {{ heatmap().totalCompletedSets }} / {{ heatmap().totalSets }} erledigte Saetze
-    </p>
-
-    <div class="heatmap-grid">
-      @for (row of heatmapRows(); track row.muscle) {
-        <article class="muscle-card">
-          <div class="muscle-name">{{ row.muscle }}</div>
-          <div class="muscle-stats">{{ row.completed }} / {{ row.total }} done</div>
-          <div class="progress-bar">
-            <div
-              class="progress-fill"
-              [style.width.%]="row.percent"
-            ></div>
+  <mat-card class="heatmap-card">
+    <mat-card-header>
+      <mat-card-title>Body Heatmap ({{ heatmap().days }} Tage)</mat-card-title>
+      <mat-card-subtitle>
+        Gesamt: {{ heatmap().totalCompletedSets }} / {{ heatmap().totalSets }} erledigte Saetze
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="heatmap-grid">
+        @for (row of heatmapRows(); track row.muscle) {
+          <div class="muscle-item">
+            <div class="muscle-info">
+              <span class="name">{{ row.muscle }}</span>
+              <span class="count">{{ row.completed }} / {{ row.total }}</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="row.percent"></mat-progress-bar>
           </div>
-        </article>
-      }
-    </div>
-  </section>
-
-  <section class="footer-links">
-    <a routerLink="/training" class="footer-link">Zum Training</a>
-    <a routerLink="/nutrition" class="footer-link">Zur Nutrition</a>
-  </section>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
 </main>

@@ -1,0 +1,88 @@
+<div class="nutrition-container">
+  <h1 class="headline-lg feature-title">{{ fuelProtocol }}</h1>
+
+  <!-- Progress Widget (Top) -->
+  <section class="log-card">
+    <div class="punched-holes">
+      <div class="hole"></div>
+      <div class="hole"></div>
+      <div class="hole"></div>
+    </div>
+    <div class="log-header tape">
+      <span class="label-caps">{{ dailyIntake }}</span>
+    </div>
+    <div class="log-content">
+      <div class="fuel-stats">
+        <div class="fuel-value data-mono">
+          <span class="current">{{ proteinCurrent() }}g</span> / {{ proteinTarget() }}g
+        </div>
+      </div>
+
+      <div class="segmented-progress">
+        <div class="progress-fill" [style.width.%]="proteinPercentage()">
+          <div class="segment"></div>
+          <div class="segment"></div>
+          <div class="segment"></div>
+          <div class="segment"></div>
+          <div class="segment"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7-Day History Chart -->
+  <section class="log-card">
+    <div class="log-header">
+      <span class="label-caps">{{ weekIndexLabel }}</span>
+    </div>
+    <div class="log-content">
+      <div class="chart-mock">
+        <div *ngFor="let day of weeklyHistory()" class="bar-container">
+          <div class="bar" [style.height]="getBarHeight(day.totalProteinG)" [class.active]="day.totalProteinG > 0"></div>
+          <span class="label-caps">{{ getDayLabel(day.date) }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Log Widget -->
+  <section class="log-card">
+    <div class="log-header">
+      <span class="label-caps">{{ quickLogLabel }}</span>
+    </div>
+    <div class="log-content">
+      <div class="quick-log-grid">
+        <button *ngFor="let amount of presets()" mat-stroked-button class="preset-btn" (click)="onQuickLog(amount)">
+          <span class="data-mono">+{{ amount }}</span>
+          <span class="label-caps">PROT</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Custom Log Widget -->
+  <section class="log-card">
+    <div class="log-header">
+      <span class="label-caps">{{ customLogLabel }}</span>
+    </div>
+    <div class="log-content">
+      <div class="custom-log-row">
+        <mat-form-field appearance="outline" class="custom-input">
+          <input matInput type="number" placeholder="0" [(ngModel)]="customProtein">
+          <span matSuffix class="label-caps">G</span>
+        </mat-form-field>
+        <button mat-flat-button class="log-btn btn-primary" (click)="onCustomLog()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- History Button -->
+  <div class="action-container">
+    <button mat-stroked-button class="history-btn" (click)="showHistory()">
+      <mat-icon>history</mat-icon>
+      <span class="label-caps">{{ historyLabel }}</span>
+    </button>
+  </div>
+</div>

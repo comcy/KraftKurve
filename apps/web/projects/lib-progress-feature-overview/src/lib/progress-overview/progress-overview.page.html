@@ -1,0 +1,91 @@
+<main class="progress-container">
+  <header class="progress-header">
+    <h1>Fortschritt</h1>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <p class="label-caps">Lade Fortschritt...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="log-card error-card">
+      <div class="log-content">
+        <p class="label-caps">{{ error() }}</p>
+      </div>
+    </div>
+  }
+
+  <div class="progress-grid">
+    <section class="log-card">
+      <div class="log-header tape">
+        <span class="label-caps">Heatmap ({{ heatmap().days }} Tage)</span>
+      </div>
+      <div class="log-content">
+        <p class="label-caps">
+          Completed sets: <span class="data-mono">{{ heatmap().totalCompletedSets }}</span> / <span class="data-mono">{{ heatmap().totalSets }}</span>
+        </p>
+        <div class="heatmap-grid">
+          @for (row of heatmapRows(); track row.muscle) {
+            <article class="heatmap-item">
+              <div class="label-caps">{{ row.muscle }}</div>
+              <div class="data-mono">{{ row.completed }} / {{ row.total }}</div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" [style.width.%]="row.percent"></div>
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="log-card">
+      <div class="log-header tape">
+        <span class="label-caps">Stagnationsvorschlaege</span>
+      </div>
+      <div class="log-content">
+        @if (!suggestions().length) {
+          <p class="label-caps">Keine offenen Vorschlaege.</p>
+        } @else {
+          <ul class="suggestion-list">
+            @for (item of suggestions(); track item.exerciseName + item.muscleGroup) {
+              <li class="suggestion-item">
+                <span class="label-caps">{{ item.exerciseName }}:</span>
+                <span class="data-mono">{{ item.currentBestWeightKg }}kg</span> -> <span class="data-mono">{{ item.suggestedWeightKg }}kg</span>
+                <div class="suggestion-meta label-caps">
+                  {{ item.suggestionType }} | completion <span class="data-mono">{{ item.observedCompletionRatio * 100 }}%</span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </section>
+
+    <section class="log-card">
+      <div class="log-header tape">
+        <span class="label-caps">Letzte Sessions</span>
+      </div>
+      <div class="log-content">
+        @if (!sessions().length) {
+          <p class="label-caps">Noch keine Sessions vorhanden.</p>
+        } @else {
+          <ul class="session-list">
+            @for (session of sessions(); track session.id) {
+              <li class="session-item">
+                <span class="data-mono">{{ session.date }}</span> - <span class="label-caps">{{ session.templateType }}</span>
+                @if (session.finishedAt) { 
+                  <span class="status-tag success label-caps">DONE</span> 
+                } @else { 
+                  <span class="status-tag warning label-caps">OPEN</span> 
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </section>
+  </div>
+</main>

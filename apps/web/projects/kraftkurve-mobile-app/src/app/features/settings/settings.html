@@ -1,0 +1,45 @@
+<div class="settings-container">
+  <h1 class="headline-lg settings-title">{{ settingsTitle }}</h1>
+
+  <div class="settings-list">
+    <!-- Visual Override -->
+    <section class="settings-group">
+      <h2 class="label-caps group-title">{{ themeMode }}</h2>
+      <div class="settings-card">
+        <div class="setting-item">
+          <span class="label-caps">{{ currentTheme() === 'dark' ? dark : light }} MODE</span>
+          <mat-slide-toggle [checked]="currentTheme() === 'light'" (change)="toggleTheme()">
+          </mat-slide-toggle>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fuel Configuration -->
+    <section class="settings-group">
+      <h2 class="label-caps group-title">{{ fuelConfig }}</h2>
+      <div class="settings-card">
+        <div class="setting-item">
+          <span class="label-caps">DAILY PROTEIN GOAL</span>
+          <mat-form-field appearance="outline" class="small-input">
+            <input matInput type="number" [ngModel]="goalValue()" (ngModelChange)="goalValue.set($event)">
+            <span matSuffix class="label-caps">G</span>
+          </mat-form-field>
+        </div>
+
+        <div class="setting-item column">
+          <span class="label-caps">QUICK LOG PRESETS</span>
+          <div class="presets-row">
+            <mat-form-field appearance="outline" class="tiny-input" *ngFor="let p of presetValues(); let i = index">
+              <input matInput type="number" [ngModel]="p" (ngModelChange)="updatePreset(i, $event)">
+              <span matSuffix class="label-caps">G</span>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <button mat-flat-button class="save-btn btn-primary" (click)="saveFuelSettings()">
+          <span class="label-caps">SAVE CONFIGURATION</span>
+        </button>
+      </div>
+    </section>
+  </div>
+</div>

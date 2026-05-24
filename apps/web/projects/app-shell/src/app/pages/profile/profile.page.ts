@@ -1,8 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from 'data-access-auth';
-import { NutritionService } from 'data-access-nutrition';
+import { AuthService } from 'lib-auth-data-access';
+import { NutritionService } from 'lib-nutrition-data-access';
 
 @Component({
   selector: 'app-profile-page',

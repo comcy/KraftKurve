@@ -1,39 +1,52 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "compileOnSave": false,
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "data-access-admin": [
-        "./projects/data-access-admin/src/public-api"
+      "lib-admin-data-access": [
+        "./projects/lib-admin-data-access/src/public-api"
       ],
-      "data-access-auth": [
-        "./projects/data-access-auth/src/public-api"
+      "lib-auth-data-access": [
+        "./projects/lib-auth-data-access/src/public-api"
       ],
-      "data-access-nutrition": [
-        "./projects/data-access-nutrition/src/public-api"
+      "lib-nutrition-data-access": [
+        "./projects/lib-nutrition-data-access/src/public-api"
       ],
-      "data-access-progress": [
-        "./projects/data-access-progress/src/public-api"
+      "lib-progress-data-access": [
+        "./projects/lib-progress-data-access/src/public-api"
       ],
-      "data-access-training": [
-        "./projects/data-access-training/src/public-api"
+      "lib-training-data-access": [
+        "./projects/lib-training-data-access/src/public-api"
       ],
-      "feature-admin": [
-        "./projects/feature-admin/src/public-api"
+      "lib-admin-feature-dashboard": [
+        "./projects/lib-admin-feature-dashboard/src/public-api"
       ],
-      "feature-auth": [
-        "./projects/feature-auth/src/public-api"
+      "lib-admin-feature-exercise-catalog": [
+        "./projects/lib-admin-feature-exercise-catalog/src/public-api"
       ],
-      "feature-nutrition": [
-        "./projects/feature-nutrition/src/public-api"
+      "lib-admin-feature-invite-codes": [
+        "./projects/lib-admin-feature-invite-codes/src/public-api"
       ],
-      "feature-progress": [
-        "./projects/feature-progress/src/public-api"
+      "lib-admin-feature-user-list": [
+        "./projects/lib-admin-feature-user-list/src/public-api"
       ],
-      "feature-training": [
-        "./projects/feature-training/src/public-api"
+      "lib-auth-feature-login": [
+        "./projects/lib-auth-feature-login/src/public-api"
+      ],
+      "lib-auth-feature-register": [
+        "./projects/lib-auth-feature-register/src/public-api"
+      ],
+      "lib-nutrition-feature-overview": [
+        "./projects/lib-nutrition-feature-overview/src/public-api"
+      ],
+      "lib-progress-feature-overview": [
+        "./projects/lib-progress-feature-overview/src/public-api"
+      ],
+      "lib-training-feature-overview": [
+        "./projects/lib-training-feature-overview/src/public-api"
+      ],
+      "lib-training-feature-session": [
+        "./projects/lib-training-feature-session/src/public-api"
       ],
       "shared-models": [
         "./projects/shared-models/src/public-api"
@@ -65,64 +78,115 @@
       "path": "./projects/app-shell/tsconfig.app.json"
     },
     {
-      "path": "./projects/feature-auth/tsconfig.lib.json"
+      "path": "./projects/app-shell/tsconfig.spec.json"
     },
     {
-      "path": "./projects/feature-auth/tsconfig.spec.json"
+      "path": "./projects/app-admin/tsconfig.app.json"
     },
     {
-      "path": "./projects/feature-training/tsconfig.lib.json"
+      "path": "./projects/app-admin/tsconfig.spec.json"
     },
     {
-      "path": "./projects/feature-training/tsconfig.spec.json"
+      "path": "./projects/app-nutrition/tsconfig.app.json"
     },
     {
-      "path": "./projects/feature-nutrition/tsconfig.lib.json"
+      "path": "./projects/app-nutrition/tsconfig.spec.json"
     },
     {
-      "path": "./projects/feature-nutrition/tsconfig.spec.json"
+      "path": "./projects/app-training/tsconfig.app.json"
     },
     {
-      "path": "./projects/feature-progress/tsconfig.lib.json"
+      "path": "./projects/app-training/tsconfig.spec.json"
     },
     {
-      "path": "./projects/feature-progress/tsconfig.spec.json"
+      "path": "./projects/lib-admin-data-access/tsconfig.lib.json"
     },
     {
-      "path": "./projects/feature-admin/tsconfig.lib.json"
+      "path": "./projects/lib-admin-data-access/tsconfig.spec.json"
     },
     {
-      "path": "./projects/feature-admin/tsconfig.spec.json"
+      "path": "./projects/lib-auth-data-access/tsconfig.lib.json"
     },
     {
-      "path": "./projects/data-access-auth/tsconfig.lib.json"
+      "path": "./projects/lib-auth-data-access/tsconfig.spec.json"
     },
     {
-      "path": "./projects/data-access-auth/tsconfig.spec.json"
+      "path": "./projects/lib-nutrition-data-access/tsconfig.lib.json"
     },
     {
-      "path": "./projects/data-access-training/tsconfig.lib.json"
+      "path": "./projects/lib-nutrition-data-access/tsconfig.spec.json"
     },
     {
-      "path": "./projects/data-access-training/tsconfig.spec.json"
+      "path": "./projects/lib-progress-data-access/tsconfig.lib.json"
     },
     {
-      "path": "./projects/data-access-nutrition/tsconfig.lib.json"
+      "path": "./projects/lib-progress-data-access/tsconfig.spec.json"
     },
     {
-      "path": "./projects/data-access-nutrition/tsconfig.spec.json"
+      "path": "./projects/lib-training-data-access/tsconfig.lib.json"
     },
     {
-      "path": "./projects/data-access-progress/tsconfig.lib.json"
+      "path": "./projects/lib-training-data-access/tsconfig.spec.json"
     },
     {
-      "path": "./projects/data-access-progress/tsconfig.spec.json"
+      "path": "./projects/lib-admin-feature-dashboard/tsconfig.lib.json"
     },
     {
-      "path": "./projects/data-access-admin/tsconfig.lib.json"
+      "path": "./projects/lib-admin-feature-dashboard/tsconfig.spec.json"
     },
     {
-      "path": "./projects/data-access-admin/tsconfig.spec.json"
+      "path": "./projects/lib-admin-feature-exercise-catalog/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-admin-feature-exercise-catalog/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-admin-feature-invite-codes/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-admin-feature-invite-codes/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-admin-feature-user-list/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-admin-feature-user-list/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-auth-feature-login/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-auth-feature-login/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-auth-feature-register/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-auth-feature-register/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-training-feature-overview/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-training-feature-overview/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-training-feature-session/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-training-feature-session/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-nutrition-feature-overview/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-nutrition-feature-overview/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-progress-feature-overview/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-progress-feature-overview/tsconfig.spec.json"
     },
     {
       "path": "./projects/shared-models/tsconfig.lib.json"
@@ -137,13 +201,7 @@
       "path": "./projects/shared-utils/tsconfig.spec.json"
     },
     {
-      "path": "./projects/app-shell/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/app-training/tsconfig.app.json"
-    },
-    {
-      "path": "./projects/app-admin/tsconfig.app.json"
+      "path": "./projects/kraftkurve-mobile-app/tsconfig.app.json"
     }
   ]
 }

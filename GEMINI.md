@@ -47,6 +47,7 @@ Dieses Dokument dient als zentrale Wissensbasis für KI-Agenten in diesem Projek
 - Use rxjs for business data but NOT for UI states
 - Do not subscribe on Observables in ngOnInit
 - Always store user related session information like search, filter and sorting parameters or auth information in local or session storage 
+- Do not use function calls in templates: use observables or signals instead to avoid changedetection ticks
 
 ### Frontend: UI/UX
 - Always create a file `UI.md` under `docs/` which contains a description of the UI / UX concept we approach and update it if UI changes happened. Sacrifice grammar for the sake of concision.  

@@ -8,7 +8,6 @@ export interface User extends BaseEntity {
   role: UserRole;
   displayName: string;
   isActive: boolean;
-  proteinGoalGrams: number | null;
 }
 
 export type UserPublic = Omit<User, 'passwordHash'>;

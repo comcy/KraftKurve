@@ -1,5 +1,13 @@
-import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { App } from './app/app';
+// Define ngDevMode at the very top to prevent ReferenceError in dev mode
+(window as any).ngDevMode = (window as any).ngDevMode || false;
 
-bootstrapApplication(App, appConfig).catch((err) => console.error(err));
+import { initFederation } from '@angular-architects/native-federation';
+
+initFederation({
+  'appAdmin': 'http://localhost:4201/remoteEntry.json',
+  'appTraining': 'http://localhost:4202/remoteEntry.json',
+  'appNutrition': 'http://localhost:4203/remoteEntry.json'
+})
+  .catch(err => console.error(err))
+  .then(_ => import('./bootstrap'))
+  .catch(err => console.error(err));

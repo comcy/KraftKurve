@@ -35,7 +35,6 @@ export class AuthService {
       role: 'admin',
       displayName: 'Admin',
       isActive: true,
-      proteinGoalGrams: null,
     };
     return this.users.save(user);
   }
@@ -55,7 +54,6 @@ export class AuthService {
       role: 'admin',
       displayName: 'Admin',
       isActive: true,
-      proteinGoalGrams: null,
     };
     const saved = await this.users.save(user);
     return { user: saved, created: true };
@@ -103,7 +101,6 @@ export class AuthService {
       role: 'user',
       displayName,
       isActive: true,
-      proteinGoalGrams: null,
     };
     await this.users.save(user);
 

@@ -1,0 +1,181 @@
+.training-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.training-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 8px;
+
+  .workout-title {
+    margin-bottom: 4px;
+  }
+
+  .workout-subtitle {
+    color: var(--on-surface-variant);
+  }
+
+  .stats-group {
+    text-align: right;
+    
+    .duration-value {
+      color: var(--primary);
+    }
+
+    .duration-unit {
+      color: var(--on-surface-variant);
+      margin-left: 4px;
+    }
+  }
+}
+
+.progress-container {
+  height: 4px;
+  background: var(--surface-container-high);
+  margin-bottom: 8px;
+
+  .pixel-progress-bar {
+    height: 100%;
+    background: var(--primary);
+  }
+}
+
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.sets-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface-container-high);
+  padding: 4px 12px;
+  color: var(--on-surface-variant);
+  width: fit-content;
+  margin-bottom: 16px;
+
+  mat-icon { font-size: 12px; width: 12px; height: 12px; }
+}
+
+.sets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+
+  .set-number {
+    width: 24px;
+    font-size: 14px;
+    color: var(--on-surface-variant);
+    text-align: center;
+  }
+
+  .inputs-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .input-wrapper {
+    position: relative;
+    background: var(--surface-container-low);
+    border: 1px solid var(--outline-variant);
+    padding: 2px 8px;
+    
+    &.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .input-unit {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--on-surface-variant);
+    }
+
+    .training-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--on-surface);
+      outline: none;
+      padding-right: 20px;
+      
+      &:focus {
+        color: var(--primary);
+      }
+    }
+  }
+
+  .check-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--outline-variant);
+    color: var(--outline-variant);
+    background: transparent;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &.completed {
+      background: var(--tertiary); // Green for success
+      color: var(--on-tertiary);
+      border: none;
+    }
+
+    &.superset-check.completed {
+      background: var(--secondary); // Magenta for supersets
+      color: var(--on-secondary);
+    }
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.add-set-btn {
+  width: 100%;
+  margin-top: 16px;
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface-variant);
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+
+.finish-container {
+  margin: 32px 0 16px;
+
+  .finish-btn {
+    width: 100%;
+    height: 56px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    span { font-size: 12px; font-family: var(--font-headline); }
+  }
+}

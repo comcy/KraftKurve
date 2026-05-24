@@ -146,6 +146,7 @@ export class TrainingService {
     private readonly exercises: ITrainingExerciseRepository,
     private readonly sets: ITrainingSetRepository,
     private readonly templates: ITrainingPlanTemplateRepository,
+    private readonly catalog: IExerciseRepository,
   ) {}
 
   async listUserSessions(userId: string): Promise<TrainingSession[]> {
@@ -618,6 +619,54 @@ export class TrainingService {
     }
 
     return suggestions.sort((a, b) => a.exerciseName.localeCompare(b.exerciseName));
+  }
+
+  async listCatalog(): Promise<Exercise[]> {
+    const list = await this.catalog.findAll();
+    return list.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  async getCatalogExercise(id: string): Promise<Exercise | null> {
+    return this.catalog.findById(id);
+  }
+
+  async createCatalogExercise(input: CreateExerciseInput): Promise<Exercise> {
+    const exercise: Exercise = {
+      ...baseEntity(),
+      name: input.name,
+      category: input.category,
+      muscleGroup: input.muscleGroup,
+      equipmentType: input.equipmentType ?? 'other',
+    };
+    return this.catalog.save(exercise);
+  }
+
+  async updateCatalogExercise(id: string, input: UpdateExerciseInput): Promise<Exercise | null> {
+    const exercise = await this.catalog.findById(id);
+    if (!exercise) {
+      return null;
+    }
+
+    const updated: Exercise = {
+      ...exercise,
+      name: input.name ?? exercise.name,
+      category: input.category ?? exercise.category,
+      muscleGroup: input.muscleGroup ?? exercise.muscleGroup,
+      equipmentType: input.equipmentType ?? exercise.equipmentType,
+      updatedAt: now(),
+      version: exercise.version + 1,
+    };
+
+    return this.catalog.save(updated);
+  }
+
+  async deleteCatalogExercise(id: string): Promise<boolean> {
+    const exercise = await this.catalog.findById(id);
+    if (!exercise) {
+      return false;
+    }
+    await this.catalog.deleteById(id);
+    return true;
   }
 
   async getLastExerciseSets(

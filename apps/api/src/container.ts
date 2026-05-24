@@ -8,6 +8,9 @@ import { NdjsonTrainingPlanTemplateRepository } from './infrastructure/ndjson/nd
 import { NdjsonIdempotencyRecordRepository } from './infrastructure/ndjson/ndjson-idempotency-record.repository';
 import { NdjsonNutritionEntryRepository } from './infrastructure/ndjson/ndjson-nutrition-entry.repository';
 import { NdjsonFoodItemRepository } from './infrastructure/ndjson/ndjson-food-item.repository';
+import { NdjsonExerciseRepository } from './infrastructure/ndjson/ndjson-exercise.repository';
+import { NdjsonNutritionSettingsRepository } from './infrastructure/ndjson/ndjson-nutrition-settings.repository';
+
 import { IUserRepository } from './infrastructure/repositories/user.repository.interface';
 import { IInviteRepository } from './infrastructure/repositories/invite.repository.interface';
 import { ITrainingSessionRepository } from './infrastructure/repositories/training-session.repository.interface';
@@ -17,6 +20,8 @@ import { ITrainingPlanTemplateRepository } from './infrastructure/repositories/t
 import { IIdempotencyRecordRepository } from './infrastructure/repositories/idempotency-record.repository.interface';
 import { INutritionEntryRepository } from './infrastructure/repositories/nutrition-entry.repository.interface';
 import { IFoodItemRepository } from './infrastructure/repositories/food-item.repository.interface';
+import { IExerciseRepository } from './infrastructure/repositories/exercise.repository.interface';
+import { INutritionSettingsRepository } from './infrastructure/repositories/nutrition-settings.repository.interface';
 
 const DATA_DIR = process.env['DATA_DIR'] ?? path.join(process.cwd(), 'data');
 
@@ -49,3 +54,9 @@ export const nutritionEntryRepository: INutritionEntryRepository =
 
 export const foodItemRepository: IFoodItemRepository =
   new NdjsonFoodItemRepository(path.join(DATA_DIR, 'food-items.ndjson'));
+
+export const exerciseRepository: IExerciseRepository =
+  new NdjsonExerciseRepository(path.join(DATA_DIR, 'exercises.ndjson'));
+
+export const nutritionSettingsRepository: INutritionSettingsRepository =
+  new NdjsonNutritionSettingsRepository(path.join(DATA_DIR, 'nutrition-settings.ndjson'));

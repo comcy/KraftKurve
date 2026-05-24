@@ -178,6 +178,14 @@ Frontend:
 
 ## Datenspeicher
 
-- NDJSON-Files unter `DATA_DIR/` (`users.ndjson`, `invites.ndjson`, …).
+- NDJSON-Files unter `DATA_DIR/` (`users.ndjson`, `nutrition-settings.ndjson`, `invites.ndjson`, …).
+- Benutzerspezifische Einstellungen sind normalisiert in `nutrition-settings.ndjson` (gelinkt via `userId`).
 - Alle Repository-Interfaces in `apps/api/src/infrastructure/repositories/`.
 - Adapter-Swap: neue DB-Klasse implementiert das Interface → container.ts tauschen.
+
+## Design: Tactical Logbook
+
+Das System nutzt eine "Cyber-Athletic" Ästhetik:
+- **Fonts**: `Press Start 2P` (Headlines) & `JetBrains Mono` (Daten).
+- **Brutalismus**: Harte Kontraste, 1px Border, "Tape"-Header Effekte.
+- **Farben**: Schwarz (#131313) mit Akzenten in Gelb (Primary), Magenta (Secondary) und Grün (Tertiary).

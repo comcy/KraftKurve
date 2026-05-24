@@ -1,0 +1,108 @@
+<div class="training-container">
+  <!-- Header Info -->
+  <header class="training-header">
+    <div class="title-group">
+      <h1 class="headline-lg workout-title">{{ workoutTitle }}</h1>
+      <p class="label-caps workout-subtitle">{{ workoutSubtitle }}</p>
+    </div>
+    <div class="stats-group">
+      <span class="data-mono duration-value">{{ duration }}</span>
+      <span class="label-caps duration-unit">{{ unitMin }}</span>
+    </div>
+  </header>
+
+  <!-- Progress Bar -->
+  <div class="progress-container">
+    <div class="pixel-progress-bar" style="width: 60%"></div>
+  </div>
+
+  <div class="exercise-list">
+    <ng-container *ngFor="let ex of exercises">
+      
+      <!-- Standard Exercise -->
+      <section *ngIf="ex.type === 'standard'" class="log-card">
+        <div class="punched-holes">
+          <div class="hole"></div>
+          <div class="hole"></div>
+          <div class="hole"></div>
+        </div>
+
+        <div class="log-header tape">
+          <span>{{ ex.name }}</span>
+        </div>
+
+        <div class="log-content">
+          <div class="sets-badge label-caps">
+            <mat-icon>info</mat-icon>
+            <span>{{ ex.setsCount }} SETS</span>
+          </div>
+
+          <div class="sets-list">
+            <div *ngFor="let set of ex.sets" class="set-row">
+              <div class="set-number data-mono">{{ set.id }}</div>
+              <div class="inputs-grid">
+                <div class="input-wrapper">
+                  <input type="number" class="training-input data-mono" [value]="set.weight">
+                  <span class="input-unit label-caps">KG</span>
+                </div>
+                <div class="input-wrapper">
+                  <input type="number" class="training-input data-mono" [value]="set.reps">
+                  <span class="input-unit label-caps">REPS</span>
+                </div>
+              </div>
+              <button mat-icon-button class="check-btn" [class.completed]="set.completed">
+                <mat-icon>{{ set.completed ? 'close' : '' }}</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <button mat-button class="add-set-btn label-caps">
+            <mat-icon>add</mat-icon>
+            <span>{{ addSet }}</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Superset -->
+      <div *ngIf="ex.type === 'superset'" class="superset-container">
+        <div class="superset-tab label-caps">{{ supersetLabel }}</div>
+        
+        <section *ngFor="let subEx of ex.exercises" class="log-card">
+          <div class="log-header">            <span class="label-caps">{{ subEx.name }}</span>
+            <span class="label-caps">{{ subEx.id }}</span>
+          </div>
+          
+          <div class="log-content">
+            <div class="sets-list">
+              <div *ngFor="let set of subEx.sets" class="set-row">
+                <div class="set-number data-mono">{{ set.id }}</div>
+                <div class="inputs-grid">
+                  <div class="input-wrapper" [class.disabled]="set.weightLabel">
+                    <input [type]="set.weightLabel ? 'text' : 'number'" class="training-input data-mono" [value]="set.weightLabel || set.weight" [disabled]="set.weightLabel">
+                    <span *ngIf="!set.weightLabel" class="input-unit label-caps">KG</span>
+                  </div>
+                  <div class="input-wrapper">
+                    <input type="number" class="training-input data-mono" [value]="set.reps">
+                    <span class="input-unit label-caps">REPS</span>
+                  </div>
+                </div>
+                <button mat-icon-button class="check-btn superset-check" [class.completed]="set.completed">
+                  <mat-icon>{{ set.completed ? 'close' : '' }}</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </ng-container>
+  </div>
+
+  <!-- Finish Workout -->
+  <div class="finish-container">
+    <button mat-flat-button class="finish-btn btn-primary">
+      <mat-icon>sports_score</mat-icon>
+      <span>{{ finishWorkout }}</span>
+    </button>
+  </div>
+</div>

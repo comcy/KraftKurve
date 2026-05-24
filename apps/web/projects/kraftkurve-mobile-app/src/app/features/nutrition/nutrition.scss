@@ -1,0 +1,163 @@
+.nutrition-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feature-title {
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.fuel-stats {
+  text-align: center;
+  margin-bottom: 24px;
+
+  .fuel-value {
+    font-size: 24px;
+    
+    .current {
+      color: var(--secondary);
+    }
+  }
+}
+
+.segmented-progress {
+  height: 12px;
+  background: var(--surface-container-high);
+  margin-bottom: 8px;
+  border: 1px solid var(--outline-variant);
+
+  .progress-fill {
+    height: 100%;
+    background: var(--secondary);
+    display: flex;
+
+    .segment {
+      flex: 1;
+      border-right: 1px solid var(--background);
+    }
+  }
+}
+
+.chart-mock {
+  height: 120px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 8px 24px;
+  border-bottom: 1px solid var(--outline-variant);
+  position: relative;
+
+  .bar-container {
+    width: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    .bar {
+      width: 100%;
+      background: var(--surface-container-highest);
+      transition: height 0.3s ease;
+      
+      &.active {
+        background: var(--tertiary);
+      }
+    }
+
+    .label-caps {
+      position: absolute;
+      bottom: 4px;
+      font-size: 6px;
+      opacity: 0.5;
+    }
+  }
+}
+
+.quick-log-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  .preset-btn {
+    height: 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid var(--outline-variant);
+
+    .data-mono {
+      font-size: 18px;
+      color: var(--primary-alt);
+    }
+
+    .label-caps {
+      font-size: 6px;
+      opacity: 0.7;
+    }
+
+    &:hover {
+      border-color: var(--primary);
+      background: var(--surface-container-highest);
+    }
+  }
+}
+
+.custom-log-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+
+  .custom-input {
+    flex: 1;
+    
+    ::ng-deep .mat-mdc-form-field-infix {
+      padding-top: 8px !important;
+      padding-bottom: 8px !important;
+      min-height: auto !important;
+    }
+
+    input {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 18px;
+    }
+  }
+
+  .log-btn {
+    width: 56px;
+    height: 56px;
+    min-width: auto;
+    border-radius: 0.25rem !important;
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.action-container {
+  margin-top: 16px;
+  padding-bottom: 32px;
+
+  .history-btn {
+    width: 100%;
+    height: 48px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    border-color: var(--outline-variant);
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}

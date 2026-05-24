@@ -21,6 +21,9 @@ const muscleGroupEnum = z.enum([
   'cardio',
 ]);
 
+const exerciseCategoryEnum = z.enum(['strength', 'cardio', 'flexibility', 'other']);
+const equipmentTypeEnum = z.enum(['barbell', 'dumbbell', 'machine', 'bodyweight', 'cable', 'other']);
+
 const createSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   templateType: templateEnum,
@@ -111,6 +114,24 @@ const updateTemplateSchema = z
       path: ['endDate'],
     },
   );
+
+const createCatalogExerciseSchema = z.object({
+  name: z.string().min(1).max(120),
+  category: exerciseCategoryEnum,
+  muscleGroup: muscleGroupEnum,
+  equipmentType: equipmentTypeEnum.optional(),
+});
+
+const updateCatalogExerciseSchema = z
+  .object({
+    name: z.string().min(1).max(120).optional(),
+    category: exerciseCategoryEnum.optional(),
+    muscleGroup: muscleGroupEnum.optional(),
+    equipmentType: equipmentTypeEnum.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: 'No fields to update',
+  });
 
 const reminderQuerySchema = z.object({
   withinDays: z.coerce.number().int().min(1).max(90).default(14),
@@ -475,6 +496,68 @@ export function createTrainingRouter(
       deloadDropPercent: parsed.data.deloadDropPercent,
     });
     res.status(200).json({ suggestions });
+  });
+
+  // Exercise Catalog
+  router.get('/catalog', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const catalog = await trainingService.listCatalog();
+    res.status(200).json({ catalog });
+  });
+
+  router.get('/catalog/:id', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const exercise = await trainingService.getCatalogExercise(readParam(req, 'id'));
+    if (!exercise) {
+      res.status(404).json({ error: 'Exercise not found' });
+      return;
+    }
+    res.status(200).json({ exercise });
+  });
+
+  router.post('/catalog', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'admin') {
+      res.status(403).json({ error: 'Only admins can manage catalog' });
+      return;
+    }
+    const parsed = createCatalogExerciseSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+
+    const exercise = await trainingService.createCatalogExercise(parsed.data);
+    res.status(201).json({ exercise });
+  });
+
+  router.put('/catalog/:id', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'admin') {
+      res.status(403).json({ error: 'Only admins can manage catalog' });
+      return;
+    }
+    const parsed = updateCatalogExerciseSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+
+    const updated = await trainingService.updateCatalogExercise(readParam(req, 'id'), parsed.data);
+    if (!updated) {
+      res.status(404).json({ error: 'Exercise not found' });
+      return;
+    }
+    res.status(200).json({ exercise: updated });
+  });
+
+  router.delete('/catalog/:id', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'admin') {
+      res.status(403).json({ error: 'Only admins can manage catalog' });
+      return;
+    }
+    const deleted = await trainingService.deleteCatalogExercise(readParam(req, 'id'));
+    if (!deleted) {
+      res.status(404).json({ error: 'Exercise not found' });
+      return;
+    }
+    res.status(204).send();
   });
 
   router.get('/exercises/history', requireAuth as any, async (req: AuthRequest, res: Response) => {

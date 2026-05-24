@@ -1,0 +1,150 @@
+<div class="overview-container">
+  <header class="overview-header">
+    <h1>{{ labelTitle }}</h1>
+    <a mat-flat-button color="primary" [routerLink]="routeNewSession">
+      <mat-icon>add</mat-icon>
+      {{ labelNewSession }}
+    </a>
+  </header>
+
+  @if (error()) {
+    <section class="log-card error-card">
+      <div class="log-header tape">
+        <span class="label-caps">Error</span>
+      </div>
+      <div class="log-content">
+        {{ error() }}
+      </div>
+    </section>
+  }
+
+  <div class="overview-grid">
+    <!-- Offline Queue Status -->
+    <section class="log-card status-card">
+      <div class="log-header tape">
+        <span class="label-caps">{{ labelOfflineQueue }}</span>
+      </div>
+      <div class="log-content">
+        <div class="queue-info">
+          <div class="data-group">
+            <span class="label-caps">Queue:</span>
+            <span class="data-mono">{{ queueSize() }}</span>
+          </div>
+          <div class="data-group">
+            <span class="label-caps">Dead letters:</span>
+            <span class="data-mono" [class.error-text]="deadLetters().length">{{ deadLetters().length }}</span>
+          </div>
+        </div>
+
+        <div class="queue-actions">
+          <button mat-stroked-button (click)="onFlushQueue()" [disabled]="queueSize() === 0">
+            <mat-icon>sync</mat-icon>
+            <span class="label-caps">{{ labelSyncNow }}</span>
+          </button>
+          <button mat-button color="warn" (click)="onClearDeadLetters()" [disabled]="!deadLetters().length">
+            <span class="label-caps">{{ labelClearDeadLetters }}</span>
+          </button>
+        </div>
+
+        @if (deadLetters().length) {
+          <mat-list class="dead-letter-list">
+            @for (entry of deadLetters(); track entry.operation.id) {
+              <mat-list-item>
+                <mat-icon matListItemIcon color="warn">error_outline</mat-icon>
+                <div matListItemTitle class="label-caps">{{ entry.operation.method }} {{ entry.operation.url }}</div>
+                <div matListItemLine class="data-mono">Status: {{ entry.status ?? 'n/a' }} | Versuche: {{ entry.operation.attempts }}</div>
+              </mat-list-item>
+            }
+          </mat-list>
+        }
+      </div>
+    </section>
+
+    <!-- Training Plan Templates -->
+    <section class="log-card templates-card">
+      <div class="log-header tape">
+        <span class="label-caps">{{ labelTemplates }}</span>
+      </div>
+      <div class="log-content">
+        <form [formGroup]="templateForm" (ngSubmit)="onCreateTemplate()" class="template-form">
+          <mat-form-field appearance="outline">
+            <mat-label class="label-caps">{{ labelName }}</mat-label>
+            <input matInput formControlName="name">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label class="label-caps">{{ labelType }}</mat-label>
+            <mat-select formControlName="templateType">
+              @for (type of workoutTypes; track type) {
+                <mat-option [value]="type"><span class="label-caps">{{ type }}</span></mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label class="label-caps">{{ labelStart }}</mat-label>
+            <input matInput type="date" formControlName="startDate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label class="label-caps">{{ labelEnd }}</mat-label>
+            <input matInput type="date" formControlName="endDate">
+          </mat-form-field>
+
+          <button mat-mini-fab color="primary" type="submit" [disabled]="templateForm.invalid" [matTooltip]="labelCreateTemplate">
+            <mat-icon>add</mat-icon>
+          </button>
+        </form>
+
+        <mat-divider></mat-divider>
+
+        @if (!templates().length) {
+          <p class="empty-msg label-caps">{{ labelEmptyTemplates }}</p>
+        } @else {
+          <mat-list>
+            @for (template of templates(); track template.id) {
+              <mat-list-item [class.inactive]="!template.active">
+                <mat-icon matListItemIcon>{{ template.active ? 'event_available' : 'event_busy' }}</mat-icon>
+                <div matListItemTitle class="label-caps">{{ template.name }} ({{ template.templateType }})</div>
+                <div matListItemLine class="data-mono">{{ template.startDate }} bis {{ template.endDate }}</div>
+                <div matListItemMeta>
+                  <button mat-icon-button (click)="onToggleTemplateActive(template)" [matTooltip]="template.active ? 'Deaktivieren' : 'Aktivieren'">
+                    <mat-icon>{{ template.active ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="onDeleteTemplate(template.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </mat-list-item>
+            }
+          </mat-list>
+        }
+      </div>
+    </section>
+
+    <!-- Recent Sessions -->
+    <section class="log-card sessions-card">
+      <div class="log-header tape">
+        <span class="label-caps">{{ labelSessions }}</span>
+      </div>
+      <div class="log-content">
+        @if (loading()) {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        } @else if (!sessions().length) {
+          <p class="empty-msg label-caps">{{ labelEmptySessions }}</p>
+        } @else {
+          <mat-list>
+            @for (session of sessions(); track session.id) {
+              <a mat-list-item [routerLink]="session.id">
+                <mat-icon matListItemIcon>fitness_center</mat-icon>
+                <div matListItemTitle class="data-mono">{{ session.date }}</div>
+                <div matListItemLine class="label-caps">{{ session.templateType }}</div>
+                <mat-icon matListItemMeta>chevron_right</mat-icon>
+              </a>
+            }
+          </mat-list>
+        }
+      </div>
+    </section>
+  </div>
+</div>

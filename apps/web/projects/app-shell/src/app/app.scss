@@ -1,71 +1,124 @@
 .app-layout {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f9f6ed 0%, #f7f7f7 55%, #ffffff 100%);
+  background-image: 
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background: #ffffffd9;
-  backdrop-filter: blur(4px);
-  border-bottom: 1px solid #e6e0cf;
-}
-
-.app-nav {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 0.8rem 1rem;
+  z-index: 100;
+  padding: 0 16px;
   display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
   align-items: center;
+  border-bottom: 2px solid var(--outline);
+  background-color: var(--surface-container-highest) !important;
+  color: var(--on-surface);
+  height: 64px;
+
+  &::before {
+    content: 'SYSTEM LOG';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface-container-highest);
+    padding: 2px 12px;
+    font-family: 'Press Start 2P';
+    font-size: 8px;
+    border: 1px solid var(--outline);
+    border-top: none;
+    color: var(--on-surface-variant);
+  }
 }
 
 .app-logo {
-  font-weight: 700;
-  margin-right: 0.7rem;
-  color: #3a2a05;
+  display: flex;
+  align-items: center;
   text-decoration: none;
+  margin-right: 32px;
+  height: 100%;
+  position: relative;
+
+  .header-logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
+
+  /* Tape effect for logo */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -8px;
+    width: 20px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 1px solid var(--outline-variant);
+    pointer-events: none;
+  }
 }
 
-.nav-link {
-  padding: 0.4rem 0.6rem;
-  border-radius: 0.5rem;
-  text-decoration: none;
-  color: #2a2a2a;
+.app-nav {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 
-  &.active {
-    background: #eee6d0;
-    font-weight: 600;
+  a {
+    font-family: 'Press Start 2P';
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 8px 16px;
+    border-radius: 0.25rem;
+    
+    &.active {
+      background-color: var(--primary) !important;
+      color: var(--on-primary) !important;
+      box-shadow: 2px 2px 0 var(--on-primary-fixed-variant);
+    }
   }
 }
 
 .spacer {
-  margin-left: auto;
+  flex: 1;
 }
 
-.login-btn, .logout-btn {
-  padding: 0.35rem 0.6rem;
-  border: 1px solid #cec4aa;
-  border-radius: 0.5rem;
-  text-decoration: none;
-  color: #2a2a2a;
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.logout-btn {
-  background: #fff;
-  cursor: pointer;
+.app-content {
+  padding: 24px;
 }
 
-.profile-btn {
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid #cec4aa;
-  border-radius: 999px;
-  text-decoration: none;
-  color: #2a2a2a;
-  display: grid;
-  place-items: center;
+@media (max-width: 900px) {
+  .app-nav {
+    display: none;
+  }
+}
+
+.user-info {
+  font-family: 'JetBrains Mono';
+  font-size: 10px;
+  padding: 8px 16px;
+  opacity: 0.7;
+}
+
+.mfe-badge {
+  font-family: 'JetBrains Mono';
+  font-size: 10px;
+  padding: 4px 12px;
+  border-radius: 0.25rem;
+  background-color: var(--surface-container-high);
+  color: var(--primary);
+  border: 1px solid var(--primary);
   font-weight: 700;
+  text-transform: uppercase;
 }

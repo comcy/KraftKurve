@@ -1,21 +1,51 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from 'data-access-auth';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatListModule } from '@angular/material/list';
+import { AuthService, IfPermissionDirective, Permission } from 'lib-auth-data-access';
 import {
   BodyHeatmapDto,
   StagnationSuggestionDto,
   TrainingPlanTemplateReminderDto,
   TrainingService,
-} from 'data-access-training';
+} from 'lib-training-data-access';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink],
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressBarModule,
+    MatDividerModule,
+    MatTooltipModule,
+    MatListModule,
+    IfPermissionDirective,
+  ],
   templateUrl: './dashboard.page.html',
   styleUrl: './dashboard.page.scss',
 })
 export class DashboardPage implements OnInit {
   private readonly trainingService = inject(TrainingService);
+  private readonly auth = inject(AuthService);
+
+  // App Launchers
+  protected readonly apps = [
+    { label: 'Training', icon: 'fitness_center', route: '/training', color: '#607d8b', permission: 'TRACK_TRAINING' as Permission },
+    { label: 'Nutrition', icon: 'restaurant', route: '/nutrition', color: '#ff9800', permission: 'TRACK_NUTRITION' as Permission },
+    { label: 'Progress', icon: 'show_chart', route: '/progress', color: '#4caf50', permission: 'VIEW_PROGRESS' as Permission },
+  ];
+
+  protected readonly isAdmin = () => this.auth.getCurrentUser()?.role === 'admin';
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);

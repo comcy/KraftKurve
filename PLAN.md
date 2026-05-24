@@ -1,14 +1,15 @@
-# Plan: Micro-frontend Integration
+# Plan: Tactical Logbook & Architecture Sync
 
-Integrated entrance via Shell (Port 4200). Role-based redirection to Admin or User features.
-
-## Steps
-1. [x] Create `RoleRedirectComponent` in Shell for root path `/`.
-2. [x] Update Shell routes to include `ADMIN_ROUTES` and `TRAINING_ROUTES` from libs.
-3. [x] Refactor Shell navigation to adapt to role.
-4. [ ] Verify deep-linking works for both roles.
-5. [ ] Cleanup: standalone `app-admin` and `app-training` remain as dev-only or are removed.
-
-## Unresolved Questions
-- Should `/dashboard` be shared or role-specific?
-- Do we keep dedicated ports 4201/4202 or focus entirely on 4200?
+1. [x] Update `index.html` files with fonts (Press Start 2P, JetBrains Mono)
+2. [x] Update `styles.scss` across all apps with M3 palette and Tactical Logbook variables
+3. [x] Refactor Training Session and Overview to use `.log-card` aesthetic
+4. [x] Refactor Nutrition Overview to use `.log-card` aesthetic
+5. [x] Refactor Progress Overview and split into separate files
+6. [x] Apply tactical logbook aesthetic to Admin pages (Dashboard, Invites)
+7. [x] Apply tactical logbook aesthetic to Auth pages (Login, Register)
+8. [x] Update App Shell header and layout with tactical elements
+9. [x] Remove journal-sidebar motif (punched holes) for cleaner UI
+10. [x] Fix Proxy configuration in `angular.json` and `proxy.conf.json`
+11. [x] Refactor Settings to dedicated normalized NDJSON storage
+12. [x] Update documentation (README, ARCHITECTURE, UI, ADRs)
+13. [x] Update `ITERATIONS_LOG.md`

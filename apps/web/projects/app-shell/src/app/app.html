@@ -1,34 +1,56 @@
 <div class="app-layout">
-  <header class="app-header">
+  <mat-toolbar color="primary" class="app-header">
+    <a class="app-logo" [routerLink]="routeDashboard">
+      <img src="header_logo_style.png" alt="KraftKurve Logo" class="header-logo-img">
+    </a>
+
     <nav class="app-nav">
-      <a class="app-logo" routerLink="/dashboard">KraftKurve</a>
-
-      @if (isUser()) {
-        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Dashboard</a>
-        <a routerLink="/training" routerLinkActive="active" class="nav-link">Training</a>
-        <a routerLink="/nutrition" routerLinkActive="active" class="nav-link">Nutrition</a>
-        <a routerLink="/progress" routerLinkActive="active" class="nav-link">Progress</a>
-      }
-
-      @if (isAdmin()) {
-        <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-link">Admin</a>
-        <a routerLink="/admin/invites" routerLinkActive="active" class="nav-link">Invites</a>
-        <a routerLink="/admin/users" routerLinkActive="active" class="nav-link">Nutzer</a>
-        <a routerLink="/admin/exercises" routerLinkActive="active" class="nav-link">Katalog</a>
-      }
-
-      <span class="spacer"></span>
-
-      @if (!isLoggedIn()) {
-        <a routerLink="/auth/login" class="login-btn">Login</a>
-      } @else {
-        <a routerLink="/profile" title="Profil" aria-label="Profil" class="profile-btn">
-          {{ isAdmin() ? 'A' : 'U' }}
-        </a>
-        <button type="button" (click)="logout()" class="logout-btn">Logout</button>
+      @if (isLoggedIn()) {
+      <a mat-button [routerLink]="routeTraining" routerLinkActive="active" *ifPermission="'TRACK_TRAINING'">{{
+        labelTraining }}</a>
+      <a mat-button [routerLink]="routeNutrition" routerLinkActive="active" *ifPermission="'TRACK_NUTRITION'">{{
+        labelNutrition }}</a>
+      <a mat-button [routerLink]="routeProgress" routerLinkActive="active" *ifPermission="'VIEW_PROGRESS'">{{
+        labelProgress }}</a>
+      <a mat-button [routerLink]="routeAdmin" routerLinkActive="active" *ifPermission="'VIEW_ADMIN_DASHBOARD'">{{
+        labelAdmin }}</a>
       }
     </nav>
-  </header>
 
-  <router-outlet />
+    <span class="spacer"></span>
+
+    <div class="header-actions">
+      <span class="mfe-badge" *ifPermission="'VIEW_ADMIN_DASHBOARD'">{{ mfeVersion }}</span>
+      <button mat-icon-button (click)="toggleTheme()"
+        [matTooltip]="themeService.isDarkMode() ? 'Light Mode' : 'Dark Mode'">
+        <mat-icon>{{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+
+      @if (!isLoggedIn()) {
+      <a mat-flat-button [routerLink]="routeAuthLogin" color="accent">{{ labelLogin }}</a>
+      } @else {
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User profile">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <div class="user-info" mat-menu-item disabled>
+          {{ currentUser()?.email }}
+        </div>
+        <a mat-menu-item [routerLink]="routeProfile">
+          <mat-icon>person</mat-icon>
+          <span>{{ labelProfile }}</span>
+        </a>
+        <hr>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>{{ labelLogout }}</span>
+        </button>
+      </mat-menu>
+      }
+    </div>
+  </mat-toolbar>
+
+  <main class="app-content">
+    <router-outlet />
+  </main>
 </div>
