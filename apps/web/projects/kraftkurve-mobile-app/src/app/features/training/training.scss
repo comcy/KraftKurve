@@ -1,7 +1,137 @@
 .training-container {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+.feature-title {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.plan-selector {
+  display: flex;
+  flex-direction: column;
   gap: 24px;
+}
+
+.plans-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.plan-btn {
+  height: 48px !important;
+  border: 1px solid var(--outline-variant) !important;
+}
+
+.suggestion-box {
+  background: rgba(253, 255, 0, 0.05);
+  border: 1px dashed var(--primary);
+  padding: 12px;
+  margin-bottom: 16px;
+
+  .suggestion-title {
+    font-size: 7px;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .suggestion-text {
+    font-size: 10px;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .suggestion-reason {
+    font-size: 6px;
+    margin-top: 4px;
+    opacity: 0.6;
+  }
+}
+
+.add-exercise-btn {
+  margin: 16px 0 32px;
+  height: 48px;
+  border-style: dashed !important;
+}
+
+.inputs-grid-enhanced {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.6fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.rir-wrapper {
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 1px dashed var(--outline-variant);
+  padding-left: 4px;
+}
+
+.rir-input {
+  color: var(--secondary) !important;
+}
+
+.check-btn {
+  &.completed {
+    color: var(--tertiary);
+  }
+  &:not(.completed) {
+    opacity: 0.5;
+  }
+}
+
+.full-width {
+  width: 100% !important;
+}
+
+.empty-msg {
+  text-align: center;
+  opacity: 0.5;
+  padding: 16px;
+}
+
+.today-sessions {
+  .sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: var(--surface-container-high);
+    border-left: 3px solid var(--primary);
+  }
+
+  .sess-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .status-pill {
+      font-size: 6px;
+      padding: 1px 4px;
+      width: fit-content;
+      border-radius: 2px;
+
+      &.active { background: var(--tertiary); color: var(--on-tertiary); }
+      &.paused { background: var(--secondary); color: var(--on-secondary); }
+      &.completed { background: var(--outline-variant); color: var(--on-background); }
+    }
+  }
+
+  .resume-btn {
+    font-size: 8px;
+    height: 32px;
+  }
 }
 
 .training-header {
@@ -9,8 +139,28 @@
   justify-content: space-between;
   align-items: flex-end;
   margin-bottom: 8px;
+  padding: 12px;
+  background: var(--surface-container-low);
+  border-radius: var(--radius-default);
+  transition: background 0.3s ease;
 
-  .workout-title {
+  &.paused-bg {
+    background: rgba(255, 171, 243, 0.1); // Tint of secondary magenta
+    border: 1px dashed var(--secondary);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pause-btn {
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+  }
+
+  .title-group {
     margin-bottom: 4px;
   }
 
@@ -30,6 +180,14 @@
       margin-left: 4px;
     }
   }
+}
+
+.blink {
+  animation: blink-animation 1s steps(5, start) infinite;
+}
+
+@keyframes blink-animation {
+  to { visibility: hidden; }
 }
 
 .progress-container {
@@ -78,13 +236,6 @@
     font-size: 14px;
     color: var(--on-surface-variant);
     text-align: center;
-  }
-
-  .inputs-grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
   }
 
   .input-wrapper {

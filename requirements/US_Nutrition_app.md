@@ -5,30 +5,24 @@ As a user, I want to track my daily protein intake so that I can reach my nutrit
 ## Description
 
 The Nutrition app focuses on protein tracking and daily intake goals. 
-The user has the possibility to choose between 3 presetted values to make the tracking process as easy as it could be. 
-A user has always the possibility to set a custom value if none of the predefined values fit.
-
-For the quick tracking process the user has a small section in the settings to define 3 values. Here he can also set his daily goal value.
-
-Protein intake is measured in gramm.
-
-On the dashboard the use can always see the current daily value of protein intake and the set goal. The widget shows also a graphical indicator from left to right which is as long as the percentage of the current daily intake. This widget is also used in the nutrition section in the app on top. Below there is the tracking widget.
-
-In the nutrition section of the app there is a small widget which shows a chart. which always represents the values of the last 7 days. 
-
-On the very end of the nutrition section is a button to show all available values of the nutrition tracking. Therefore a new swipe up page should appear, showing a list of all available values in the database.
-
-The values are always saved in the database (currently ndsjon).
+The user can log entries via quick-track presets or manual custom entries.
+A comprehensive history view provides insights into past performance via charts and grouped logs.
 
 ## Acceptance Criteria
 
-### Functional
-- [ ] Set a daily protein goal (grams).
-- [ ] Log food items/meals with protein content.
-- [ ] Visual progress bar for daily intake vs. goal.
-- [ ] Favorite food catalog for quick entry.
-- [ ] View history of daily intake.
+- [x] **Unified Log Widget**: Quick Log presets and Custom Log form are combined in a single card for efficiency.
+- [x] **Daily Progress**: Visual progress bar for daily intake vs. goal.
+- [x] **Grouped History**: Swipe-up history page (90% height) showing entries grouped by date.
+- [x] **Sticky Intelligence**: A tactical chart remains fixed at the top of the history page.
+- [x] **Goal Visualization**: History charts include a horizontal target line representing the daily protein goal. Bars are color-coded (Green) when the goal is achieved.
+- [x] **Gesture Support**: The history swipe-up page supports native-like swipe-down gestures to close (via drag handle or header), ensuring a completely immersive mobile experience.
+- [x] **Goal Analytics**: History charts feature a minimalist target line with a right-aligned numeric label and success-based color coding.
+- [x] **Focused History UI**: Removed explicit close buttons in favor of intuitive gestures and high-contrast drag handles.
+- [x] **Independent Scrolling**: Historical logs are contained in a dedicated scrollable area, preventing header drift and scroll leakage.
+- [x] **Pagination**: Infinite scroll or "Load More" for historical entry logs.
+- [x] **Mobile Optimization**: High touch targets and clear data-centric layout.
 
-### Non-Functional
-- [ ] Fast "one-click" logging for common items.
-- [ ] Mobile-first progress visualization.
+## Non-Functional
+- [x] Fast "one-click" logging for common items.
+- [x] Brutalist aesthetic (Tape headers, mono fonts).
+- [x] Persistent state via backend storage.

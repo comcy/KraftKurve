@@ -5,26 +5,39 @@ import { ITrainingExerciseRepository } from '../../infrastructure/repositories/t
 import { ITrainingSetRepository } from '../../infrastructure/repositories/training-set.repository.interface';
 import { MuscleGroup, TrainingExercise } from '../../domain/training-exercise.entity';
 import { TrainingSet } from '../../domain/training-set.entity';
-import {
-  TrainingPlanTemplate,
-  TrainingPlanTemplateReminder,
-} from '../../domain/training-plan-template.entity';
-import { ITrainingPlanTemplateRepository } from '../../infrastructure/repositories/training-plan-template.repository.interface';
+import { TrainingPlan } from '../../domain/training-plan.entity';
+import { TrainingRoutine, TrainingRoutineExercise } from '../../domain/training-routine.entity';
+import { CardioRecord } from '../../domain/cardio-record.entity';
+import { TrainingSettings, OverloadStrategy } from '../../domain/training-settings.entity';
+import { ITrainingPlanRepository } from '../../infrastructure/repositories/training-plan.repository.interface';
+import { ITrainingRoutineRepository, ITrainingRoutineExerciseRepository } from '../../infrastructure/repositories/training-routine.repository.interface';
+import { ICardioRecordRepository } from '../../infrastructure/repositories/cardio-record.repository.interface';
+import { ITrainingSettingsRepository } from '../../infrastructure/repositories/training-settings.repository.interface';
+import { IExerciseRepository } from '../../infrastructure/repositories/exercise.repository.interface';
+import { Exercise } from '../../domain/exercise.entity';
 
 export interface CreateTrainingSessionInput {
   date: string;
   templateType: WorkoutTemplate;
+  planId?: string | null;
+  routineId?: string | null;
   note?: string | null;
   startedAt?: string;
   finishedAt?: string | null;
+  totalSeconds?: number;
+  isPaused?: boolean;
 }
 
 export interface UpdateTrainingSessionInput {
   date?: string;
   templateType?: WorkoutTemplate;
+  planId?: string | null;
+  routineId?: string | null;
   note?: string | null;
   startedAt?: string;
   finishedAt?: string | null;
+  totalSeconds?: number;
+  isPaused?: boolean;
 }
 
 export interface CreateTrainingExerciseInput {
@@ -53,30 +66,65 @@ export interface UpdateTrainingSetInput {
   order?: number;
 }
 
+export interface CreateCardioRecordInput {
+  durationSeconds: number;
+  distanceMeters?: number | null;
+  caloriesBurned?: number | null;
+  heartRateAverage?: number | null;
+  note?: string | null;
+}
+
 export interface TrainingSessionProgress {
   totalSets: number;
   completedSets: number;
   completionPercent: number;
 }
 
-export interface CreateTrainingPlanTemplateInput {
+export interface CreateTrainingPlanInput {
   name: string;
-  templateType: WorkoutTemplate;
   startDate: string;
   endDate: string;
-  reminderDaysBefore?: number;
   note?: string | null;
   active?: boolean;
 }
 
-export interface UpdateTrainingPlanTemplateInput {
+export interface UpdateTrainingPlanInput {
   name?: string;
-  templateType?: WorkoutTemplate;
   startDate?: string;
   endDate?: string;
-  reminderDaysBefore?: number;
   note?: string | null;
   active?: boolean;
+}
+
+export interface ExerciseSuggestion {
+  exerciseName: string;
+  strategy: OverloadStrategy;
+  lastPerformance: {
+    sets: number;
+    weightKg: number;
+    reps: number;
+    date: string;
+  } | null;
+  suggestedTarget: {
+    sets: number;
+    weightKg: number;
+    reps: number;
+  };
+  reason: string;
+}
+
+export interface CreateExerciseInput {
+  name: string;
+  category: any;
+  muscleGroup: MuscleGroup;
+  equipmentType?: any;
+}
+
+export interface UpdateExerciseInput {
+  name?: string;
+  category?: any;
+  muscleGroup?: MuscleGroup;
+  equipmentType?: any;
 }
 
 export interface BodyHeatmapEntry {
@@ -145,7 +193,11 @@ export class TrainingService {
     private readonly sessions: ITrainingSessionRepository,
     private readonly exercises: ITrainingExerciseRepository,
     private readonly sets: ITrainingSetRepository,
-    private readonly templates: ITrainingPlanTemplateRepository,
+    private readonly plans: ITrainingPlanRepository,
+    private readonly routines: ITrainingRoutineRepository,
+    private readonly routineExercises: ITrainingRoutineExerciseRepository,
+    private readonly cardio: ICardioRecordRepository,
+    private readonly settings: ITrainingSettingsRepository,
     private readonly catalog: IExerciseRepository,
   ) {}
 
@@ -169,11 +221,15 @@ export class TrainingService {
     const session: TrainingSession = {
       ...baseEntity(),
       userId,
+      planId: input.planId ?? null,
+      routineId: input.routineId ?? null,
       date: input.date,
       templateType: input.templateType,
       note: input.note ?? null,
       startedAt: input.startedAt ?? now(),
       finishedAt: input.finishedAt ?? null,
+      totalSeconds: input.totalSeconds ?? 0,
+      isPaused: input.isPaused ?? false,
     };
     return this.sessions.save(session);
   }
@@ -190,11 +246,15 @@ export class TrainingService {
 
     const updated: TrainingSession = {
       ...session,
+      planId: input.planId !== undefined ? input.planId : session.planId,
+      routineId: input.routineId !== undefined ? input.routineId : session.routineId,
       date: input.date ?? session.date,
       templateType: input.templateType ?? session.templateType,
       note: input.note === undefined ? session.note : input.note,
       startedAt: input.startedAt ?? session.startedAt,
       finishedAt: input.finishedAt === undefined ? session.finishedAt : input.finishedAt,
+      totalSeconds: input.totalSeconds !== undefined ? input.totalSeconds : session.totalSeconds,
+      isPaused: input.isPaused !== undefined ? input.isPaused : session.isPaused,
       updatedAt: now(),
       version: session.version + 1,
     };
@@ -331,6 +391,7 @@ export class TrainingService {
       order: existing.length + 1,
       reps: input.reps,
       weightKg: input.weightKg,
+      rir: (input as any).rir ?? null,
       done: input.done ?? false,
     };
 
@@ -358,6 +419,7 @@ export class TrainingService {
       ...set,
       reps: input.reps ?? set.reps,
       weightKg: input.weightKg ?? set.weightKg,
+      rir: (input as any).rir !== undefined ? (input as any).rir : set.rir,
       done: input.done ?? set.done,
       order: input.order ?? set.order,
       updatedAt: now(),
@@ -387,6 +449,189 @@ export class TrainingService {
     return true;
   }
 
+  // ── Cardio Records ───────────────────────────────────────────────────────
+
+  async getCardioRecord(trainingExerciseId: string): Promise<CardioRecord | null> {
+    return this.cardio.findByTrainingExerciseId(trainingExerciseId);
+  }
+
+  async createCardioRecord(
+    trainingExerciseId: string,
+    input: CreateCardioRecordInput,
+  ): Promise<CardioRecord> {
+    const record: CardioRecord = {
+      ...baseEntity(),
+      trainingExerciseId,
+      durationSeconds: input.durationSeconds,
+      distanceMeters: input.distanceMeters ?? null,
+      caloriesBurned: input.caloriesBurned ?? null,
+      heartRateAverage: input.heartRateAverage ?? null,
+      note: input.note ?? null,
+    };
+    return this.cardio.save(record);
+  }
+
+  // ── Training Plans & Routines ─────────────────────────────────────────────
+
+  async listUserPlans(userId: string): Promise<TrainingPlan[]> {
+    const list = await this.plans.findByUserId(userId);
+    return list.sort((a, b) => b.endDate.localeCompare(a.endDate));
+  }
+
+  async createPlan(userId: string, input: CreateTrainingPlanInput): Promise<TrainingPlan> {
+    const plan: TrainingPlan = {
+      ...baseEntity(),
+      userId,
+      name: input.name,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      note: input.note ?? null,
+      active: input.active ?? true,
+    };
+    return this.plans.save(plan);
+  }
+
+  async updatePlan(
+    userId: string,
+    planId: string,
+    input: UpdateTrainingPlanInput,
+  ): Promise<TrainingPlan | null> {
+    const plan = await this.plans.findById(planId);
+    if (!plan || plan.userId !== userId) {
+      return null;
+    }
+
+    const updated: TrainingPlan = {
+      ...plan,
+      name: input.name ?? plan.name,
+      startDate: input.startDate ?? plan.startDate,
+      endDate: input.endDate ?? plan.endDate,
+      note: input.note === undefined ? plan.note : input.note,
+      active: input.active ?? plan.active,
+      updatedAt: now(),
+      version: plan.version + 1,
+    };
+
+    return this.plans.save(updated);
+  }
+
+  async deletePlan(userId: string, planId: string): Promise<boolean> {
+    const plan = await this.plans.findById(planId);
+    if (!plan || plan.userId !== userId) {
+      return false;
+    }
+    await this.plans.deleteById(planId);
+    return true;
+  }
+
+  async listPlanRoutines(planId: string): Promise<TrainingRoutine[]> {
+    return this.routines.findByPlanId(planId);
+  }
+
+  async createRoutine(planId: string, name: string, order: number): Promise<TrainingRoutine> {
+    const routine: TrainingRoutine = {
+      ...baseEntity(),
+      planId,
+      name,
+      order,
+    };
+    return this.routines.save(routine);
+  }
+
+  async getRoutineExercises(routineId: string): Promise<TrainingRoutineExercise[]> {
+    return this.routineExercises.findByRoutineId(routineId);
+  }
+
+  // ── Virtual Trainer (Suggestions) ────────────────────────────────────────
+
+  async getTrainingSettings(userId: string): Promise<TrainingSettings> {
+    const existing = await this.settings.findByUserId(userId);
+    if (existing) return existing;
+
+    const defaults: TrainingSettings = {
+      ...baseEntity(),
+      userId,
+      overloadStrategy: 'weight-focused',
+    };
+    return this.settings.save(defaults);
+  }
+
+  async updateTrainingSettings(userId: string, strategy: OverloadStrategy): Promise<TrainingSettings> {
+    const existing = await this.getTrainingSettings(userId);
+    const updated: TrainingSettings = {
+      ...existing,
+      overloadStrategy: strategy,
+      updatedAt: now(),
+      version: existing.version + 1,
+    };
+    return this.settings.save(updated);
+  }
+
+  async getExerciseSuggestion(userId: string, exerciseName: string): Promise<ExerciseSuggestion | null> {
+    const settings = await this.getTrainingSettings(userId);
+    const lastPerf = await this.getLastExerciseSets(userId, exerciseName);
+
+    if (!lastPerf || lastPerf.sets.length === 0) {
+      return {
+        exerciseName,
+        strategy: settings.overloadStrategy,
+        lastPerformance: null,
+        suggestedTarget: { sets: 3, weightKg: 0, reps: 10 },
+        reason: 'Keine historischen Daten gefunden. Starte mit Standardwerten.',
+      };
+    }
+
+    const lastSets = lastPerf.sets;
+    const avgWeight = lastSets.reduce((s, e) => s + e.weightKg, 0) / lastSets.length;
+    const avgReps = lastSets.reduce((s, e) => s + e.reps, 0) / lastSets.length;
+    const avgRir = lastSets.reduce((s, e) => s + (e.rir ?? 0), 0) / lastSets.length;
+    
+    let suggestedWeight = avgWeight;
+    let suggestedReps = Math.round(avgReps);
+    let reason = '';
+
+    // Logic: Adjust progression speed based on RIR
+    const effortMultiplier = avgRir > 2 ? 2 : (avgRir >= 1 ? 1 : 0.5);
+
+    if (settings.overloadStrategy === 'weight-focused') {
+      const step = 1.25 * effortMultiplier;
+      suggestedWeight = this.roundToStep(avgWeight + step, 0.5);
+      reason = avgRir > 2 
+        ? `Niedrige Intensität erkannt (RIR ${avgRir.toFixed(1)}). Aggressivere Gewichtssteigerung.` 
+        : 'Progressive Overload: Fokus auf Gewichtserhöhung.';
+    } else {
+      // Rep-focused
+      if (avgReps >= 12 && avgRir >= 1) {
+        suggestedWeight = this.roundToStep(avgWeight + (2.5 * effortMultiplier), 0.5);
+        suggestedReps = 8;
+        reason = 'Rep-Limit erreicht und Puffer vorhanden. Gewicht erhöht.';
+      } else {
+        const repStep = avgRir > 2 ? 2 : 1;
+        suggestedReps = Math.round(avgReps + repStep);
+        reason = avgRir > 2 
+          ? `Niedrige Intensität (RIR ${avgRir.toFixed(1)}). Mehr Wiederholungen vorgeschlagen.`
+          : 'Volume-Fokus: Eine Wiederholung mehr als beim letzten Mal.';
+      }
+    }
+
+    return {
+      exerciseName,
+      strategy: settings.overloadStrategy,
+      lastPerformance: {
+        sets: lastSets.length,
+        weightKg: Number(avgWeight.toFixed(2)),
+        reps: Math.round(avgReps),
+        date: lastPerf.sessionDate,
+      },
+      suggestedTarget: {
+        sets: lastSets.length,
+        weightKg: suggestedWeight,
+        reps: suggestedReps,
+      },
+      reason,
+    };
+  }
+
   async getSessionProgress(
     userId: string,
     sessionId: string,
@@ -408,88 +653,6 @@ export class TrainingService {
       completedSets,
       completionPercent,
     };
-  }
-
-  async listTemplates(userId: string): Promise<TrainingPlanTemplate[]> {
-    const templates = await this.templates.findByUser(userId);
-    return templates.sort((a, b) => a.endDate.localeCompare(b.endDate));
-  }
-
-  async createTemplate(
-    userId: string,
-    input: CreateTrainingPlanTemplateInput,
-  ): Promise<TrainingPlanTemplate> {
-    const template: TrainingPlanTemplate = {
-      ...baseEntity(),
-      userId,
-      name: input.name,
-      templateType: input.templateType,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      reminderDaysBefore: input.reminderDaysBefore ?? 7,
-      note: input.note ?? null,
-      active: input.active ?? true,
-    };
-    return this.templates.save(template);
-  }
-
-  async updateTemplate(
-    userId: string,
-    templateId: string,
-    input: UpdateTrainingPlanTemplateInput,
-  ): Promise<TrainingPlanTemplate | null> {
-    const template = await this.templates.findById(templateId);
-    if (!template || template.userId !== userId) {
-      return null;
-    }
-
-    const updated: TrainingPlanTemplate = {
-      ...template,
-      name: input.name ?? template.name,
-      templateType: input.templateType ?? template.templateType,
-      startDate: input.startDate ?? template.startDate,
-      endDate: input.endDate ?? template.endDate,
-      reminderDaysBefore: input.reminderDaysBefore ?? template.reminderDaysBefore,
-      note: input.note === undefined ? template.note : input.note,
-      active: input.active ?? template.active,
-      updatedAt: now(),
-      version: template.version + 1,
-    };
-
-    return this.templates.save(updated);
-  }
-
-  async deleteTemplate(userId: string, templateId: string): Promise<boolean> {
-    const template = await this.templates.findById(templateId);
-    if (!template || template.userId !== userId) {
-      return false;
-    }
-    await this.templates.deleteById(templateId);
-    return true;
-  }
-
-  async getTemplateReminders(userId: string, withinDays: number): Promise<TrainingPlanTemplateReminder[]> {
-    const templates = await this.templates.findByUser(userId);
-    const today = this.startOfUtcDay(new Date());
-
-    return templates
-      .filter((template) => template.active)
-      .map((template) => {
-        const endDate = this.parseDate(template.endDate);
-        const daysRemaining = this.dayDiff(today, endDate);
-        const threshold = Math.max(0, Math.min(withinDays, template.reminderDaysBefore));
-        const status: 'expired' | 'expiring' = daysRemaining < 0 ? 'expired' : 'expiring';
-        return { template, daysRemaining, threshold, status };
-      })
-      .filter((entry) => entry.daysRemaining < 0 || entry.daysRemaining <= entry.threshold)
-      .sort((a, b) => a.daysRemaining - b.daysRemaining)
-      .map((entry) => ({
-        templateId: entry.template.id,
-        templateName: entry.template.name,
-        endDate: entry.template.endDate,
-        daysRemaining: entry.daysRemaining,
-        status: entry.status,
-      }));
   }
 
   async getBodyHeatmap(userId: string, days: number): Promise<BodyHeatmapInsight> {

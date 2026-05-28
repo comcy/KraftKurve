@@ -78,6 +78,44 @@
   transition: width 0.3s ease;
 }
 
+.quick-track-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.quick-track-btn {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.quick-track-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px dashed var(--outline-variant);
+}
+
+.section-subtitle {
+  display: block;
+  font-size: 0.65rem;
+  margin-bottom: 0.75rem;
+  color: var(--on-surface-variant);
+  opacity: 0.8;
+}
+
+.manual-entry-header {
+  margin-bottom: 1rem;
+}
+
+.history-trigger {
+  margin: 1.5rem 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
 .entry-form {
   display: flex;
   flex-direction: column;

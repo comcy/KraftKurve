@@ -75,6 +75,20 @@ export interface UpdateFoodItemRequest {
   defaultPortionG?: number;
 }
 
+export interface NutritionHistoryResponse {
+  entries: NutritionEntryDto[];
+  total: number;
+}
+
+export interface ChartDataItem {
+  date: string;
+  value: number;
+}
+
+export interface NutritionChartResponse {
+  data: ChartDataItem[];
+}
+
 type OfflineWriteOperation = {
   id: string;
   method: 'POST' | 'PUT' | 'DELETE';
@@ -154,9 +168,25 @@ export class NutritionService {
     );
   }
 
-  async getProteinGoal(): Promise<{ proteinGoalG: number | null }> {
+  async getHistory(page: number, limit: number): Promise<NutritionHistoryResponse> {
     try {
-      return await firstValueFrom(this.http.get<{ proteinGoalG: number | null }>(`${this.apiBase}/goal`));
+      return await firstValueFrom(
+        this.http.get<NutritionHistoryResponse>(`${this.apiBase}/history`, {
+          params: { page: page.toString(), limit: limit.toString() },
+        }),
+      );
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async getChartData(period: 'week' | 'month' | 'year'): Promise<NutritionChartResponse> {
+    try {
+      return await firstValueFrom(
+        this.http.get<NutritionChartResponse>(`${this.apiBase}/history/chart`, {
+          params: { period },
+        }),
+      );
     } catch (error) {
       throw this.toError(error);
     }

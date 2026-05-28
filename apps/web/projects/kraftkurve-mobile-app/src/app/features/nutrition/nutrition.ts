@@ -29,7 +29,7 @@ export class NutritionComponent implements OnInit {
   private readonly nutritionState = inject(NutritionStateService);
   private readonly bottomSheet = inject(MatBottomSheet);
 
-  protected readonly fuelProtocol = 'FUEL PROTOCOL';
+  protected readonly fuelProtocol = 'NUTRITION PROTOCOL';
   protected readonly dailyIntake = 'DAILY INTAKE';
   protected readonly quickLogLabel = 'QUICK LOG';
   protected readonly customLogLabel = 'CUSTOM LOG';

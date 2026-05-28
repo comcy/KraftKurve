@@ -15,3 +15,14 @@
   - Moving user preferences to dedicated NDJSON files linked by `userId`.
 - **2026-05-24: Tactical Logbook Design System**. [ADR-004](ADR-004.md)
   - Transition to a high-contrast, data-centric "Cyber-Athletic" brutalist aesthetic.
+- **2026-05-25: Paginated Nutrition History & Chart Aggregation**.
+  - Backend support for time-series protein data (Week/Month/Year) and paginated entry logs.
+- **2026-05-25: Layered UI Architecture (Stationary Background)**. [ADR-005](ADR-006.md)
+  - Using `html::before` pseudo-elements for a fixed background grid independent of the scrolling viewport content.
+- **2026-05-25: Comprehensive Identity & Access Management (IAM)**. [ADR-006](ADR-006.md)
+  - Unified persistent auth across all apps using `localStorage`.
+  - Strict separation: Management features exclusively in Web Admin UI, Mobile remains a lean tracking tool.
+  - Invitation-only registration flow.
+- **2026-05-28: Dashboard Intelligence & Workout Archive**.
+  - Implementation of "Mission Control" dashboard providing quick access to the most recent session's tactical data.
+  - Development of the "Workout Intel" component: a gesture-driven detailed view of historical training data.

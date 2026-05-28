@@ -183,9 +183,40 @@ Frontend:
 - Alle Repository-Interfaces in `apps/api/src/infrastructure/repositories/`.
 - Adapter-Swap: neue DB-Klasse implementiert das Interface → container.ts tauschen.
 
+## Nutrition Flow
+
+1. **Dashboard**: Tagesübersicht mit Protein-Fortschrittsbalken und Quick-Log Presets.
+2. **Quick-Track**: 3 konfigurierbare Presets (z.B. +20g, +40g, +60g) für sofortiges Logging.
+3. **History Swipe-Up**: Detaillierte Historie in einem Bottom-Sheet (90% Screen-Höhe).
+  - **Sticky Chart**: Brutalistischer Bar-Chart (Woche, Monat, Jahr) oben fixiert mit Goal-Target-Line.
+  - **Daily Grouping**: Einträge werden pro Tag gruppiert mit Gesamtsummen.
+4. **Settings**: Konfiguration von Tagesziel und Quick-Log Presets auf der Profil-Seite.
+
+## Training & Intel Flow
+
+1. **Mission Control**: Dashboard zeigt den Status des letzten Workouts mit Schnellzugriff auf Details.
+2. **Workout Terminal**: Echtzeit-Tracking mit automatischer Stoppuhr und dynamischer Übungswahl.
+  - **Smart Defaults**: Neue Übungen starten automatisch mit 3 Sätzen (basiert auf Last-Time Intel).
+  - **Editable Tracking**: Gewichte und Reps werden direkt im Terminal editiert und per Blur-Event gespeichert.
+3. **Progression IQ**: Der virtuelle Trainer schlägt Ziele vor (Gewicht vs. Volumen), basierend auf der gewählten Strategie in den Settings.
+4. **Workout Archive**: Deep-Dive Intel zu vergangenen Sessions via Swipe-Up Bottom Sheet.
+
+## Auth & Admin Flow
+
+Das System nutzt einen geschlossenen Registrierungsprozess:
+
+1. **Bootstrap**: System-Initialisierung erstellt den ersten Admin (`POST /api/auth/bootstrap`).
+2. **Invites**: Admins generieren Einladungscodes exklusiv in der **Web Admin App**.
+3. **Registrierung**: Neue Nutzer registrieren sich mit einem Code in der **Mobile App** oder der **Web Shell**.
+4. **Persistence**: Sessions bleiben via `localStorage` dauerhaft aktiv (survives F5).
+5. **Logout**: "Terminate Session" löscht alle Tokens und leitet zum Login zurück.
+
 ## Design: Tactical Logbook
 
 Das System nutzt eine "Cyber-Athletic" Ästhetik:
 - **Fonts**: `Press Start 2P` (Headlines) & `JetBrains Mono` (Daten).
 - **Brutalismus**: Harte Kontraste, 1px Border, "Tape"-Header Effekte.
 - **Farben**: Schwarz (#131313) mit Akzenten in Gelb (Primary), Magenta (Secondary) und Grün (Tertiary).
+- **Stationary Grid**: Ein fixiertes Hintergrundraster (`html::before`) sorgt für eine stabile Archiv-Optik beim Scrollen.
+- **Opaque UI**: Header und Navigation sind 100% deckend (Solid Surfaces), um Überlappungen sauber zu trennen.
+- **Refined Inputs**: Numerische Eingaben nutzen `inputmode` statt nativer Spinner-Buttons für ein cleanes Interface.

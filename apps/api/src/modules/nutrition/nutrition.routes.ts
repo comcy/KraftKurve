@@ -189,6 +189,24 @@ export function createNutritionRouter(
     });
   });
 
+  // ── History & Chart ─────────────────────────────────────────────────────
+  router.get('/history', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const page = parseInt(req.query['page'] as string) || 1;
+    const limit = parseInt(req.query['limit'] as string) || 20;
+    const result = await nutritionService.getHistory(req.user!.sub, page, limit);
+    res.status(200).json(result);
+  });
+
+  router.get('/history/chart', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const period = (req.query['period'] as 'week' | 'month' | 'year') || 'week';
+    if (!['week', 'month', 'year'].includes(period)) {
+      res.status(400).json({ error: 'Invalid period. Expected week, month or year' });
+      return;
+    }
+    const data = await nutritionService.getChartData(req.user!.sub, period);
+    res.status(200).json({ data });
+  });
+
   // ── Food-item favorites ───────────────────────────────────────────────────
   router.get('/food-items', requireAuth as any, async (req: AuthRequest, res: Response) => {
     const items = await nutritionService.listFoodItems(req.user!.sub);

@@ -198,4 +198,72 @@ export class NutritionService {
     await this.foodItems.deleteById(itemId);
     return true;
   }
+
+  async getHistory(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{ entries: NutritionEntry[]; total: number }> {
+    return this.entries.findByUserPaginated(userId, page, limit);
+  }
+
+  async getChartData(
+    userId: string,
+    period: 'week' | 'month' | 'year',
+  ): Promise<{ date: string; value: number }[]> {
+    const now = new Date();
+    let startDate: string;
+
+    if (period === 'week') {
+      const d = new Date(now);
+      d.setDate(d.getDate() - 6);
+      startDate = d.toISOString().split('T')[0];
+    } else if (period === 'month') {
+      const d = new Date(now);
+      d.setDate(d.getDate() - 29);
+      startDate = d.toISOString().split('T')[0];
+    } else {
+      const d = new Date(now);
+      d.setFullYear(d.getFullYear() - 1);
+      startDate = d.toISOString().split('T')[0];
+    }
+
+    const endDate = now.toISOString().split('T')[0];
+    const entries = await this.entries.findByUserInRange(userId, startDate, endDate);
+
+    const map = new Map<string, number>();
+
+    if (period === 'year') {
+      // Aggregate by month
+      entries.forEach((e) => {
+        const month = e.date.substring(0, 7); // YYYY-MM
+        map.set(month, (map.get(month) || 0) + e.proteinG);
+      });
+      // Fill missing months
+      const result: { date: string; value: number }[] = [];
+      const curr = new Date(startDate.substring(0, 7) + '-01');
+      const end = new Date(endDate.substring(0, 7) + '-01');
+      while (curr <= end) {
+        const key = curr.toISOString().substring(0, 7);
+        result.push({ date: key, value: map.get(key) || 0 });
+        curr.setMonth(curr.getMonth() + 1);
+      }
+      return result;
+    } else {
+      // Aggregate by day
+      entries.forEach((e) => {
+        map.set(e.date, (map.get(e.date) || 0) + e.proteinG);
+      });
+      // Fill missing days
+      const result: { date: string; value: number }[] = [];
+      const curr = new Date(startDate);
+      const end = new Date(endDate);
+      while (curr <= end) {
+        const key = curr.toISOString().split('T')[0];
+        result.push({ date: key, value: map.get(key) || 0 });
+        curr.setDate(curr.getDate() + 1);
+      }
+      return result;
+    }
+  }
 }

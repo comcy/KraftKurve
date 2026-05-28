@@ -142,12 +142,6 @@ importers:
         specifier: ^4.0.8
         version: 4.1.7(@types/node@25.9.1)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@7.3.2(@types/node@25.9.1)(jiti@2.7.0)(less@4.4.2)(sass@1.97.3)(terser@5.46.0)(tsx@4.22.3))
 
-  apps/web/.angular/cache/angular-cli-tmp-packages-rEfcMS:
-    dependencies:
-      '@angular/pwa':
-        specifier: ^21.2.12
-        version: 21.2.12(@angular/cli@21.2.12(@types/node@25.9.1)(chokidar@5.0.0))(chokidar@5.0.0)
-
 packages:
 
   '@acemir/cssom@0.9.31':
@@ -419,15 +413,6 @@ packages:
       '@angular/core': 21.2.14
     peerDependenciesMeta:
       '@angular/animations':
-        optional: true
-
-  '@angular/pwa@21.2.12':
-    resolution: {integrity: sha512-IHPHt2kucM7vQdIIppqrQIS0mDknKKXoez1I95w4Zq5Ppx2mE4QPBwBV8FdGURb9/p02skEF6T2UP1dJS4xOpQ==}
-    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
-    peerDependencies:
-      '@angular/cli': ^21.2.12
-    peerDependenciesMeta:
-      '@angular/cli':
         optional: true
 
   '@angular/router@21.2.14':
@@ -6120,16 +6105,6 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@angular/animations': 21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))
-
-  '@angular/pwa@21.2.12(@angular/cli@21.2.12(@types/node@25.9.1)(chokidar@5.0.0))(chokidar@5.0.0)':
-    dependencies:
-      '@angular-devkit/schematics': 21.2.12(chokidar@5.0.0)
-      '@schematics/angular': 21.2.12(chokidar@5.0.0)
-      parse5-html-rewriting-stream: 8.0.0
-    optionalDependencies:
-      '@angular/cli': 21.2.12(@types/node@25.9.1)(chokidar@5.0.0)
-    transitivePeerDependencies:
-      - chokidar
 
   '@angular/router@21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(rxjs@7.8.2)':
     dependencies:

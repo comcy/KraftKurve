@@ -1,36 +1,40 @@
-<header class="app-header">
-  <button mat-icon-button routerLink="/settings" aria-label="Settings">
-    <mat-icon>settings</mat-icon>
-  </button>
-  
-  <div class="header-center">
-    <img src="header.png" alt="KRAFTKURVE" class="header-logo">
-  </div>
+@if (showNav()) {
+  <header class="app-header">
+    <button mat-icon-button routerLink="/settings" aria-label="Settings">
+      <mat-icon>settings</mat-icon>
+    </button>
+    
+    <div class="header-center">
+      <img src="header.png" alt="KRAFTKURVE" class="header-logo">
+    </div>
 
-  <button mat-icon-button aria-label="Notifications">
-    <mat-icon>notifications</mat-icon>
-  </button>
-</header>
+    <button mat-icon-button aria-label="Notifications">
+      <mat-icon>notifications</mat-icon>
+    </button>
+  </header>
+}
 
-<main class="app-content">
+<main class="app-content" [class.no-nav]="!showNav()">
   <router-outlet></router-outlet>
 </main>
 
-<nav class="app-nav">
-  <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-    <mat-icon>dashboard</mat-icon>
-    <span class="nav-label">{{ navDashboard }}</span>
-  </a>
-  <a mat-button routerLink="/training" routerLinkActive="active" class="nav-item">
-    <mat-icon>fitness_center</mat-icon>
-    <span class="nav-label">{{ navTraining }}</span>
-  </a>
-  <a mat-button routerLink="/nutrition" routerLinkActive="active" class="nav-item">
-    <mat-icon>restaurant</mat-icon>
-    <span class="nav-label">{{ navNutrition }}</span>
-  </a>
-  <a mat-button routerLink="/progress" routerLinkActive="active" class="nav-item">
-    <mat-icon>monitoring</mat-icon>
-    <span class="nav-label">{{ navProgress }}</span>
-  </a>
-</nav>
+@if (showNav()) {
+  <nav class="app-nav">
+    <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+      <mat-icon>dashboard</mat-icon>
+      <span class="nav-label">{{ navDashboard }}</span>
+    </a>
+    <a mat-button routerLink="/training" routerLinkActive="active" class="nav-item">
+      <mat-icon>fitness_center</mat-icon>
+      <span class="nav-label">{{ navTraining }}</span>
+    </a>
+    <a mat-button routerLink="/nutrition" routerLinkActive="active" class="nav-item">
+      <mat-icon>restaurant</mat-icon>
+      <span class="nav-label">{{ navNutrition }}</span>
+    </a>
+    <a mat-button routerLink="/progress" routerLinkActive="active" class="nav-item">
+      <mat-icon>monitoring</mat-icon>
+      <span class="nav-label">{{ navProgress }}</span>
+    </a>
+  </nav>
+}

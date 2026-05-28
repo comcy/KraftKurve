@@ -80,3 +80,12 @@
   font-family: var(--font-headline);
   font-size: 10px;
 }
+
+.logout-btn {
+  color: var(--error) !important;
+  border-color: var(--error) !important;
+}
+
+.full-width {
+  width: 100%;
+}

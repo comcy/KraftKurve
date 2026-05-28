@@ -1,91 +1,69 @@
 .profile-page {
-  max-width: 860px;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 1.2rem 1rem 2rem;
-}
-
-.profile-card {
-  background: #fffefb;
-  border: 1px solid #dfd8c4;
-  border-radius: 12px;
   padding: 1rem;
 }
 
-.profile-card h1 {
-  margin: 0 0 0.25rem;
-}
-
-.sub {
-  margin: 0 0 1rem;
-  color: #6b7280;
+.profile-card {
+  /* log-card style */
 }
 
 .user-meta {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.8rem;
-  margin: 0 0 1rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .user-meta dt {
-  color: #6b7280;
-  font-size: 0.82rem;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
 }
 
 .user-meta dd {
-  margin: 0.15rem 0 0;
-  font-weight: 600;
+  margin: 0;
+  font-size: 1.1rem;
 }
 
-.goal-form {
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.presets-grid {
   display: grid;
-  gap: 0.5rem;
-}
-
-.goal-form label {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.goal-form input {
-  width: 200px;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
 }
 
 .actions {
   display: flex;
-  gap: 0.6rem;
-  margin-top: 0.4rem;
-}
-
-button {
-  border: 1px solid #bca77a;
-  background: #2b1c00;
-  color: #fff;
-  border-radius: 8px;
-  padding: 0.45rem 0.8rem;
-  cursor: pointer;
-}
-
-button.secondary {
-  background: #fff;
-  color: #2b2b2b;
-  border: 1px solid #d1d5db;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .error {
-  color: #b42318;
-  margin: 0.3rem 0 0;
+  color: var(--kk-error, #ff4444);
+  margin-top: 1rem;
 }
 
 .success {
-  color: #0b7a3f;
-  margin: 0.3rem 0 0;
+  color: var(--kk-tertiary, #00ff00);
+  margin-top: 1rem;
+}
+
+/* Re-using tactical styles if not global */
+.input-text, .input-number {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: var(--kk-primary);
+  padding: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-text:focus, .input-number:focus {
+  outline: none;
+  border-color: var(--kk-primary);
 }

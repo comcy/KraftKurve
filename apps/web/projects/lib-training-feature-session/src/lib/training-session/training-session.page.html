@@ -148,11 +148,11 @@
                     <form [formGroup]="setForm" class="set-form">
                       <mat-form-field appearance="outline" class="small-field">
                         <mat-label class="label-caps">{{ labelReps }}</mat-label>
-                        <input matInput type="number" formControlName="reps" class="data-mono">
+                        <input matInput type="text" inputmode="numeric" formControlName="reps" class="data-mono">
                       </mat-form-field>
                       <mat-form-field appearance="outline" class="small-field">
                         <mat-label class="label-caps">{{ labelWeight }}</mat-label>
-                        <input matInput type="number" formControlName="weightKg" class="data-mono">
+                        <input matInput type="text" inputmode="decimal" formControlName="weightKg" class="data-mono">
                       </mat-form-field>
                       <button mat-mini-fab color="primary" type="button" (click)="onAddSet(exercise.id)">
                         <mat-icon>add</mat-icon>

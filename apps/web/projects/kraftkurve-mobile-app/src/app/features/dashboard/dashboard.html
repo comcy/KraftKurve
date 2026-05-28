@@ -1,31 +1,7 @@
 <div class="dashboard-container">
-  <!-- Engage Protocol -->
-  <section class="log-card">
-    <div class="punched-holes">
-      <div class="hole"></div>
-      <div class="hole"></div>
-      <div class="hole"></div>
-    </div>
-    <div class="log-header tape">
-      <span class="label-caps">{{ engageProtocol }}</span>
-    </div>
-    <div class="log-content">
-      <div class="widget-grid">
-        <button mat-flat-button class="protocol-btn scheduled btn-primary">
-          <mat-icon>calendar_today</mat-icon>
-          <span>{{ scheduled }}</span>
-        </button>
-        <button mat-stroked-button class="protocol-btn freestyle">
-          <mat-icon>bolt</mat-icon>
-          <span>{{ freestyle }}</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
   <!-- Fuel Status -->
   <section class="log-card">
-    <div class="log-header">
+    <div class="log-header tape">
       <div class="widget-title label-caps">
         <mat-icon>restaurant</mat-icon>
         {{ fuelStatus }}
@@ -59,35 +35,33 @@
     </div>
   </section>
 
-  <!-- Strength Index -->
-  <section class="log-card">
+  <!-- Last Workout Widget -->
+  <section class="log-card clickable" *ngIf="lastSession()" (click)="openWorkoutDetail(lastSession()!)">
     <div class="log-header">
-      <h2 class="widget-title label-caps">
-        <mat-icon>monitoring</mat-icon>
-        {{ strengthIndex }}
-      </h2>
+      <div class="widget-title label-caps">
+        <mat-icon>fitness_center</mat-icon>
+        {{ lastWorkoutLabel }}
+      </div>
+      <span class="badge label-caps">{{ lastSession()!.templateType }}</span>
     </div>
     <div class="log-content">
-      <div class="chart-mock">
-        <div class="bar-container">
-          <div class="bar" style="height: 40%"></div><span class="label-caps">W1</span>
+      <div class="workout-summary">
+        <div class="summary-item">
+          <span class="label-caps">DATE</span>
+          <span class="data-mono">{{ formatDate(lastSession()!.date) }}</span>
         </div>
-        <div class="bar-container">
-          <div class="bar" style="height: 55%"></div><span class="label-caps">W2</span>
-        </div>
-        <div class="bar-container">
-          <div class="bar active" style="height: 70%"></div><span class="label-caps active">W3</span>
-        </div>
-        <div class="bar-container">
-          <div class="bar active highlighted" style="height: 85%"></div><span class="label-caps active">W4</span>
+        <div class="summary-item">
+          <span class="label-caps">EXERCISES</span>
+          <span class="data-mono">{{ lastSessionExercises().length }}</span>
         </div>
       </div>
+      <p class="label-caps detail-hint">TAP TO VIEW INTEL</p>
     </div>
   </section>
 
   <!-- Start Workout Action -->
   <div class="action-container">
-    <button mat-flat-button class="start-btn btn-primary">
+    <button mat-flat-button class="start-btn btn-primary" routerLink="/training">
       <mat-icon>play_arrow</mat-icon>
       <span class="label-caps">{{ startWorkout }}</span>
     </button>

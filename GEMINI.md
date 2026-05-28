@@ -9,6 +9,7 @@ Dieses Dokument dient als zentrale Wissensbasis für KI-Agenten in diesem Projek
 ## General
 - In all interactions be extremly concise and sacrifice grammar for the sake of concision
 - Git commits are not executed by the the ai / agent
+- A application or service is never starten by the ai / agent, only builds can be requested to verify if code changes are working
 
 ## Plans
 - At the end of each plan, give me a list of unresolved questions to answerm if any. Make the questions extremly concise for the sake of concision

@@ -31,7 +31,7 @@ export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction
 
 export function requireUser(req: AuthRequest, res: Response, next: NextFunction): void {
   requireAuth(req, res, () => {
-    if (req.user?.role !== 'user') {
+    if (req.user?.role !== 'user' && req.user?.role !== 'admin') {
       res.status(403).json({ error: 'Forbidden' });
       return;
     }

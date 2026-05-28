@@ -5,5 +5,47 @@
 - **UI Refinement**: Removed notebook sidebar motif and punched holes for a cleaner, centered layout across all features.
 - **Proxy Standardisation**: Standardized `proxy.conf.json` and updated `angular.json` for all apps to ensure reliable backend connectivity (fixing 404 saving errors).
 - **Data Normalization**: Refactored user settings into a dedicated `nutrition-settings.ndjson` file, using `userId` as a foreign key. Updated backend service, repository, and container logic.
-- **Documentation**: Synchronized all technical docs, including README, Architecture mapping, UI concept, and created new ADRs (003 & 004).
-- **Bug Fixes**: Resolved naming mismatches in backend repositories that caused boot failures.
+- **Missing Nutrition Features**: 
+  - Implemented **Quick-Track buttons** in Nutrition Overview based on user presets.
+  - Implemented **History Swipe-Up (BottomSheet)** with a sticky tactical chart (Week/Month/Year) and paginated descending chronological history.
+  - Added backend endpoints for paginated history and aggregated chart data.
+  - Updated **Profile Page** with preset configuration inputs and tactical logbook design.
+- **Mobile Authentication & Security**:
+  - Integrated `AuthInterceptor` and `AuthService` into `kraftkurve-mobile-app` to resolve 401/403 API errors.
+  - Implemented persistent sessions using `localStorage` (survives page reloads).
+  - Protected all mobile features behind `authGuard`.
+  - Added **Login** and **Register** pages to the mobile app bundle.
+  - Implemented **Logout** functionality in the Settings page.
+  - Enforced **Strict Admin Separation**: Admin features (Invites, User management) are exclusively available in the Web Admin App, keeping the mobile experience focused and lean.
+  - Polished Auth Screens: Reduced spacing and implemented **perfect vertical centering** for a balanced mobile view.
+- **Documentation**: 
+  - Synchronized all technical docs, including README, Architecture mapping, and UI concept.
+  - Created **ADR-005** (Layering) and **ADR-006** (Auth Integration).
+  - Created comprehensive **User Story: Identity & Access Management (IAM)** defining the closed-loop invitation flow.
+  - Updated **User Story: Nutrition Tracker** with unified logging and grouped history requirements.
+- **Nutrition Refinement**:
+  - Unified Quick Log and Custom Log into a single **"NUTRITION PROTOCOL / ADD"** widget for streamlined entry.
+  - Overhauled History Swipe-Up to include **Daily Grouping** (entries categorized under date headers) and a **Sticky Tactical Chart** with Week/Month/Year toggles.
+- **Settings & Notifications Polish**:
+  - Implemented **Dirty Checking** in Settings: The "Save Configuration" button is now disabled until actual changes (Goal or Presets) are detected.
+  - **Zero Alerts Mandate**: Replaced all native browser `alert()` calls with tactical-styled **MatSnackBar** notifications.
+  - Defined custom CSS for `kk-snackbar` and `kk-snackbar-error` to maintain the brutalist aesthetic.
+- **Nutrition Analytics & UI Polish**:
+  - Added a **Target Goal Line** (dashed horizontal) to history charts with success shadowing.
+  - Implemented **Success Coloring**: Chart bars turn Tertiary Green when the protein goal is met.
+  - Enhanced **Close UI**: Moved the ✕ button to the absolute top-right with a larger hit-box and Primary Yellow highlight.
+  - **Gesture Intelligence**: Implemented native-like **Swipe-to-Close** for bottom sheets using CDK Drag, including a visual **Grab Handle** at the top.
+  - **Scroll Isolation**: Fixed "scroll leakage" in history sheets by isolating the log list into a dedicated scroll container with `overscroll-behavior: contain`. This keeps the header fixed and prevents the whole sheet from drifting while reading logs.
+  - **Transparency Polish**: Optimized CSS layers to ensure the underlying dashboard grid is visible through the sheet container during swiping gestures.
+- **Training Architecture & Intelligence**:
+  - Implemented **Hierarchical Training Plans**: Supports time-bound plans (4-12 weeks) with multiple predefined routines.
+  - **Virtual Trainer (Progression IQ)**: Developed a Strategy pattern for training suggestions. Users can choose between **Weight-focused** (Progressive Overload) or **Rep-focused** (Volume-first) in their profile settings.
+  - **Mobile Tracking Terminal**: Implemented a real-time tracking UI with an automated **Stopwatch**, dynamic exercise attachment, and intelligent performance suggestions based on "Last Time" values.
+  - **Cardio Support**: Introduced separate data entities for Cardio records (Time/Distance) vs. Strength sets (Reps/Weight).
+- **Dashboard Intelligence & Cleanup**:
+  - Removed all placeholder widgets from the Dashboard to maintain high signal-to-noise ratio.
+  - Implemented the **"Last Workout" Intelligence Widget**: Displays key metrics from the most recent session.
+  - Developed the **"Workout Intel" Swipe-Up**: A high-performance detail view for workout sessions, featuring swipe-to-close and deep-dive set analysis.
+- **Bug Fixes**: 
+  - Resolved naming mismatches in backend repositories and fixed `esbuild` build cache crashes.
+  - **Auth Fix**: Fixed a 403 Forbidden error where users with the `admin` role were blocked from user-level tracking features (Nutrition/Training). Updated `requireUser` middleware to allow both roles.

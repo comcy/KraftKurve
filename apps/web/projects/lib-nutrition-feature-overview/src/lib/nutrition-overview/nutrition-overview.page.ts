@@ -2,11 +2,13 @@ import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Pipe, PipeTransform } from '@angular/core';
+import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import {
   NutritionService,
   DaySummaryDto,
   FoodItemDto,
   MealType,
+  NutritionSettingsDto,
 } from 'lib-nutrition-data-access';
 
 @Pipe({ name: 'mealTypeLabel', standalone: true })
@@ -25,15 +27,17 @@ export class MealTypeLabelPipe implements PipeTransform {
 @Component({
   selector: 'lib-nutrition-overview',
   standalone: true,
-  imports: [CommonModule, FormsModule, DecimalPipe, MealTypeLabelPipe],
+  imports: [CommonModule, FormsModule, DecimalPipe, MealTypeLabelPipe, MatBottomSheetModule],
   templateUrl: './nutrition-overview.page.html',
   styleUrl: './nutrition-overview.page.scss',
 })
 export class NutritionOverviewPage implements OnInit {
   private readonly nutritionService = inject(NutritionService);
+  private readonly bottomSheet = inject(MatBottomSheet);
 
   readonly summary = signal<DaySummaryDto | null>(null);
   readonly foodItems = signal<FoodItemDto[]>([]);
+  readonly settings = signal<NutritionSettingsDto | null>(null);
   readonly loading = signal(false);
   readonly adding = signal(false);
   readonly addError = signal<string | null>(null);
@@ -83,6 +87,24 @@ export class NutritionOverviewPage implements OnInit {
     this.draft.proteinG = parseFloat(
       ((item.proteinPer100g * item.defaultPortionG) / 100).toFixed(1),
     );
+  }
+
+  async onQuickTrack(grams: number): Promise<void> {
+    this.adding.set(true);
+    try {
+      await this.nutritionService.createEntry({
+        date: this.selectedDate(),
+        name: 'QUICK LOG',
+        mealType: 'snack',
+        portionG: 0,
+        proteinG: grams,
+      });
+      await this.loadSummary();
+    } catch (err) {
+      this.addError.set(err instanceof Error ? err.message : 'Quick Log fehlgeschlagen');
+    } finally {
+      this.adding.set(false);
+    }
   }
 
   async onAddEntry(event: Event): Promise<void> {
@@ -156,8 +178,15 @@ export class NutritionOverviewPage implements OnInit {
     }
   }
 
+  async openHistory(): Promise<void> {
+    const { NutritionHistorySheetComponent } = await import('./nutrition-history-sheet/nutrition-history-sheet.component');
+    this.bottomSheet.open(NutritionHistorySheetComponent, {
+      panelClass: 'kk-bottom-sheet',
+    });
+  }
+
   private async loadAll(): Promise<void> {
-    await Promise.all([this.loadSummary(), this.loadFoodItems()]);
+    await Promise.all([this.loadSummary(), this.loadFoodItems(), this.loadSettings()]);
   }
 
   private async loadSummary(): Promise<void> {
@@ -176,6 +205,15 @@ export class NutritionOverviewPage implements OnInit {
     try {
       const items = await this.nutritionService.listFoodItems();
       this.foodItems.set(items);
+    } catch {
+      // ignore
+    }
+  }
+
+  private async loadSettings(): Promise<void> {
+    try {
+      const s = await this.nutritionService.getSettings();
+      this.settings.set(s);
     } catch {
       // ignore
     }

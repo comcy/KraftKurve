@@ -21,7 +21,7 @@
         <div class="setting-item">
           <span class="label-caps">DAILY PROTEIN GOAL</span>
           <mat-form-field appearance="outline" class="small-input">
-            <input matInput type="number" [ngModel]="goalValue()" (ngModelChange)="goalValue.set($event)">
+            <input matInput type="text" inputmode="decimal" [ngModel]="goalValue()" (ngModelChange)="goalValue.set($event)">
             <span matSuffix class="label-caps">G</span>
           </mat-form-field>
         </div>
@@ -29,15 +29,45 @@
         <div class="setting-item column">
           <span class="label-caps">QUICK LOG PRESETS</span>
           <div class="presets-row">
-            <mat-form-field appearance="outline" class="tiny-input" *ngFor="let p of presetValues(); let i = index">
-              <input matInput type="number" [ngModel]="p" (ngModelChange)="updatePreset(i, $event)">
-              <span matSuffix class="label-caps">G</span>
-            </mat-form-field>
+            @for (p of presetValues(); track $index; let i = $index) {
+              <mat-form-field appearance="outline" class="tiny-input">
+                <input matInput type="text" inputmode="decimal" [ngModel]="p" (ngModelChange)="updatePreset(i, $event)">
+                <span matSuffix class="label-caps">G</span>
+              </mat-form-field>
+            }
           </div>
         </div>
+      </div>
+    </section>
 
-        <button mat-flat-button class="save-btn btn-primary" (click)="saveFuelSettings()">
-          <span class="label-caps">SAVE CONFIGURATION</span>
+    <!-- Training Protocol -->
+    <section class="settings-group">
+      <h2 class="label-caps group-title">{{ trainingConfig }}</h2>
+      <div class="settings-card">
+        <div class="setting-item column">
+          <span class="label-caps">PROGRESSION STRATEGY</span>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-select [ngModel]="overloadStrategy()" (ngModelChange)="overloadStrategy.set($event)">
+              <mat-option value="weight-focused">WEIGHT-FOCUSED (PROG. OVERLOAD)</mat-option>
+              <mat-option value="rep-focused">REP-FOCUSED (VOLUME FIRST)</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <p class="sub-label label-caps">DETERMINES VIRTUAL TRAINER SUGGESTIONS.</p>
+        </div>
+
+        <button mat-flat-button class="save-btn btn-primary" (click)="saveConfiguration()" [disabled]="!hasChanges()">
+          <span class="label-caps">{{ hasChanges() ? 'SAVE CONFIGURATION' : 'NO CHANGES DETECTED' }}</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Account Protocol -->
+    <section class="settings-group">
+      <h2 class="label-caps group-title">{{ accountConfig }}</h2>
+      <div class="settings-card">
+        <button mat-stroked-button class="logout-btn btn-warn full-width" (click)="onLogout()">
+          <mat-icon>logout</mat-icon>
+          <span class="label-caps">TERMINATE SESSION / LOGOUT</span>
         </button>
       </div>
     </section>

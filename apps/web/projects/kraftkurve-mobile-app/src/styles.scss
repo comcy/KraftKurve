@@ -4,7 +4,14 @@
 :root {
   --font-headline: 'Press Start 2P', system-ui;
   --font-body: 'JetBrains Mono', monospace;
+  --radius-sm: 0.125rem;
+  --radius-default: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+}
 
+:root.dark {
   // Colors from DESIGN.md
   --background: #131313;
   --on-background: #e5e2e1;
@@ -18,33 +25,55 @@
   --surface-container-highest: #353534;
   --on-surface: #e5e2e1;
   --on-surface-variant: #cac8aa;
-  
   --primary: #fdff00; 
   --on-primary: #323200;
   --primary-container: #e9ea00;
   --on-primary-container: #676800;
-  
+  --primary-alt: #fdff00;
+  --header-icon-color: #fdff00;
   --secondary: #ffabf3; 
   --on-secondary: #5b005b;
   --secondary-container: #fe00fe;
-  
   --tertiary: #00ff41; 
   --on-tertiary: #003907;
   --tertiary-container: #72ff70;
-  
   --error: #ffb4ab;
   --on-error: #690005;
   --outline: #939277;
   --outline-variant: #484831;
-  
-  --grid-color: #1f1f1f;
+  --grid-color: rgba(255, 255, 255, 0.07);
+}
 
-  // Rounding
-  --radius-sm: 0.125rem;
-  --radius-default: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
+:root.light {
+  --background: #ffffff;
+  --on-background: #131313;
+  --surface: #ffffff;
+  --surface-dim: #f5f5f5;
+  --surface-bright: #ffffff;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f8f8f8;
+  --surface-container: #f0f0f0;
+  --surface-container-high: #e5e5e5;
+  --surface-container-highest: #d0d0d0;
+  --on-surface: #131313;
+  --on-surface-variant: #444444;
+  --primary: #000000; 
+  --on-primary: #ffffff;
+  --primary-container: #fdff00;
+  --on-primary-container: #323200;
+  --primary-alt: #000000;
+  --header-icon-color: #000000;
+  --secondary: #d500d5; 
+  --on-secondary: #ffffff;
+  --secondary-container: #ffabf3;
+  --tertiary: #008f25; 
+  --on-tertiary: #ffffff;
+  --tertiary-container: #00ff41;
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --outline: #79747e;
+  --outline-variant: #c4c6d0;
+  --grid-color: #e0e0e0;
 }
 
 * {
@@ -53,21 +82,75 @@
   padding: 0;
 }
 
-html, body {
+html {
   height: 100%;
+  background-color: var(--background) !important;
 }
 
-body {
-  background-color: var(--background);
+html::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-image: 
     linear-gradient(var(--grid-color) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
   background-size: 20px 20px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body {
+  min-height: 100%;
+  background-color: transparent !important;
   color: var(--on-background);
   font-family: var(--font-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+}
+
+// Hide number spinners
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+// Icon Fix for Material Symbols
+mat-icon, .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-style: normal;
+}
+
+// Snackbar Tactical Styles
+.kk-snackbar {
+  --mdc-snackbar-container-color: var(--surface-container-highest);
+  --mdc-snackbar-supporting-text-color: var(--primary);
+  --mat-snack-bar-button-color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 0;
+  font-family: var(--font-headline);
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.kk-snackbar-error {
+  --mdc-snackbar-container-color: var(--error-container);
+  --mdc-snackbar-supporting-text-color: var(--on-error-container);
+  --mat-snack-bar-button-color: var(--on-error-container);
+  border: 1px solid var(--error);
+  border-radius: 0;
+  font-family: var(--font-headline);
+  font-size: 8px;
+  text-transform: uppercase;
 }
 
 // Typography Classes
@@ -159,6 +242,21 @@ html {
   font-family: var(--font-headline) !important;
   font-size: 8px !important;
   text-transform: uppercase !important;
+}
+
+// Bottom Sheet Overrides
+.kk-bottom-sheet {
+  --mdc-bottom-sheet-container-shape: 0;
+  --mdc-bottom-sheet-container-color: transparent;
+  padding: 0 !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+
+  .mat-mdc-bottom-sheet-container {
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
 }
 
 // Input Styling

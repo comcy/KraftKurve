@@ -3,13 +3,18 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { firstValueFrom } from 'rxjs';
 
 export type WorkoutTemplate = 'push' | 'pull' | 'legs' | 'full-body' | 'custom';
+export type OverloadStrategy = 'weight-focused' | 'rep-focused';
 
 export interface TrainingSessionDto {
   id: string;
   userId: string;
+  planId: string | null;
+  routineId: string | null;
   date: string;
   startedAt: string;
   finishedAt: string | null;
+  totalSeconds: number;
+  isPaused: boolean;
   templateType: WorkoutTemplate;
   note: string | null;
   createdAt: string;
@@ -20,14 +25,22 @@ export interface TrainingSessionDto {
 export interface CreateTrainingSessionRequest {
   date: string;
   templateType: WorkoutTemplate;
+  planId?: string | null;
+  routineId?: string | null;
   note?: string | null;
+  totalSeconds?: number;
+  isPaused?: boolean;
 }
 
 export interface UpdateTrainingSessionRequest {
   date?: string;
   templateType?: WorkoutTemplate;
+  planId?: string | null;
+  routineId?: string | null;
   note?: string | null;
   finishedAt?: string | null;
+  totalSeconds?: number;
+  isPaused?: boolean;
 }
 
 export type MuscleGroup =
@@ -63,10 +76,79 @@ export interface TrainingSetDto {
   order: number;
   reps: number;
   weightKg: number;
+  rir: number | null;
   done: boolean;
   createdAt: string;
   updatedAt: string;
   version: number;
+}
+
+export interface CardioRecordDto {
+  id: string;
+  trainingExerciseId: string;
+  durationSeconds: number;
+  distanceMeters: number | null;
+  caloriesBurned: number | null;
+  heartRateAverage: number | null;
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+}
+
+export interface TrainingPlanDto {
+  id: string;
+  userId: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  note: string | null;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+}
+
+export interface TrainingRoutineDto {
+  id: string;
+  planId: string;
+  name: string;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+}
+
+export interface TrainingRoutineExerciseDto {
+  id: string;
+  routineId: string;
+  exerciseId: string;
+  exerciseName: string;
+  muscleGroup: MuscleGroup;
+  order: number;
+  suggestedSets: number;
+}
+
+export interface TrainingSettingsDto {
+  userId: string;
+  overloadStrategy: OverloadStrategy;
+}
+
+export interface ExerciseSuggestionDto {
+  exerciseName: string;
+  strategy: OverloadStrategy;
+  lastPerformance: {
+    sets: number;
+    weightKg: number;
+    reps: number;
+    date: string;
+  } | null;
+  suggestedTarget: {
+    sets: number;
+    weightKg: number;
+    reps: number;
+  };
+  reason: string;
 }
 
 export interface TrainingSessionProgressDto {
@@ -91,32 +173,25 @@ export interface UpdateTrainingExerciseRequest {
 export interface CreateTrainingSetRequest {
   reps: number;
   weightKg: number;
+  rir?: number | null;
   done?: boolean;
 }
 
 export interface UpdateTrainingSetRequest {
   reps?: number;
   weightKg?: number;
+  rir?: number | null;
   done?: boolean;
   order?: number;
 }
 
-export interface TrainingPlanTemplateDto {
-  id: string;
-  userId: string;
-  name: string;
-  templateType: WorkoutTemplate;
-  startDate: string;
-  endDate: string;
-  reminderDaysBefore: number;
-  note: string | null;
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
-  version: number;
+export interface CreateCardioRecordRequest {
+  durationSeconds: number;
+  distanceMeters?: number | null;
+  caloriesBurned?: number | null;
+  heartRateAverage?: number | null;
+  note?: string | null;
 }
-
-export type TemplateReminderStatus = 'expiring' | 'expired';
 
 export type ExerciseCategory = 'strength' | 'cardio' | 'flexibility' | 'other';
 export type EquipmentType = 'barbell' | 'dumbbell' | 'machine' | 'bodyweight' | 'cable' | 'other';
@@ -146,66 +221,18 @@ export interface UpdateExerciseRequest {
   equipmentType?: EquipmentType;
 }
 
-export interface TrainingPlanTemplateReminderDto {
-  templateId: string;
-  templateName: string;
-  endDate: string;
-  daysRemaining: number;
-  status: TemplateReminderStatus;
-}
-
-export interface BodyHeatmapEntryDto {
-  totalSets: number;
-  completedSets: number;
-}
-
-export interface BodyHeatmapDto {
-  days: number;
-  totalSets: number;
-  totalCompletedSets: number;
-  muscles: Record<MuscleGroup, BodyHeatmapEntryDto>;
-}
-
-export interface StagnationSuggestionDto {
-  exerciseName: string;
-  muscleGroup: MuscleGroup;
-  suggestionType: 'increase' | 'deload';
-  currentBestWeightKg: number;
-  suggestedWeightKg: number;
-  stagnationSessions: number;
-  observedCompletionRatio: number;
-  reason: string;
-}
-
-export interface ExerciseHistorySetDto {
-  order: number;
-  reps: number;
-  weightKg: number;
-  done: boolean;
-}
-
-export interface ExerciseHistoryDto {
-  sessionId: string;
-  sessionDate: string;
-  sets: ExerciseHistorySetDto[];
-}
-
-export interface CreateTrainingPlanTemplateRequest {
+export interface CreateTrainingPlanRequest {
   name: string;
-  templateType: WorkoutTemplate;
   startDate: string;
   endDate: string;
-  reminderDaysBefore?: number;
   note?: string | null;
   active?: boolean;
 }
 
-export interface UpdateTrainingPlanTemplateRequest {
+export interface UpdateTrainingPlanRequest {
   name?: string;
-  templateType?: WorkoutTemplate;
   startDate?: string;
   endDate?: string;
-  reminderDaysBefore?: number;
   note?: string | null;
   active?: boolean;
 }
@@ -226,16 +253,13 @@ export interface OfflineQueueDeadLetter {
   message: string;
 }
 
-const OFFLINE_QUEUE_KEY = 'kk.training.offline-queue.v1';
-const OFFLINE_DEAD_LETTER_KEY = 'kk.training.offline-dead-letter.v1';
+const OFFLINE_QUEUE_KEY = 'kk.training.offline-queue.v2';
+const OFFLINE_DEAD_LETTER_KEY = 'kk.training.offline-dead-letter.v2';
 
 @Injectable({ providedIn: 'root' })
 export class TrainingService {
   private readonly http = inject(HttpClient);
-  private readonly apiBase = '/api/training/sessions';
-  private readonly templatesBase = '/api/training/templates';
-  private readonly insightsBase = '/api/training/insights';
-  private readonly catalogBase = '/api/training/catalog';
+  private readonly apiBase = '/api/training';
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -246,10 +270,12 @@ export class TrainingService {
     }
   }
 
+  // ── Sessions ─────────────────────────────────────────────────────────────
+
   async listSessions(): Promise<TrainingSessionDto[]> {
     try {
       const res = await firstValueFrom(
-        this.http.get<{ sessions: TrainingSessionDto[] }>(this.apiBase),
+        this.http.get<{ sessions: TrainingSessionDto[] }>(`${this.apiBase}/sessions`),
       );
       return res.sessions;
     } catch (error) {
@@ -260,7 +286,7 @@ export class TrainingService {
   async getSession(id: string): Promise<TrainingSessionDto> {
     try {
       const res = await firstValueFrom(
-        this.http.get<{ session: TrainingSessionDto }>(`${this.apiBase}/${id}`),
+        this.http.get<{ session: TrainingSessionDto }>(`${this.apiBase}/sessions/${id}`),
       );
       return res.session;
     } catch (error) {
@@ -270,10 +296,10 @@ export class TrainingService {
 
   async createSession(req: CreateTrainingSessionRequest): Promise<TrainingSessionDto> {
     return this.executeWrite(
-      this.makeOperation('POST', this.apiBase, req),
+      this.makeOperation('POST', `${this.apiBase}/sessions`, req),
       async (operation) => {
         const res = await firstValueFrom(
-          this.http.post<{ session: TrainingSessionDto }>(this.apiBase, req, {
+          this.http.post<{ session: TrainingSessionDto }>(`${this.apiBase}/sessions`, req, {
             headers: this.idempotencyHeaders(operation.id),
           }),
         );
@@ -287,10 +313,10 @@ export class TrainingService {
     req: UpdateTrainingSessionRequest,
   ): Promise<TrainingSessionDto> {
     return this.executeWrite(
-      this.makeOperation('PUT', `${this.apiBase}/${id}`, req),
+      this.makeOperation('PUT', `${this.apiBase}/sessions/${id}`, req),
       async (operation) => {
         const res = await firstValueFrom(
-          this.http.put<{ session: TrainingSessionDto }>(`${this.apiBase}/${id}`, req, {
+          this.http.put<{ session: TrainingSessionDto }>(`${this.apiBase}/sessions/${id}`, req, {
             headers: this.idempotencyHeaders(operation.id),
           }),
         );
@@ -301,10 +327,10 @@ export class TrainingService {
 
   async deleteSession(id: string): Promise<void> {
     await this.executeWrite(
-      this.makeOperation('DELETE', `${this.apiBase}/${id}`),
+      this.makeOperation('DELETE', `${this.apiBase}/sessions/${id}`),
       async (operation) => {
         await firstValueFrom(
-          this.http.delete(`${this.apiBase}/${id}`, {
+          this.http.delete(`${this.apiBase}/sessions/${id}`, {
             headers: this.idempotencyHeaders(operation.id),
           }),
         );
@@ -312,10 +338,12 @@ export class TrainingService {
     );
   }
 
+  // ── Exercises & Sets & Cardio ──────────────────────────────────────────
+
   async listExercises(sessionId: string): Promise<TrainingExerciseDto[]> {
     try {
       const res = await firstValueFrom(
-        this.http.get<{ exercises: TrainingExerciseDto[] }>(`${this.apiBase}/${sessionId}/exercises`),
+        this.http.get<{ exercises: TrainingExerciseDto[] }>(`${this.apiBase}/sessions/${sessionId}/exercises`),
       );
       return res.exercises;
     } catch (error) {
@@ -328,11 +356,11 @@ export class TrainingService {
     req: CreateTrainingExerciseRequest,
   ): Promise<TrainingExerciseDto> {
     return this.executeWrite(
-      this.makeOperation('POST', `${this.apiBase}/${sessionId}/exercises`, req),
+      this.makeOperation('POST', `${this.apiBase}/sessions/${sessionId}/exercises`, req),
       async (operation) => {
         const res = await firstValueFrom(
           this.http.post<{ exercise: TrainingExerciseDto }>(
-            `${this.apiBase}/${sessionId}/exercises`,
+            `${this.apiBase}/sessions/${sessionId}/exercises`,
             req,
             {
               headers: this.idempotencyHeaders(operation.id),
@@ -350,11 +378,11 @@ export class TrainingService {
     req: UpdateTrainingExerciseRequest,
   ): Promise<TrainingExerciseDto> {
     return this.executeWrite(
-      this.makeOperation('PUT', `${this.apiBase}/${sessionId}/exercises/${exerciseId}`, req),
+      this.makeOperation('PUT', `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}`, req),
       async (operation) => {
         const res = await firstValueFrom(
           this.http.put<{ exercise: TrainingExerciseDto }>(
-            `${this.apiBase}/${sessionId}/exercises/${exerciseId}`,
+            `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}`,
             req,
             {
               headers: this.idempotencyHeaders(operation.id),
@@ -368,10 +396,10 @@ export class TrainingService {
 
   async deleteExercise(sessionId: string, exerciseId: string): Promise<void> {
     await this.executeWrite(
-      this.makeOperation('DELETE', `${this.apiBase}/${sessionId}/exercises/${exerciseId}`),
+      this.makeOperation('DELETE', `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}`),
       async (operation) => {
         await firstValueFrom(
-          this.http.delete(`${this.apiBase}/${sessionId}/exercises/${exerciseId}`, {
+          this.http.delete(`${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}`, {
             headers: this.idempotencyHeaders(operation.id),
           }),
         );
@@ -383,7 +411,7 @@ export class TrainingService {
     try {
       const res = await firstValueFrom(
         this.http.get<{ sets: TrainingSetDto[] }>(
-          `${this.apiBase}/${sessionId}/exercises/${exerciseId}/sets`,
+          `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/sets`,
         ),
       );
       return res.sets;
@@ -398,11 +426,11 @@ export class TrainingService {
     req: CreateTrainingSetRequest,
   ): Promise<TrainingSetDto> {
     return this.executeWrite(
-      this.makeOperation('POST', `${this.apiBase}/${sessionId}/exercises/${exerciseId}/sets`, req),
+      this.makeOperation('POST', `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/sets`, req),
       async (operation) => {
         const res = await firstValueFrom(
           this.http.post<{ set: TrainingSetDto }>(
-            `${this.apiBase}/${sessionId}/exercises/${exerciseId}/sets`,
+            `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/sets`,
             req,
             {
               headers: this.idempotencyHeaders(operation.id),
@@ -423,13 +451,13 @@ export class TrainingService {
     return this.executeWrite(
       this.makeOperation(
         'PUT',
-        `${this.apiBase}/${sessionId}/exercises/${exerciseId}/sets/${setId}`,
+        `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/sets/${setId}`,
         req,
       ),
       async (operation) => {
         const res = await firstValueFrom(
           this.http.put<{ set: TrainingSetDto }>(
-            `${this.apiBase}/${sessionId}/exercises/${exerciseId}/sets/${setId}`,
+            `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/sets/${setId}`,
             req,
             {
               headers: this.idempotencyHeaders(operation.id),
@@ -443,10 +471,10 @@ export class TrainingService {
 
   async deleteSet(sessionId: string, exerciseId: string, setId: string): Promise<void> {
     await this.executeWrite(
-      this.makeOperation('DELETE', `${this.apiBase}/${sessionId}/exercises/${exerciseId}/sets/${setId}`),
+      this.makeOperation('DELETE', `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/sets/${setId}`),
       async (operation) => {
         await firstValueFrom(
-          this.http.delete(`${this.apiBase}/${sessionId}/exercises/${exerciseId}/sets/${setId}`, {
+          this.http.delete(`${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/sets/${setId}`, {
             headers: this.idempotencyHeaders(operation.id),
           }),
         );
@@ -454,114 +482,100 @@ export class TrainingService {
     );
   }
 
-  async getProgress(sessionId: string): Promise<TrainingSessionProgressDto> {
+  async getCardioRecord(sessionId: string, exerciseId: string): Promise<CardioRecordDto | null> {
     try {
       const res = await firstValueFrom(
-        this.http.get<{ progress: TrainingSessionProgressDto }>(`${this.apiBase}/${sessionId}/progress`),
+        this.http.get<{ record: CardioRecordDto | null }>(
+          `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/cardio`,
+        ),
       );
-      return res.progress;
+      return res.record;
     } catch (error) {
       throw this.toError(error);
     }
   }
 
-  async listTemplates(): Promise<TrainingPlanTemplateDto[]> {
-    try {
-      const res = await firstValueFrom(
-        this.http.get<{ templates: TrainingPlanTemplateDto[] }>(this.templatesBase),
-      );
-      return res.templates;
-    } catch (error) {
-      throw this.toError(error);
-    }
-  }
-
-  async createTemplate(req: CreateTrainingPlanTemplateRequest): Promise<TrainingPlanTemplateDto> {
+  async createCardioRecord(
+    sessionId: string,
+    exerciseId: string,
+    req: CreateCardioRecordRequest,
+  ): Promise<CardioRecordDto> {
     return this.executeWrite(
-      this.makeOperation('POST', this.templatesBase, req),
+      this.makeOperation('POST', `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/cardio`, req),
       async (operation) => {
         const res = await firstValueFrom(
-          this.http.post<{ template: TrainingPlanTemplateDto }>(this.templatesBase, req, {
-            headers: this.idempotencyHeaders(operation.id),
-          }),
-        );
-        return res.template;
-      },
-    );
-  }
-
-  async updateTemplate(
-    templateId: string,
-    req: UpdateTrainingPlanTemplateRequest,
-  ): Promise<TrainingPlanTemplateDto> {
-    return this.executeWrite(
-      this.makeOperation('PUT', `${this.templatesBase}/${templateId}`, req),
-      async (operation) => {
-        const res = await firstValueFrom(
-          this.http.put<{ template: TrainingPlanTemplateDto }>(
-            `${this.templatesBase}/${templateId}`,
+          this.http.post<{ record: CardioRecordDto }>(
+            `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/cardio`,
             req,
             {
               headers: this.idempotencyHeaders(operation.id),
             },
           ),
         );
-        return res.template;
+        return res.record;
       },
     );
   }
 
-  async deleteTemplate(templateId: string): Promise<void> {
-    await this.executeWrite(
-      this.makeOperation('DELETE', `${this.templatesBase}/${templateId}`),
+  // ── Plans & Routines ─────────────────────────────────────────────────────
+
+  async listPlans(): Promise<TrainingPlanDto[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<{ plans: TrainingPlanDto[] }>(`${this.apiBase}/plans`),
+      );
+      return res.plans;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async listRoutines(planId: string): Promise<TrainingRoutineDto[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<{ routines: TrainingRoutineDto[] }>(`${this.apiBase}/plans/${planId}/routines`),
+      );
+      return res.routines;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  // ── Virtual Trainer & Settings ───────────────────────────────────────────
+
+  async getTrainingSettings(): Promise<TrainingSettingsDto> {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<{ settings: TrainingSettingsDto }>(`${this.apiBase}/settings`),
+      );
+      return res.settings;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async updateTrainingSettings(strategy: OverloadStrategy): Promise<TrainingSettingsDto> {
+    return this.executeWrite(
+      this.makeOperation('PUT', `${this.apiBase}/settings`, { overloadStrategy: strategy }),
       async (operation) => {
-        await firstValueFrom(
-          this.http.delete(`${this.templatesBase}/${templateId}`, {
+        const res = await firstValueFrom(
+          this.http.put<{ settings: TrainingSettingsDto }>(`${this.apiBase}/settings`, { overloadStrategy: strategy }, {
             headers: this.idempotencyHeaders(operation.id),
           }),
         );
+        return res.settings;
       },
     );
   }
 
-  async getTemplateReminders(withinDays = 14): Promise<TrainingPlanTemplateReminderDto[]> {
+  async getSuggestion(exerciseName: string): Promise<ExerciseSuggestionDto | null> {
     try {
       const res = await firstValueFrom(
-        this.http.get<{ reminders: TrainingPlanTemplateReminderDto[] }>(
-          `${this.templatesBase}/reminders?withinDays=${withinDays}`,
+        this.http.get<{ suggestion: ExerciseSuggestionDto | null }>(
+          `${this.apiBase}/suggestions`, { params: { name: exerciseName } }
         ),
       );
-      return res.reminders;
-    } catch (error) {
-      throw this.toError(error);
-    }
-  }
-
-  async getBodyHeatmap(days = 28): Promise<BodyHeatmapDto> {
-    try {
-      const res = await firstValueFrom(
-        this.http.get<{ heatmap: BodyHeatmapDto }>(`${this.insightsBase}/heatmap?days=${days}`),
-      );
-      return res.heatmap;
-    } catch (error) {
-      throw this.toError(error);
-    }
-  }
-
-  async getStagnationSuggestions(
-    window = 3,
-    incrementKg = 2.5,
-    minCompletedSets = 2,
-    minCompletionRatio = 0.65,
-    deloadDropPercent = 0.1,
-  ): Promise<StagnationSuggestionDto[]> {
-    try {
-      const res = await firstValueFrom(
-        this.http.get<{ suggestions: StagnationSuggestionDto[] }>(
-          `${this.insightsBase}/stagnation-suggestions?window=${window}&incrementKg=${incrementKg}&minCompletedSets=${minCompletedSets}&minCompletionRatio=${minCompletionRatio}&deloadDropPercent=${deloadDropPercent}`,
-        ),
-      );
-      return res.suggestions;
+      return res.suggestion;
     } catch (error) {
       throw this.toError(error);
     }
@@ -570,7 +584,7 @@ export class TrainingService {
   async listCatalog(): Promise<ExerciseDto[]> {
     try {
       const res = await firstValueFrom(
-        this.http.get<{ catalog: ExerciseDto[] }>(this.catalogBase),
+        this.http.get<{ catalog: ExerciseDto[] }>(`${this.apiBase}/catalog`),
       );
       return res.catalog;
     } catch (error) {
@@ -578,75 +592,7 @@ export class TrainingService {
     }
   }
 
-  async getCatalogExercise(id: string): Promise<ExerciseDto> {
-    try {
-      const res = await firstValueFrom(
-        this.http.get<{ exercise: ExerciseDto }>(`${this.catalogBase}/${id}`),
-      );
-      return res.exercise;
-    } catch (error) {
-      throw this.toError(error);
-    }
-  }
-
-  async createCatalogExercise(req: CreateExerciseRequest): Promise<ExerciseDto> {
-    return this.executeWrite(
-      this.makeOperation('POST', this.catalogBase, req),
-      async (operation) => {
-        const res = await firstValueFrom(
-          this.http.post<{ exercise: ExerciseDto }>(this.catalogBase, req, {
-            headers: this.idempotencyHeaders(operation.id),
-          }),
-        );
-        return res.exercise;
-      },
-    );
-  }
-
-  async updateCatalogExercise(id: string, req: UpdateExerciseRequest): Promise<ExerciseDto> {
-    return this.executeWrite(
-      this.makeOperation('PUT', `${this.catalogBase}/${id}`, req),
-      async (operation) => {
-        const res = await firstValueFrom(
-          this.http.put<{ exercise: ExerciseDto }>(`${this.catalogBase}/${id}`, req, {
-            headers: this.idempotencyHeaders(operation.id),
-          }),
-        );
-        return res.exercise;
-      },
-    );
-  }
-
-  async deleteCatalogExercise(id: string): Promise<void> {
-    await this.executeWrite(
-      this.makeOperation('DELETE', `${this.catalogBase}/${id}`),
-      async (operation) => {
-        await firstValueFrom(
-          this.http.delete(`${this.catalogBase}/${id}`, {
-            headers: this.idempotencyHeaders(operation.id),
-          }),
-        );
-      },
-    );
-  }
-
-  async getExerciseHistory(
-    exerciseName: string,
-    excludeSessionId?: string,
-  ): Promise<ExerciseHistoryDto | null> {
-    try {
-      const params = new URLSearchParams({ name: exerciseName });
-      if (excludeSessionId) params.set('excludeSession', excludeSessionId);
-      const res = await firstValueFrom(
-        this.http.get<{ history: ExerciseHistoryDto | null }>(
-          `/api/training/exercises/history?${params.toString()}`,
-        ),
-      );
-      return res.history;
-    } catch (error) {
-      throw this.toError(error);
-    }
-  }
+  // ── Implementation Details (Offline, Headers, Errors) ──────────────────────
 
   async flushOfflineQueue(): Promise<number> {
     const queue = this.readQueue();
@@ -698,18 +644,6 @@ export class TrainingService {
     return flushed;
   }
 
-  getOfflineQueueSize(): number {
-    return this.readQueue().length;
-  }
-
-  getOfflineDeadLetters(): OfflineQueueDeadLetter[] {
-    return this.readDeadLetters();
-  }
-
-  clearOfflineDeadLetters(): void {
-    this.writeDeadLetters([]);
-  }
-
   private async executeWrite<T>(
     operation: OfflineWriteOperation,
     action: (operation: OfflineWriteOperation) => Promise<T>,
@@ -719,26 +653,14 @@ export class TrainingService {
     } catch (error) {
       if (this.isOfflineError(error)) {
         this.enqueue(operation);
-        throw new Error('Offline erkannt: Aktion wurde in die Queue gelegt und wird online synchronisiert.');
+        throw new Error('Offline erkannt: Aktion wurde in die Queue gelegt.');
       }
       throw this.toError(error);
     }
   }
 
   private isOfflineError(error: unknown): boolean {
-    if (!(error instanceof HttpErrorResponse)) {
-      return false;
-    }
-
-    if (error.status === 0) {
-      return true;
-    }
-
-    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-      return true;
-    }
-
-    return false;
+    return error instanceof HttpErrorResponse && (error.status === 0 || (typeof navigator !== 'undefined' && !navigator.onLine));
   }
 
   private enqueue(operation: OfflineWriteOperation): void {
@@ -747,115 +669,42 @@ export class TrainingService {
     this.writeQueue(queue);
   }
 
-  private makeOperation(
-    method: OfflineWriteOperation['method'],
-    url: string,
-    body?: unknown,
-  ): OfflineWriteOperation {
-    return {
-      id: this.generateOperationId(),
-      method,
-      url,
-      body,
-      queuedAt: new Date().toISOString(),
-      attempts: 0,
-    };
+  private makeOperation(method: OfflineWriteOperation['method'], url: string, body?: unknown): OfflineWriteOperation {
+    return { id: this.generateOperationId(), method, url, body, queuedAt: new Date().toISOString(), attempts: 0 };
   }
 
   private readQueue(): OfflineWriteOperation[] {
-    if (typeof localStorage === 'undefined') {
-      return [];
-    }
+    if (typeof localStorage === 'undefined') return [];
     try {
       const raw = localStorage.getItem(OFFLINE_QUEUE_KEY);
-      if (!raw) {
-        return [];
-      }
-      const parsed = JSON.parse(raw) as Array<Partial<OfflineWriteOperation>>;
-      if (!Array.isArray(parsed)) {
-        return [];
-      }
-
-      return parsed
-        .filter((item) => typeof item.method === 'string' && typeof item.url === 'string')
-        .map((item) => ({
-          id: typeof item.id === 'string' ? item.id : this.generateOperationId(),
-          method: item.method as OfflineWriteOperation['method'],
-          url: item.url as string,
-          body: item.body,
-          queuedAt: typeof item.queuedAt === 'string' ? item.queuedAt : new Date().toISOString(),
-          attempts: typeof item.attempts === 'number' && item.attempts > 0 ? item.attempts : 0,
-        }));
-    } catch {
-      return [];
-    }
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
   }
 
   private readDeadLetters(): OfflineQueueDeadLetter[] {
-    if (typeof localStorage === 'undefined') {
-      return [];
-    }
+    if (typeof localStorage === 'undefined') return [];
     try {
       const raw = localStorage.getItem(OFFLINE_DEAD_LETTER_KEY);
-      if (!raw) {
-        return [];
-      }
-      const parsed = JSON.parse(raw) as OfflineQueueDeadLetter[];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
   }
 
   private writeQueue(queue: OfflineWriteOperation[]): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-    try {
-      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
-    } catch {
-      // Ignore storage write issues so user actions do not hard fail.
-    }
+    if (typeof localStorage !== 'undefined') localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
   }
 
   private writeDeadLetters(deadLetters: OfflineQueueDeadLetter[]): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-    try {
-      localStorage.setItem(OFFLINE_DEAD_LETTER_KEY, JSON.stringify(deadLetters));
-    } catch {
-      // Ignore storage write issues so user actions do not hard fail.
-    }
+    if (typeof localStorage !== 'undefined') localStorage.setItem(OFFLINE_DEAD_LETTER_KEY, JSON.stringify(deadLetters));
   }
 
-  private isConflictStatus(status: number | null): boolean {
-    return status === 409 || status === 412 || status === 422;
-  }
-
-  private isClientError(status: number | null): boolean {
-    return status !== null && status >= 400 && status < 500;
-  }
-
-  private generateOperationId(): string {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-      return crypto.randomUUID();
-    }
-    return `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
-  }
-
-  private idempotencyHeaders(key: string): HttpHeaders {
-    return new HttpHeaders({ 'x-idempotency-key': key });
-  }
+  private isConflictStatus(status: number | null): boolean { return status === 409 || status === 412 || status === 422; }
+  private isClientError(status: number | null): boolean { return status !== null && status >= 400 && status < 500; }
+  private generateOperationId(): string { return typeof crypto !== 'undefined' ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`; }
+  private idempotencyHeaders(key: string): HttpHeaders { return new HttpHeaders({ 'x-idempotency-key': key }); }
 
   private toError(error: unknown): Error {
     if (error instanceof HttpErrorResponse) {
-      const message =
-        typeof error.error?.error === 'string'
-          ? error.error.error
-          : typeof error.error?.message === 'string'
-            ? error.error.message
-            : error.message;
+      const message = error.error?.error || error.error?.message || error.message;
       return new Error(message || 'Request failed');
     }
     return error instanceof Error ? error : new Error('Request failed');

@@ -5,5 +5,6 @@ export interface TrainingSet extends BaseEntity {
   order: number;
   reps: number;
   weightKg: number;
+  rir: number | null; // Reps In Reserve
   done: boolean;
 }

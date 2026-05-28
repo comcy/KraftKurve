@@ -27,22 +27,57 @@ const equipmentTypeEnum = z.enum(['barbell', 'dumbbell', 'machine', 'bodyweight'
 const createSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   templateType: templateEnum,
+  planId: z.string().uuid().optional().nullable(),
+  routineId: z.string().uuid().optional().nullable(),
   note: z.string().max(2000).optional().nullable(),
   startedAt: z.string().datetime().optional(),
   finishedAt: z.string().datetime().optional().nullable(),
+  totalSeconds: z.number().int().min(0).optional(),
+  isPaused: z.boolean().optional(),
 });
 
 const updateSchema = z
   .object({
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     templateType: templateEnum.optional(),
+    planId: z.string().uuid().optional().nullable(),
+    routineId: z.string().uuid().optional().nullable(),
     note: z.string().max(2000).optional().nullable(),
     startedAt: z.string().datetime().optional(),
     finishedAt: z.string().datetime().optional().nullable(),
+    totalSeconds: z.number().int().min(0).optional(),
+    isPaused: z.boolean().optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {
     message: 'No fields to update',
   });
+
+const createCardioRecordSchema = z.object({
+  durationSeconds: z.number().int().min(1),
+  distanceMeters: z.number().min(0).optional().nullable(),
+  caloriesBurned: z.number().min(0).optional().nullable(),
+  heartRateAverage: z.number().int().min(30).max(250).optional().nullable(),
+  note: z.string().max(1000).optional().nullable(),
+});
+
+const createPlanSchema = z.object({
+  name: z.string().min(1).max(120),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  note: z.string().max(2000).optional().nullable(),
+  active: z.boolean().optional(),
+});
+
+const updatePlanSchema = z.object({
+  name: z.string().min(1).max(120).optional(),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  note: z.string().max(2000).optional().nullable(),
+  active: z.boolean().optional(),
+}).refine(v => !v.startDate || !v.endDate || v.endDate >= v.startDate, {
+  message: 'endDate must be >= startDate',
+  path: ['endDate']
+});
 
 const createExerciseSchema = z.object({
   exerciseName: z.string().min(1).max(160),
@@ -64,6 +99,7 @@ const updateExerciseSchema = z
 const createSetSchema = z.object({
   reps: z.number().int().min(1).max(999),
   weightKg: z.number().min(0).max(9999),
+  rir: z.number().int().min(0).max(10).optional().nullable(),
   done: z.boolean().optional(),
 });
 
@@ -71,49 +107,13 @@ const updateSetSchema = z
   .object({
     reps: z.number().int().min(1).max(999).optional(),
     weightKg: z.number().min(0).max(9999).optional(),
+    rir: z.number().int().min(0).max(10).optional().nullable(),
     done: z.boolean().optional(),
     order: z.number().int().min(1).optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {
     message: 'No fields to update',
   });
-
-const createTemplateSchema = z
-  .object({
-    name: z.string().min(1).max(120),
-    templateType: templateEnum,
-    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    reminderDaysBefore: z.number().int().min(0).max(90).optional(),
-    note: z.string().max(2000).optional().nullable(),
-    active: z.boolean().optional(),
-  })
-  .refine((value) => value.endDate >= value.startDate, {
-    message: 'endDate must be >= startDate',
-    path: ['endDate'],
-  });
-
-const updateTemplateSchema = z
-  .object({
-    name: z.string().min(1).max(120).optional(),
-    templateType: templateEnum.optional(),
-    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-    endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-    reminderDaysBefore: z.number().int().min(0).max(90).optional(),
-    note: z.string().max(2000).optional().nullable(),
-    active: z.boolean().optional(),
-  })
-  .refine((value) => Object.keys(value).length > 0, {
-    message: 'No fields to update',
-  })
-  .refine(
-    (value) =>
-      !value.startDate || !value.endDate || value.endDate >= value.startDate,
-    {
-      message: 'endDate must be >= startDate',
-      path: ['endDate'],
-    },
-  );
 
 const createCatalogExerciseSchema = z.object({
   name: z.string().min(1).max(120),
@@ -148,6 +148,8 @@ const stagnationQuerySchema = z.object({
   minCompletionRatio: z.coerce.number().min(0.3).max(1).default(0.65),
   deloadDropPercent: z.coerce.number().min(0.05).max(0.3).default(0.1),
 });
+
+const overloadStrategyEnum = z.enum(['weight-focused', 'rep-focused']);
 
 interface WriteResult {
   status: number;
@@ -210,6 +212,8 @@ export function createTrainingRouter(
     res.status(result.status).json(result.body);
   };
 
+  // ── Sessions ─────────────────────────────────────────────────────────────
+
   router.get('/sessions', requireAuth as any, async (req: AuthRequest, res: Response) => {
     const sessions = await trainingService.listUserSessions(req.user!.sub);
     res.status(200).json({ sessions });
@@ -267,6 +271,8 @@ export function createTrainingRouter(
     });
   });
 
+  // ── Exercises & Sets & Cardio ──────────────────────────────────────────
+
   router.get('/sessions/:id/exercises', requireAuth as any, async (req: AuthRequest, res: Response) => {
     const exercises = await trainingService.listSessionExercises(req.user!.sub, readParam(req, 'id'));
     if (!exercises) {
@@ -292,40 +298,23 @@ export function createTrainingRouter(
     });
   });
 
-  router.put('/sessions/:id/exercises/:exerciseId', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const parsed = updateExerciseSchema.safeParse(req.body);
+  router.get('/sessions/:id/exercises/:exerciseId/cardio', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const record = await trainingService.getCardioRecord(readParam(req, 'exerciseId'));
+    res.status(200).json({ record });
+  });
+
+  router.post('/sessions/:id/exercises/:exerciseId/cardio', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const parsed = createCardioRecordSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.flatten() });
       return;
     }
 
-    await handleIdempotentWrite(req, res, async () => {
-      const exercise = await trainingService.updateExercise(
-        req.user!.sub,
-        readParam(req, 'id'),
-        readParam(req, 'exerciseId'),
-        parsed.data,
-      );
-      if (!exercise) {
-        return { status: 404, body: { error: 'Exercise not found' } };
-      }
-      return { status: 200, body: { exercise } };
-    });
+    const record = await trainingService.createCardioRecord(readParam(req, 'exerciseId'), parsed.data);
+    res.status(201).json({ record });
   });
 
-  router.delete('/sessions/:id/exercises/:exerciseId', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    await handleIdempotentWrite(req, res, async () => {
-      const deleted = await trainingService.deleteExercise(
-        req.user!.sub,
-        readParam(req, 'id'),
-        readParam(req, 'exerciseId'),
-      );
-      if (!deleted) {
-        return { status: 404, body: { error: 'Exercise not found' } };
-      }
-      return { status: 204 };
-    });
-  });
+  // ── Sets ────────────────────────────────────────────────────────────────
 
   router.get('/sessions/:id/exercises/:exerciseId/sets', requireAuth as any, async (req: AuthRequest, res: Response) => {
     const sets = await trainingService.listExerciseSets(
@@ -398,181 +387,55 @@ export function createTrainingRouter(
     });
   });
 
-  router.get('/sessions/:id/progress', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const progress = await trainingService.getSessionProgress(req.user!.sub, readParam(req, 'id'));
-    if (!progress) {
-      res.status(404).json({ error: 'Session not found' });
-      return;
-    }
-    res.status(200).json({ progress });
+  // ── Plans & Routines ─────────────────────────────────────────────────────
+
+  router.get('/plans', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const plans = await trainingService.listUserPlans(req.user!.sub);
+    res.status(200).json({ plans });
   });
 
-  router.get('/templates', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const templates = await trainingService.listTemplates(req.user!.sub);
-    res.status(200).json({ templates });
-  });
-
-  router.post('/templates', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const parsed = createTemplateSchema.safeParse(req.body);
+  router.post('/plans', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const parsed = createPlanSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.flatten() });
       return;
     }
-
-    await handleIdempotentWrite(req, res, async () => {
-      const template = await trainingService.createTemplate(req.user!.sub, parsed.data);
-      return { status: 201, body: { template } };
-    });
+    const plan = await trainingService.createPlan(req.user!.sub, parsed.data);
+    res.status(201).json({ plan });
   });
 
-  router.put('/templates/:templateId', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const parsed = updateTemplateSchema.safeParse(req.body);
+  router.get('/plans/:planId/routines', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const routines = await trainingService.listPlanRoutines(readParam(req, 'planId'));
+    res.status(200).json({ routines });
+  });
+
+  // ── Virtual Trainer & Settings ───────────────────────────────────────────
+
+  router.get('/settings', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const settings = await trainingService.getTrainingSettings(req.user!.sub);
+    res.status(200).json({ settings });
+  });
+
+  router.put('/settings', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const parsed = z.object({ overloadStrategy: overloadStrategyEnum }).safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.flatten() });
       return;
     }
-
-    await handleIdempotentWrite(req, res, async () => {
-      const template = await trainingService.updateTemplate(
-        req.user!.sub,
-        readParam(req, 'templateId'),
-        parsed.data,
-      );
-      if (!template) {
-        return { status: 404, body: { error: 'Template not found' } };
-      }
-
-      return { status: 200, body: { template } };
-    });
+    const settings = await trainingService.updateTrainingSettings(req.user!.sub, parsed.data.overloadStrategy);
+    res.status(200).json({ settings });
   });
 
-  router.delete('/templates/:templateId', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    await handleIdempotentWrite(req, res, async () => {
-      const deleted = await trainingService.deleteTemplate(req.user!.sub, readParam(req, 'templateId'));
-      if (!deleted) {
-        return { status: 404, body: { error: 'Template not found' } };
-      }
-      return { status: 204 };
-    });
-  });
-
-  router.get('/templates/reminders', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const parsed = reminderQuerySchema.safeParse(req.query);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
-      return;
-    }
-
-    const reminders = await trainingService.getTemplateReminders(
-      req.user!.sub,
-      parsed.data.withinDays,
-    );
-    res.status(200).json({ reminders });
-  });
-
-  router.get('/insights/heatmap', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const parsed = heatmapQuerySchema.safeParse(req.query);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
-      return;
-    }
-
-    const heatmap = await trainingService.getBodyHeatmap(req.user!.sub, parsed.data.days);
-    res.status(200).json({ heatmap });
-  });
-
-  router.get('/insights/stagnation-suggestions', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const parsed = stagnationQuerySchema.safeParse(req.query);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
-      return;
-    }
-
-    const suggestions = await trainingService.getStagnationSuggestions(req.user!.sub, {
-      window: parsed.data.window,
-      incrementKg: parsed.data.incrementKg,
-      minCompletedSets: parsed.data.minCompletedSets,
-      minCompletionRatio: parsed.data.minCompletionRatio,
-      deloadDropPercent: parsed.data.deloadDropPercent,
-    });
-    res.status(200).json({ suggestions });
-  });
-
-  // Exercise Catalog
-  router.get('/catalog', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const catalog = await trainingService.listCatalog();
-    res.status(200).json({ catalog });
-  });
-
-  router.get('/catalog/:id', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const exercise = await trainingService.getCatalogExercise(readParam(req, 'id'));
-    if (!exercise) {
-      res.status(404).json({ error: 'Exercise not found' });
-      return;
-    }
-    res.status(200).json({ exercise });
-  });
-
-  router.post('/catalog', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    if (req.user!.role !== 'admin') {
-      res.status(403).json({ error: 'Only admins can manage catalog' });
-      return;
-    }
-    const parsed = createCatalogExerciseSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
-      return;
-    }
-
-    const exercise = await trainingService.createCatalogExercise(parsed.data);
-    res.status(201).json({ exercise });
-  });
-
-  router.put('/catalog/:id', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    if (req.user!.role !== 'admin') {
-      res.status(403).json({ error: 'Only admins can manage catalog' });
-      return;
-    }
-    const parsed = updateCatalogExerciseSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
-      return;
-    }
-
-    const updated = await trainingService.updateCatalogExercise(readParam(req, 'id'), parsed.data);
-    if (!updated) {
-      res.status(404).json({ error: 'Exercise not found' });
-      return;
-    }
-    res.status(200).json({ exercise: updated });
-  });
-
-  router.delete('/catalog/:id', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    if (req.user!.role !== 'admin') {
-      res.status(403).json({ error: 'Only admins can manage catalog' });
-      return;
-    }
-    const deleted = await trainingService.deleteCatalogExercise(readParam(req, 'id'));
-    if (!deleted) {
-      res.status(404).json({ error: 'Exercise not found' });
-      return;
-    }
-    res.status(204).send();
-  });
-
-  router.get('/exercises/history', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const name = typeof req.query['name'] === 'string' ? req.query['name'].trim() : '';
+  router.get('/suggestions', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const name = typeof req.query['name'] === 'string' ? req.query['name'] : '';
     if (!name) {
       res.status(400).json({ error: 'name query param required' });
       return;
     }
-    const excludeSession = typeof req.query['excludeSession'] === 'string'
-      ? req.query['excludeSession']
-      : undefined;
-
-    const history = await trainingService.getLastExerciseSets(req.user!.sub, name, excludeSession);
-    res.status(200).json({ history });
+    const suggestion = await trainingService.getExerciseSuggestion(req.user!.sub, name);
+    res.status(200).json({ suggestion });
   });
 
   return router;
 }
+

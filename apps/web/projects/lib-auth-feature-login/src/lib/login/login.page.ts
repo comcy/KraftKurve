@@ -69,14 +69,13 @@ export class LoginPage {
 
   private isValidRole(userRole?: string): boolean {
     if (this.appId === 'admin') return userRole === 'admin';
-    if (this.appId === 'shell') return userRole === 'user' || userRole === 'admin';
-    return userRole === 'user';
+    // Both user and admin can log into shell or mobile apps
+    return userRole === 'user' || userRole === 'admin';
   }
 
   private getExpectedRoles(appId: AppId): string {
     if (appId === 'admin') return 'Admin';
-    if (appId === 'shell') return 'User oder Admin';
-    return 'User';
+    return 'User oder Admin';
   }
 }
 

@@ -9,7 +9,12 @@ import {
   trainingSessionRepository,
   trainingExerciseRepository,
   trainingSetRepository,
-  trainingPlanTemplateRepository,
+  trainingPlanRepository,
+  trainingRoutineRepository,
+  trainingRoutineExerciseRepository,
+  cardioRecordRepository,
+  trainingSettingsRepository,
+  exerciseRepository,
   idempotencyRecordRepository,
   nutritionEntryRepository,
   foodItemRepository,
@@ -35,7 +40,12 @@ const trainingService = new TrainingService(
   trainingSessionRepository,
   trainingExerciseRepository,
   trainingSetRepository,
-  trainingPlanTemplateRepository,
+  trainingPlanRepository,
+  trainingRoutineRepository,
+  trainingRoutineExerciseRepository,
+  cardioRecordRepository,
+  trainingSettingsRepository,
+  exerciseRepository,
 );
 const idempotencyService = new IdempotencyService(idempotencyRecordRepository);
 const nutritionService = new NutritionService(

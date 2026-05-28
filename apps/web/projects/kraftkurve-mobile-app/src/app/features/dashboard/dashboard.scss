@@ -4,32 +4,10 @@
   gap: 16px;
 }
 
-.widget-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.protocol-btn {
-  height: 72px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  
-  &.freestyle {
-    border: 1px solid var(--secondary);
-    color: var(--secondary);
-  }
-
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-
-  span {
-    font-family: var(--font-headline);
-    font-size: 8px;
+.clickable {
+  cursor: pointer;
+  &:active {
+    opacity: 0.8;
   }
 }
 
@@ -37,7 +15,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  
+
   mat-icon {
     font-size: 14px;
     width: 14px;
@@ -57,7 +35,7 @@
 
   .fuel-value {
     font-size: 20px;
-    
+
     .current {
       color: var(--secondary);
     }
@@ -98,51 +76,40 @@
   }
 }
 
-.chart-mock {
-  height: 120px;
+.workout-summary {
   display: flex;
-  align-items: flex-end;
   justify-content: space-between;
-  padding: 0 16px 24px;
-  border-bottom: 1px solid var(--outline-variant);
-  position: relative;
+  margin-bottom: 16px;
 
-  .bar-container {
-    width: 24px;
+  .summary-item {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 8px;
-
-    .bar {
-      width: 100%;
-      background: var(--surface-container-highest);
-      
-      &.active {
-        background: var(--tertiary); // Green
-      }
-
-      &.highlighted {
-        background: var(--primary); // Yellow
-      }
-    }
+    gap: 4px;
 
     .label-caps {
-      position: absolute;
-      bottom: 4px;
-      opacity: 0.5;
+      font-size: 8px;
+      opacity: 0.6;
+    }
 
-      &.active {
-        opacity: 1;
-        color: var(--primary);
-      }
+    .data-mono {
+      font-size: 18px;
+      color: var(--primary);
     }
   }
 }
 
+.detail-hint {
+  text-align: center;
+  font-size: 8px;
+  opacity: 0.4;
+  letter-spacing: 2px;
+  border-top: 1px dashed var(--outline-variant);
+  padding-top: 12px;
+}
+
 .action-container {
   margin-top: 8px;
-  
+
   .start-btn {
     width: 100%;
     height: 56px;
@@ -156,9 +123,10 @@
       width: 24px;
       height: 24px;
     }
-    
+
     span {
       font-size: 12px;
     }
   }
 }
+

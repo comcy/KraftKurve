@@ -4,13 +4,15 @@
   left: 0;
   width: 100%;
   height: 120px; 
-  background: var(--surface);
-  border-bottom: 1px solid var(--outline-variant);
+  background: var(--surface) !important;
+  border-bottom: 2px solid var(--outline-variant);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  z-index: 100;
+  z-index: 9999;
+  opacity: 1 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
 
   button {
     color: var(--header-icon-color);
@@ -34,10 +36,21 @@
 }
 
 .app-content {
-  padding: 140px 16px 100px; 
+  padding: 130px 16px 120px; 
   max-width: 600px;
   margin: 0 auto;
   min-height: 100vh;
+  position: relative;
+  z-index: 10;
+  background: transparent !important;
+
+  &.no-nav {
+    padding: 0;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 }
 
 .app-nav {
@@ -45,14 +58,16 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 72px;
-  background: var(--surface-container-high);
-  border-top: 1px solid var(--outline-variant);
+  height: 84px;
+  background: var(--surface-container-high) !important;
+  border-top: 2px solid var(--outline-variant);
   display: flex;
   justify-content: space-around;
   align-items: center;
   padding-bottom: env(safe-area-inset-bottom);
-  z-index: 100;
+  z-index: 9999;
+  opacity: 1 !important;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.6);
 
   .nav-item {
     height: 100%;
@@ -64,12 +79,15 @@
     color: var(--on-surface-variant);
     transition: all 0.2s ease;
     text-decoration: none;
+    background-color: var(--surface-container-high) !important;
+    border-radius: 0;
+    opacity: 1 !important;
 
     mat-icon {
       margin-bottom: 2px;
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
     }
 
     .nav-label {
@@ -80,7 +98,7 @@
     &.active {
       color: var(--primary-alt);
       background: var(--surface-container-highest);
-      border-bottom: 2px solid var(--primary-alt);
+      border-bottom: 4px solid var(--primary-alt);
     }
   }
 }

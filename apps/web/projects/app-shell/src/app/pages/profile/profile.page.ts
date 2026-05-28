@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from 'lib-auth-data-access';
 import { NutritionService } from 'lib-nutrition-data-access';
+import { TrainingService, OverloadStrategy } from 'lib-training-data-access';
 
 @Component({
   selector: 'app-profile-page',
@@ -14,6 +15,7 @@ import { NutritionService } from 'lib-nutrition-data-access';
 export class ProfilePage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly nutritionService = inject(NutritionService);
+  private readonly trainingService = inject(TrainingService);
 
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
@@ -23,6 +25,8 @@ export class ProfilePage implements OnInit {
   protected readonly displayName = signal('');
   protected readonly email = signal('');
   protected readonly proteinGoalDraft = signal<number | null>(null);
+  protected readonly proteinPresetsDraft = signal<number[]>([20, 40, 60]);
+  protected readonly overloadStrategyDraft = signal<OverloadStrategy>('weight-focused');
 
   async ngOnInit(): Promise<void> {
     const user = this.authService.getCurrentUser();
@@ -37,8 +41,16 @@ export class ProfilePage implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const goal = await this.nutritionService.getProteinGoal();
-      this.proteinGoalDraft.set(goal.proteinGoalG);
+      const [nSettings, tSettings] = await Promise.all([
+        this.nutritionService.getSettings(),
+        this.trainingService.getTrainingSettings(),
+      ]);
+
+      this.proteinGoalDraft.set(nSettings.proteinGoalG);
+      if (nSettings.proteinPresets && nSettings.proteinPresets.length === 3) {
+        this.proteinPresetsDraft.set([...nSettings.proteinPresets]);
+      }
+      this.overloadStrategyDraft.set(tSettings.overloadStrategy);
     } catch (error) {
       this.error.set(error instanceof Error ? error.message : 'Profil konnte nicht geladen werden.');
     } finally {
@@ -50,21 +62,41 @@ export class ProfilePage implements OnInit {
     return this.authService.getCurrentUser()?.role === 'admin';
   }
 
-  protected async saveGoal(event: Event): Promise<void> {
+  protected updatePreset(index: number, value: string): void {
+    const num = parseInt(value) || 0;
+    const current = [...this.proteinPresetsDraft()];
+    current[index] = num;
+    this.proteinPresetsDraft.set(current);
+  }
+
+  protected async saveSettings(event: Event): Promise<void> {
     event.preventDefault();
     this.saving.set(true);
     this.error.set(null);
     this.success.set(null);
 
     try {
-      const value = this.proteinGoalDraft();
-      if (value !== null && (Number.isNaN(value) || value < 1 || value > 9999)) {
+      const goal = this.proteinGoalDraft();
+      if (goal !== null && (Number.isNaN(goal) || goal < 1 || goal > 9999)) {
         this.error.set('Ziel muss zwischen 1g und 9999g sein.');
         return;
       }
 
-      await this.nutritionService.setProteinGoal(value);
-      this.success.set('Ernaehrungsziel gespeichert.');
+      const presets = this.proteinPresetsDraft();
+      if (presets.some(p => p < 1 || p > 999)) {
+        this.error.set('Presets muessen zwischen 1g und 999g sein.');
+        return;
+      }
+
+      await Promise.all([
+        this.nutritionService.updateSettings({
+          proteinGoalG: goal,
+          proteinPresets: presets,
+        }),
+        this.trainingService.updateTrainingSettings(this.overloadStrategyDraft()),
+      ]);
+
+      this.success.set('Einstellungen gespeichert.');
     } catch (error) {
       this.error.set(error instanceof Error ? error.message : 'Speichern fehlgeschlagen.');
     } finally {

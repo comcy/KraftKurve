@@ -38,12 +38,30 @@
     </div>
   </section>
 
-  <!-- Add Entry Form -->
+  <!-- Log Entry Widget (Unified) -->
   <section class="log-card entry-section">
     <div class="log-header tape">
-      <span class="label-caps">ADD PROTOCOL ENTRY</span>
+      <span class="label-caps">NUTRITION PROTOCOL / ADD</span>
     </div>
     <div class="log-content">
+      <!-- Quick Track Presets (Integrated) -->
+      <div class="quick-track-section" *ngIf="settings()?.proteinPresets">
+        <span class="label-caps section-subtitle">QUICK LOG</span>
+        <div class="quick-track-row">
+          <button
+            *ngFor="let p of settings()!.proteinPresets"
+            class="btn-secondary label-caps quick-track-btn"
+            (click)="onQuickTrack(p)"
+            [disabled]="adding()"
+          >+ {{ p }}G</button>
+        </div>
+      </div>
+
+      <!-- Divider / Subtitle -->
+      <div class="manual-entry-header">
+        <span class="label-caps section-subtitle">CUSTOM LOG</span>
+      </div>
+
       <!-- Favorites Quick-Pick -->
       <div class="favorites-row" *ngIf="foodItems().length > 0">
         <span class="favorites-label label-caps">FAVORITES:</span>
@@ -86,8 +104,8 @@
           <label class="input-group">
             <span class="label-caps">PORTION (G)</span>
             <input
-              type="number"
-              min="0"
+              type="text"
+              inputmode="decimal"
               [(ngModel)]="draft.portionG"
               name="portionG"
               class="input-number data-mono"
@@ -96,9 +114,8 @@
           <label class="input-group">
             <span class="label-caps">PROTEIN (G)</span>
             <input
-              type="number"
-              min="0"
-              step="0.1"
+              type="text"
+              inputmode="decimal"
               [(ngModel)]="draft.proteinG"
               name="proteinG"
               required
@@ -143,6 +160,13 @@
   <!-- Loading -->
   <div class="loading-state label-caps" *ngIf="loading()">
     <p>SYNCHRONIZING...</p>
+  </div>
+
+  <!-- History Swipe Up Trigger -->
+  <div class="history-trigger">
+    <button class="btn-primary label-caps full-width" (click)="openHistory()">
+      VIEW FULL HISTORY
+    </button>
   </div>
 
   <!-- Favorites Management -->
