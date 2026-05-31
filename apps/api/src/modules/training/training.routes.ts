@@ -17,6 +17,7 @@ const muscleGroupEnum = z.enum([
   'quads',
   'hamstrings',
   'calves',
+  'legs',
   'full-body',
   'cardio',
 ]);
@@ -64,6 +65,7 @@ const createPlanSchema = z.object({
   name: z.string().min(1).max(120),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  sessionsPerWeek: z.number().int().min(1).max(14).default(3),
   note: z.string().max(2000).optional().nullable(),
   active: z.boolean().optional(),
 });
@@ -72,6 +74,7 @@ const updatePlanSchema = z.object({
   name: z.string().min(1).max(120).optional(),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  sessionsPerWeek: z.number().int().min(1).max(14).optional(),
   note: z.string().max(2000).optional().nullable(),
   active: z.boolean().optional(),
 }).refine(v => !v.startDate || !v.endDate || v.endDate >= v.startDate, {
@@ -91,6 +94,7 @@ const updateExerciseSchema = z
     muscleGroup: muscleGroupEnum.optional(),
     note: z.string().max(2000).optional().nullable(),
     order: z.number().int().min(1).optional(),
+    supersetGroupId: z.string().uuid().optional().nullable(),
   })
   .refine((value) => Object.keys(value).length > 0, {
     message: 'No fields to update',
@@ -298,6 +302,39 @@ export function createTrainingRouter(
     });
   });
 
+  router.put('/sessions/:id/exercises/:exerciseId', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const parsed = updateExerciseSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+
+    const updated = await trainingService.updateExercise(
+      req.user!.sub,
+      readParam(req, 'id'),
+      readParam(req, 'exerciseId'),
+      parsed.data,
+    );
+    if (!updated) {
+      res.status(404).json({ error: 'Exercise not found' });
+      return;
+    }
+    res.status(200).json({ exercise: updated });
+  });
+
+  router.delete('/sessions/:id/exercises/:exerciseId', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const deleted = await trainingService.deleteExercise(
+      req.user!.sub,
+      readParam(req, 'id'),
+      readParam(req, 'exerciseId'),
+    );
+    if (!deleted) {
+      res.status(404).json({ error: 'Exercise not found' });
+      return;
+    }
+    res.status(204).send();
+  });
+
   router.get('/sessions/:id/exercises/:exerciseId/cardio', requireAuth as any, async (req: AuthRequest, res: Response) => {
     const record = await trainingService.getCardioRecord(readParam(req, 'exerciseId'));
     res.status(200).json({ record });
@@ -404,9 +441,65 @@ export function createTrainingRouter(
     res.status(201).json({ plan });
   });
 
+  router.put('/plans/:id', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const parsed = updatePlanSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+    const plan = await trainingService.updatePlan(req.user!.sub, readParam(req, 'id'), parsed.data);
+    if (!plan) return res.status(404).json({ error: 'Plan not found' });
+    res.status(200).json({ plan });
+  });
+
+  router.delete('/plans/:id', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const deleted = await trainingService.deletePlan(req.user!.sub, readParam(req, 'id'));
+    if (!deleted) return res.status(404).json({ error: 'Plan not found' });
+    res.status(204).send();
+  });
+
   router.get('/plans/:planId/routines', requireAuth as any, async (req: AuthRequest, res: Response) => {
     const routines = await trainingService.listPlanRoutines(readParam(req, 'planId'));
     res.status(200).json({ routines });
+  });
+
+  router.post('/plans/:planId/routines', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const name = req.body.name;
+    if (!name) return res.status(400).json({ error: 'name required' });
+    const routine = await trainingService.createRoutine(readParam(req, 'planId'), name);
+    res.status(201).json({ routine });
+  });
+
+  router.put('/routines/:routineId', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const routine = await trainingService.updateRoutine(readParam(req, 'routineId'), req.body.name, req.body.order);
+    if (!routine) return res.status(404).json({ error: 'Routine not found' });
+    res.status(200).json({ routine });
+  });
+
+  router.delete('/routines/:routineId', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    await trainingService.deleteRoutine(readParam(req, 'routineId'));
+    res.status(204).send();
+  });
+
+  router.get('/routines/:routineId/exercises', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const exercises = await trainingService.getRoutineExercises(readParam(req, 'routineId'));
+    res.status(200).json({ exercises });
+  });
+
+  router.post('/routines/:routineId/exercises', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const exercise = await trainingService.addRoutineExercise(readParam(req, 'routineId'), req.body);
+    res.status(201).json({ exercise });
+  });
+
+  router.put('/routine-exercises/:id', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const exercise = await trainingService.updateRoutineExercise(readParam(req, 'id'), req.body);
+    if (!exercise) return res.status(404).json({ error: 'Routine exercise not found' });
+    res.status(200).json({ exercise });
+  });
+
+  router.delete('/routine-exercises/:id', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    await trainingService.deleteRoutineExercise(readParam(req, 'id'));
+    res.status(204).send();
   });
 
   // ── Virtual Trainer & Settings ───────────────────────────────────────────
@@ -434,6 +527,11 @@ export function createTrainingRouter(
     }
     const suggestion = await trainingService.getExerciseSuggestion(req.user!.sub, name);
     res.status(200).json({ suggestion });
+  });
+
+  router.get('/catalog', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const list = await trainingService.listCatalog();
+    res.status(200).json({ catalog: list });
   });
 
   return router;

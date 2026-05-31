@@ -118,7 +118,7 @@ export class TrainingSessionPage implements OnInit {
 
   protected readonly muscleGroups: MuscleGroup[] = [
     'chest', 'back', 'shoulders', 'biceps', 'triceps', 'forearms',
-    'abs', 'glutes', 'quads', 'hamstrings', 'calves', 'full-body', 'cardio'
+    'abs', 'glutes', 'quads', 'hamstrings', 'calves', 'legs', 'full-body', 'cardio'
   ];
 
   protected readonly templates: WorkoutTemplate[] = ['push', 'pull', 'legs', 'full-body', 'custom'];

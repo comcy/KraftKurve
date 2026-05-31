@@ -1,16 +1,33 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
-import { FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { TrainingStateService } from '../../core/services/training-state.service';
-import { TrainingService, TrainingPlanDto, TrainingSessionDto } from 'lib-training-data-access';
+import { TrainingService, TrainingPlanDto, TrainingSessionDto, ExerciseDto, TrainingRoutineDto, TrainingExerciseDto } from 'lib-training-data-access';
+import { TacticalDialogComponent } from '../../core/components/tactical-dialog/tactical-dialog.component';
 
 @Component({
   selector: 'app-training',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatRippleModule, FormsModule],
+  imports: [
+    CommonModule, 
+    RouterLink, 
+    MatButtonModule, 
+    MatIconModule, 
+    MatRippleModule, 
+    MatDialogModule,
+    MatBottomSheetModule,
+    MatAutocompleteModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
   templateUrl: './training.html',
   styleUrl: './training.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -18,6 +35,8 @@ import { TrainingService, TrainingPlanDto, TrainingSessionDto } from 'lib-traini
 export class TrainingComponent implements OnInit {
   private readonly _trainingState = inject(TrainingStateService);
   private readonly _trainingApi = inject(TrainingService);
+  private readonly _dialog = inject(MatDialog);
+  private readonly _bottomSheet = inject(MatBottomSheet);
 
   protected readonly activeSession = this._trainingState.activeSession;
   protected readonly isPaused = this._trainingState.isPaused;
@@ -32,7 +51,31 @@ export class TrainingComponent implements OnInit {
 
   protected availablePlans = signal<TrainingPlanDto[]>([]);
   protected todaySessions = signal<TrainingSessionDto[]>([]);
+  protected catalog = signal<ExerciseDto[]>([]);
   protected showPlanSelector = signal(true);
+
+  protected activePlansWithNextRoutine = signal<Array<{ plan: TrainingPlanDto, nextRoutine: TrainingRoutineDto | null }>>([]);
+
+  protected readonly groupedExercises = computed(() => {
+    const list = this.exercises();
+    const groups: Array<{ type: 'single' | 'superset', exercises: TrainingExerciseDto[] }> = [];
+    
+    for (let i = 0; i < list.length; i++) {
+      const current = list[i];
+      if (current.supersetGroupId) {
+        // Find if we already have a group with this ID
+        const existingGroup = groups.find(g => g.type === 'superset' && g.exercises[0].supersetGroupId === current.supersetGroupId);
+        if (existingGroup) {
+          existingGroup.exercises.push(current);
+        } else {
+          groups.push({ type: 'superset', exercises: [current] });
+        }
+      } else {
+        groups.push({ type: 'single', exercises: [current] });
+      }
+    }
+    return groups;
+  });
 
   async ngOnInit() {
     await this._trainingState.init();
@@ -40,21 +83,50 @@ export class TrainingComponent implements OnInit {
   }
 
   private async loadInitialData() {
+    const today = new Date().toISOString().split('T')[0];
+    const localToday = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+
     try {
-      const [plans, sessions] = await Promise.all([
+      const [plans, sessions, catalog] = await Promise.all([
         this._trainingApi.listPlans(),
-        this._trainingApi.listSessions()
+        this._trainingApi.listSessions(),
+        this._trainingApi.listCatalog()
       ]);
-      this.availablePlans.set(plans.filter(p => p.active));
-      
+
       const today = new Date().toISOString().split('T')[0];
-      this.todaySessions.set(sessions.filter(s => s.date === today));
-      
+      const localToday = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+
+      this.catalog.set(catalog);
+      this.availablePlans.set(plans);
+      this.todaySessions.set(sessions.filter(s => s.date === today || s.date === localToday));
+
+      // Filter active plans - MUST be active AND within timeframe
+      const activePlans = plans
+        .filter(p => {
+          if (!p.active) return false;
+          const isStarted = p.startDate <= today || p.startDate <= localToday;
+          const isNotEnded = p.endDate >= today || p.endDate >= localToday;
+          return isStarted && isNotEnded;
+        })
+        .sort((a, b) => b.startDate.localeCompare(a.startDate)); // Newest first
+
+      // Enrich with next routine information
+      const enrichedPlans = await Promise.all(activePlans.map(async (plan) => {
+        try {
+          const nextRoutine = await this._trainingState.getNextRoutine(plan.id);
+          return { plan, nextRoutine };
+        } catch (e) {
+          return { plan, nextRoutine: null };
+        }
+      }));
+
+      this.activePlansWithNextRoutine.set(enrichedPlans);
+
       if (this.activeSession()) {
         this.showPlanSelector.set(false);
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('Critical failure in Training Hub initialization:', err);
     }
   }
 
@@ -63,8 +135,8 @@ export class TrainingComponent implements OnInit {
     this.showPlanSelector.set(false);
   }
 
-  async startPlanWorkout(planId: string) {
-    await this._trainingState.startSession(planId);
+  async startPlanWorkout(planId: string, routineId: string) {
+    await this._trainingState.startSession(planId, routineId);
     this.showPlanSelector.set(false);
   }
 
@@ -73,10 +145,68 @@ export class TrainingComponent implements OnInit {
     this.showPlanSelector.set(false);
   }
 
+  async openWorkoutDetail(session: TrainingSessionDto) {
+    try {
+      const exercises = await this._trainingApi.listExercises(session.id);
+      const { WorkoutDetailSheetComponent } = await import('lib-training-feature-details');
+      this._bottomSheet.open(WorkoutDetailSheetComponent, {
+        data: { session, exercises },
+        panelClass: 'kk-bottom-sheet'
+      });
+    } catch {
+      // ignore
+    }
+  }
+
   async onAddExercise() {
-    const name = prompt('Exercise Name?');
-    if (name) {
-      await this._trainingState.addExercise(name, 'full-body');
+    const existingNames = this.exercises().map(e => e.exerciseName.toLowerCase());
+    
+    const dialogRef = this._dialog.open(TacticalDialogComponent, {
+      data: {
+        title: 'ATTACH EXERCISE',
+        message: 'Search for existing data or define new movement.',
+        fields: [
+          { 
+            key: 'name', 
+            type: 'text', 
+            label: 'EXERCISE NAME', 
+            placeholder: 'E.G. BENCH PRESS',
+            autocompleteOptions: this.catalog()
+              .map(e => e.name)
+              .filter(name => !existingNames.includes(name.toLowerCase()))
+          }
+        ],
+        confirmLabel: 'ATTACH'
+      },
+      panelClass: 'kk-dialog-panel'
+    });
+
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    if (result && result.name) {
+      const normalizedNewName = result.name.trim().toLowerCase();
+      if (existingNames.includes(normalizedNewName)) {
+        // Prevent redundant attachments
+        return;
+      }
+
+      await this._trainingState.addExercise(result.name, 'full-body');
+      await this.loadInitialData(); // Refresh catalog
+    }
+  }
+
+  async onDeleteExercise(exerciseId: string, name: string) {
+    const dialogRef = this._dialog.open(TacticalDialogComponent, {
+      data: {
+        title: 'DETACH EXERCISE',
+        message: `Confirm removal of ${name.toUpperCase()} from current operation. All logged sets will be destroyed.`,
+        confirmLabel: 'DETACH'
+      },
+      panelClass: 'kk-dialog-panel'
+    });
+
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (confirmed) {
+      await this._trainingState.deleteExercise(exerciseId);
     }
   }
 
@@ -120,7 +250,17 @@ export class TrainingComponent implements OnInit {
   }
 
   async onFinish() {
-    if (confirm('Finish this workout?')) {
+    const dialogRef = this._dialog.open(TacticalDialogComponent, {
+      data: {
+        title: 'TERMINATE WORKOUT',
+        message: 'Are you sure you want to finish and archive this session?',
+        confirmLabel: 'FINISH'
+      },
+      panelClass: 'kk-dialog-panel'
+    });
+
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (confirmed) {
       await this._trainingState.finishSession();
       this.showPlanSelector.set(true);
       await this.loadInitialData();
@@ -129,5 +269,19 @@ export class TrainingComponent implements OnInit {
 
   getSetsForExercise(exerciseId: string) {
     return this._trainingState.setsByExercise()[exerciseId] || [];
+  }
+
+  formatDuration(seconds: number): string {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    if (minutes > 0) return `${minutes}m ${s}s`;
+    return `${s}s`;
+  }
+
+  isSupersetWithPrev(index: number): boolean {
+    const list = this.exercises();
+    return !!(list[index].supersetGroupId && list[index - 1] && list[index].supersetGroupId === list[index - 1].supersetGroupId);
   }
 }

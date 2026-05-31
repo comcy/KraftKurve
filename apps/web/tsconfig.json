@@ -42,6 +42,9 @@
       "lib-progress-feature-overview": [
         "./projects/lib-progress-feature-overview/src/public-api"
       ],
+      "lib-training-feature-details": [
+        "./projects/lib-training-feature-details/src/public-api"
+      ],
       "lib-training-feature-overview": [
         "./projects/lib-training-feature-overview/src/public-api"
       ],
@@ -202,6 +205,12 @@
     },
     {
       "path": "./projects/kraftkurve-mobile-app/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/lib-training-feature-details/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-training-feature-details/tsconfig.spec.json"
     }
   ]
 }

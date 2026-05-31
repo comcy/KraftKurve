@@ -138,7 +138,10 @@
               <a mat-list-item [routerLink]="session.id">
                 <mat-icon matListItemIcon>fitness_center</mat-icon>
                 <div matListItemTitle class="data-mono">{{ session.date }}</div>
-                <div matListItemLine class="label-caps">{{ session.templateType }}</div>
+                <div matListItemLine class="label-caps">
+                  {{ session.planName || session.templateType }}
+                  <span *ngIf="session.routineName">/ {{ session.routineName }}</span>
+                </div>
                 <mat-icon matListItemMeta>chevron_right</mat-icon>
               </a>
             }

@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -10,7 +11,7 @@ import { TrainingService, TrainingSessionDto, TrainingExerciseDto } from 'lib-tr
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressBarModule, MatBottomSheetModule],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressBarModule, MatBottomSheetModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -59,8 +60,17 @@ export class DashboardComponent implements OnInit {
     await this.nutritionState.quickLog(amount);
   }
 
+  formatDuration(seconds: number): string {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    if (minutes > 0) return `${minutes}m ${s}s`;
+    return `${s}s`;
+  }
+
   async openWorkoutDetail(session: TrainingSessionDto) {
-    const { WorkoutDetailSheetComponent } = await import('./workout-detail-sheet.component');
+    const { WorkoutDetailSheetComponent } = await import('lib-training-feature-details');
     this.bottomSheet.open(WorkoutDetailSheetComponent, {
       data: { session, exercises: this.lastSessionExercises() },
       panelClass: 'kk-bottom-sheet'

@@ -11,7 +11,8 @@ export class NdjsonTrainingSetRepository
   }
 
   async deleteByExercise(trainingExerciseId: string): Promise<void> {
-    const items = await this.findByExercise(trainingExerciseId);
-    await Promise.all(items.map((item) => this.deleteById(item.id)));
+    const all = await this.readAll();
+    const filtered = all.filter((set) => set.trainingExerciseId !== trainingExerciseId);
+    await this.writeAll(filtered);
   }
 }

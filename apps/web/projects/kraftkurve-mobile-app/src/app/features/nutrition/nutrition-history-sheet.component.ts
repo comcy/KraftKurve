@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
@@ -9,7 +9,7 @@ import { NutritionService, NutritionEntryDto, ChartDataItem } from 'lib-nutritio
 @Component({
   selector: 'app-nutrition-history-sheet',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, DecimalPipe, DragDropModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, DragDropModule],
   templateUrl: './nutrition-history-sheet.component.html',
   styleUrl: './nutrition-history-sheet.component.scss',
 })

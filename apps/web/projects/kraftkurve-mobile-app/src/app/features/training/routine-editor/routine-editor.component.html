@@ -1,0 +1,92 @@
+<div class="routine-editor">
+  <div class="header-nav">
+    <a mat-button [routerLink]="['/training/plans', planId]">
+      <mat-icon>arrow_back</mat-icon>
+      PLAN CONFIG
+    </a>
+  </div>
+
+  <h1 class="headline-lg title">ROUTINE_EDITOR</h1>
+
+  <!-- Active Routine Exercises -->
+  <section class="log-card">
+    <div class="log-header tape">EXERCISE_STACK</div>
+    <div class="log-content">
+      <div class="drag-list" cdkDropList (cdkDropListDropped)="onDrop($event)">
+        @for (group of groupedExercises(); track $index) {
+          @if (group.type === 'superset') {
+            <div class="superset-editor-wrapper">
+              <div class="superset-label label-caps">SUPERSET_BLOCK</div>
+              @for (ex of group.exercises; track ex.id; let i = $index) {
+                <div class="exercise-item nested" cdkDrag>
+                  <div class="drag-handle" cdkDragHandle>
+                    <mat-icon>drag_indicator</mat-icon>
+                  </div>
+                  <div class="exercise-info">
+                    <span class="label-caps">{{ ex.exerciseName }}</span>
+                    <span class="sub-label label-caps">{{ ex.muscleGroup }}</span>
+                  </div>
+                  <div class="actions">
+                    <button mat-icon-button class="superset-btn active" (click)="toggleSuperset(exercises().indexOf(ex))">
+                      <mat-icon>link</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="removeExercise(ex.id)">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            @for (ex of group.exercises; track ex.id) {
+              <div class="exercise-item" cdkDrag>
+                <div class="drag-handle" cdkDragHandle>
+                  <mat-icon>drag_indicator</mat-icon>
+                </div>
+                <div class="exercise-info">
+                  <span class="label-caps">{{ ex.exerciseName }}</span>
+                  <span class="sub-label label-caps">{{ ex.muscleGroup }}</span>
+                </div>
+                <div class="actions">
+                  <button mat-icon-button class="superset-btn" (click)="toggleSuperset(exercises().indexOf(ex))" *ngIf="exercises().indexOf(ex) < exercises().length - 1">
+                    <mat-icon>link_off</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="removeExercise(ex.id)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          }
+        } @empty {
+          <p class="empty-msg label-caps">EMPTY_STACK. ATTACH EXERCISES BELOW.</p>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Exercise Catalog / Add -->
+  <div class="search-box">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label class="label-caps">SEARCH_OR_CREATE_EXERCISE</mat-label>
+      <input type="text" matInput [formControl]="searchControl" [matAutocomplete]="auto">
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addExercise($event.option.value)">
+        @for (option of filteredCatalog | async; track option.id) {
+          <mat-option [value]="option">
+            <div class="option-content">
+              <span class="label-caps">{{ option.name }}</span>
+              <span class="muscle-badge label-caps">{{ option.muscleGroup }}</span>
+            </div>
+          </mat-option>
+        } @empty {
+          <mat-option disabled class="no-results">
+            <span class="label-caps">NO_EXISTING_DATA. CREATE NEW?</span>
+          </mat-option>
+        }
+      </mat-autocomplete>
+      <button matSuffix mat-icon-button (click)="createCustomExercise()">
+        <mat-icon>add_circle</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+</div>

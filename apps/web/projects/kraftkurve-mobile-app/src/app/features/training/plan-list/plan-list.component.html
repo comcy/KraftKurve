@@ -1,0 +1,51 @@
+<div class="plans-container">
+  <div class="header-nav">
+    <a mat-button routerLink="/training/terminal">
+      <mat-icon>arrow_back</mat-icon>
+      BACK TO HUB
+    </a>
+  </div>
+
+  <h1 class="headline-lg title">PLAN_ARCHIVE</h1>
+
+  @if (loading()) {
+    <div class="loading label-caps">SYNCHRONIZING_ARCHIVE...</div>
+  } @else {
+    <div class="plan-list">
+      @for (plan of plans(); track plan.id) {
+        <section class="log-card clickable" [routerLink]="['/training/plans', plan.id]">
+          <div class="log-header tape">
+            <span>{{ plan.name }}</span>
+            <div class="header-end">
+              @let status = getPlanStatus(plan);
+              <span class="status-badge label-caps" [class]="status.toLowerCase()">
+                {{ status }}
+              </span>
+              <button mat-icon-button color="warn" (click)="deletePlan($event, plan.id)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="log-content">
+            <div class="plan-meta">
+              <div class="meta-item">
+                <span class="label-caps">TIMEFRAME</span>
+                <span class="data-mono">{{ plan.startDate | date:'dd.MM' }} - {{ plan.endDate | date:'dd.MM.yy' }}</span>
+              </div>
+            </div>
+            <p class="label-caps detail-hint">TAP TO EDIT ARCHIVE</p>
+          </div>
+        </section>
+      } @empty {
+        <p class="empty-msg label-caps">NO PROTOCOLS DETECTED.</p>
+      }
+    </div>
+
+    <div class="action-container">
+      <button mat-flat-button class="create-btn btn-primary full-width" (click)="createPlan()">
+        <mat-icon>add</mat-icon>
+        <span class="label-caps">INITIALIZE NEW PLAN</span>
+      </button>
+    </div>
+  }
+</div>

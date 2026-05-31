@@ -51,6 +51,7 @@ export interface UpdateTrainingExerciseInput {
   muscleGroup?: MuscleGroup;
   note?: string | null;
   order?: number;
+  supersetGroupId?: string | null;
 }
 
 export interface CreateTrainingSetInput {
@@ -84,6 +85,7 @@ export interface CreateTrainingPlanInput {
   name: string;
   startDate: string;
   endDate: string;
+  sessionsPerWeek: number;
   note?: string | null;
   active?: boolean;
 }
@@ -92,6 +94,7 @@ export interface UpdateTrainingPlanInput {
   name?: string;
   startDate?: string;
   endDate?: string;
+  sessionsPerWeek?: number;
   note?: string | null;
   active?: boolean;
 }
@@ -201,9 +204,28 @@ export class TrainingService {
     private readonly catalog: IExerciseRepository,
   ) {}
 
-  async listUserSessions(userId: string): Promise<TrainingSession[]> {
+  async listUserSessions(userId: string): Promise<(TrainingSession & { exerciseCount: number; planName?: string; routineName?: string })[]> {
     const list = await this.sessions.findByUser(userId);
-    return list.sort((a, b) => b.startedAt.localeCompare(a.startedAt));
+    const plans = await this.plans.findByUserId(userId);
+    const enriched = await Promise.all(
+      list.map(async (s) => {
+        const exercises = await this.exercises.findBySession(s.id);
+        const plan = s.planId ? plans.find((p) => p.id === s.planId) : null;
+        let routineName: string | undefined;
+        if (s.routineId) {
+          const routines = await this.routines.findByPlanId(s.planId!);
+          const routine = routines.find((r) => r.id === s.routineId);
+          routineName = routine ? routine.name : undefined;
+        }
+        return {
+          ...s,
+          exerciseCount: exercises.length,
+          planName: plan ? plan.name : undefined,
+          routineName,
+        };
+      }),
+    );
+    return enriched.sort((a, b) => b.startedAt.localeCompare(a.startedAt));
   }
 
   async getSession(userId: string, sessionId: string): Promise<TrainingSession | null> {
@@ -304,6 +326,7 @@ export class TrainingService {
       exerciseName: input.exerciseName,
       muscleGroup: input.muscleGroup,
       order: existing.length + 1,
+      supersetGroupId: null,
       note: input.note ?? null,
     };
 
@@ -332,6 +355,7 @@ export class TrainingService {
       muscleGroup: input.muscleGroup ?? exercise.muscleGroup,
       note: input.note === undefined ? exercise.note : input.note,
       order: input.order ?? exercise.order,
+      supersetGroupId: input.supersetGroupId === undefined ? exercise.supersetGroupId : input.supersetGroupId,
       updatedAt: now(),
       version: exercise.version + 1,
     };
@@ -485,6 +509,7 @@ export class TrainingService {
       name: input.name,
       startDate: input.startDate,
       endDate: input.endDate,
+      sessionsPerWeek: input.sessionsPerWeek,
       note: input.note ?? null,
       active: input.active ?? true,
     };
@@ -506,6 +531,7 @@ export class TrainingService {
       name: input.name ?? plan.name,
       startDate: input.startDate ?? plan.startDate,
       endDate: input.endDate ?? plan.endDate,
+      sessionsPerWeek: input.sessionsPerWeek ?? plan.sessionsPerWeek,
       note: input.note === undefined ? plan.note : input.note,
       active: input.active ?? plan.active,
       updatedAt: now(),
@@ -524,22 +550,106 @@ export class TrainingService {
     return true;
   }
 
-  async listPlanRoutines(planId: string): Promise<TrainingRoutine[]> {
-    return this.routines.findByPlanId(planId);
+  async listPlanRoutines(planId: string): Promise<(TrainingRoutine & { exerciseCount: number })[]> {
+    const list = await this.routines.findByPlanId(planId);
+    const enriched = await Promise.all(
+      list.map(async (r) => {
+        const exercises = await this.routineExercises.findByRoutineId(r.id);
+        return { ...r, exerciseCount: exercises.length };
+      }),
+    );
+    return enriched.sort((a, b) => a.order - b.order);
   }
 
-  async createRoutine(planId: string, name: string, order: number): Promise<TrainingRoutine> {
+  async createRoutine(planId: string, name: string): Promise<TrainingRoutine> {
+    const existing = await this.routines.findByPlanId(planId);
     const routine: TrainingRoutine = {
       ...baseEntity(),
       planId,
       name,
-      order,
+      order: existing.length + 1,
     };
     return this.routines.save(routine);
   }
 
+  async updateRoutine(routineId: string, name: string, order?: number): Promise<TrainingRoutine | null> {
+    const routine = await this.routines.findById(routineId);
+    if (!routine) return null;
+    const updated: TrainingRoutine = {
+      ...routine,
+      name: name ?? routine.name,
+      order: order ?? routine.order,
+      updatedAt: now(),
+      version: routine.version + 1,
+    };
+    return this.routines.save(updated);
+  }
+
+  async deleteRoutine(routineId: string): Promise<void> {
+    await this.routineExercises.deleteByRoutine(routineId);
+    await this.routines.deleteById(routineId);
+  }
+
   async getRoutineExercises(routineId: string): Promise<TrainingRoutineExercise[]> {
-    return this.routineExercises.findByRoutineId(routineId);
+    const list = await this.routineExercises.findByRoutineId(routineId);
+    return list.sort((a, b) => a.order - b.order);
+  }
+
+  async addRoutineExercise(
+    routineId: string,
+    input: { exerciseId?: string; exerciseName: string; muscleGroup: MuscleGroup; suggestedSets: number },
+  ): Promise<TrainingRoutineExercise> {
+    let finalExerciseId = input.exerciseId;
+
+    // Optimization: Ensure exercise exists in global catalog
+    const catalog = await this.listCatalog();
+    const existing = catalog.find(e => e.name.toLowerCase() === input.exerciseName.toLowerCase());
+
+    if (existing) {
+      finalExerciseId = existing.id;
+    } else {
+      // Create new entry in global optimization catalog
+      const newCatalogEx = await this.createCatalogExercise({
+        name: input.exerciseName,
+        muscleGroup: input.muscleGroup,
+        category: 'strength',
+      });
+      finalExerciseId = newCatalogEx.id;
+    }
+
+    const existingInRoutine = await this.routineExercises.findByRoutineId(routineId);
+    const ex: TrainingRoutineExercise = {
+      ...baseEntity(),
+      routineId,
+      exerciseId: finalExerciseId!,
+      exerciseName: input.exerciseName,
+      muscleGroup: input.muscleGroup,
+      suggestedSets: input.suggestedSets,
+      order: existingInRoutine.length + 1,
+      supersetGroupId: null,
+    };
+    return this.routineExercises.save(ex);
+  }
+
+  async updateRoutineExercise(
+    exerciseId: string,
+    input: { suggestedSets?: number; order?: number; supersetGroupId?: string | null },
+  ): Promise<TrainingRoutineExercise | null> {
+    const ex = await this.routineExercises.findById(exerciseId);
+    if (!ex) return null;
+    const updated: TrainingRoutineExercise = {
+      ...ex,
+      suggestedSets: input.suggestedSets ?? ex.suggestedSets,
+      order: input.order ?? ex.order,
+      supersetGroupId: input.supersetGroupId !== undefined ? input.supersetGroupId : ex.supersetGroupId,
+      updatedAt: now(),
+      version: ex.version + 1,
+    };
+    return this.routineExercises.save(updated);
+  }
+
+  async deleteRoutineExercise(exerciseId: string): Promise<void> {
+    await this.routineExercises.deleteById(exerciseId);
   }
 
   // ── Virtual Trainer (Suggestions) ────────────────────────────────────────

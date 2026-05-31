@@ -1,6 +1,6 @@
 import { NdjsonRepository } from './ndjson.repository';
-import { NutritionSettings } from '../../../domain/nutrition-settings.entity';
-import { INutritionSettingsRepository } from '../../repositories/nutrition-settings.repository.interface';
+import { NutritionSettings } from '../../domain/nutrition-settings.entity';
+import { INutritionSettingsRepository } from '../repositories/nutrition-settings.repository.interface';
 
 export class NdjsonNutritionSettingsRepository
   extends NdjsonRepository<NutritionSettings>

@@ -4,7 +4,9 @@ import {
   TrainingSessionDto, 
   TrainingExerciseDto, 
   TrainingSetDto,
-  ExerciseSuggestionDto 
+  TrainingRoutineDto,
+  ExerciseSuggestionDto,
+  MuscleGroup 
 } from 'lib-training-data-access';
 
 @Injectable({ providedIn: 'root' })
@@ -39,18 +41,66 @@ export class TrainingStateService {
   }
 
   async startSession(planId?: string, routineId?: string) {
-    const session = await this._trainingApi.createSession({
-      date: new Date().toISOString().split('T')[0],
-      templateType: 'custom',
-      planId,
-      routineId,
-      totalSeconds: 0,
-      isPaused: false
-    });
-    this.activeSession.set(session);
-    this.sessionDurationSeconds.set(0);
-    this.isPaused.set(false);
-    this.startTimer();
+    let session: TrainingSessionDto | null = null;
+    try {
+      session = await this._trainingApi.createSession({
+        date: new Date().toISOString().split('T')[0],
+        templateType: 'custom',
+        planId,
+        routineId,
+        totalSeconds: 0,
+        isPaused: false
+      });
+      
+      this.activeSession.set(session);
+      this.sessionDurationSeconds.set(0);
+      this.isPaused.set(false);
+      this.startTimer();
+
+      // If routineId is provided, pre-populate exercises
+      if (routineId) {
+        const routineExercises = await this._trainingApi.listRoutineExercises(routineId);
+        
+        for (const re of routineExercises) {
+          try {
+            const activeEx = await this._trainingApi.createExercise(session.id, {
+              exerciseName: re.exerciseName,
+              muscleGroup: re.muscleGroup,
+            });
+            
+            // Link superset if present
+            if (re.supersetGroupId) {
+              await this._trainingApi.updateExercise(session.id, activeEx.id, {
+                supersetGroupId: re.supersetGroupId
+              });
+            }
+
+            // Get performance optimization for defaults
+            const suggestion = await this._trainingApi.getSuggestion(re.exerciseName);
+            const reps = suggestion?.suggestedTarget?.reps || 10;
+            const weight = suggestion?.suggestedTarget?.weightKg || 0;
+
+            // Create suggested sets
+            for (let i = 0; i < re.suggestedSets; i++) {
+              await this._trainingApi.createSet(session.id, activeEx.id, {
+                reps,
+                weightKg: weight,
+                done: false
+              });
+            }
+          } catch (e) {
+            console.error(`[Provisioning] Failed exercise ${re.exerciseName}:`, e);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Critical failure starting session:', err);
+      throw err;
+    } finally {
+      if (session) {
+        await this.resumeSession(session);
+      }
+    }
     return session;
   }
 
@@ -105,6 +155,15 @@ export class TrainingStateService {
     if (!session) return;
 
     this.stopTimer();
+
+    // Verification: If no exercises were added, discard the session entirely
+    const exercises = this.exercises();
+    if (exercises.length === 0) {
+      await this._trainingApi.deleteSession(session.id);
+      this.activeSession.set(null);
+      return;
+    }
+
     await this._trainingApi.updateSession(session.id, {
       finishedAt: new Date().toISOString(),
       totalSeconds: this.sessionDurationSeconds(),
@@ -113,7 +172,38 @@ export class TrainingStateService {
     this.activeSession.set(null);
   }
 
-  async addExercise(name: string, muscleGroup: any) {
+  async getNextRoutine(planId: string): Promise<TrainingRoutineDto | null> {
+    try {
+      const [routines, sessions] = await Promise.all([
+        this._trainingApi.listRoutines(planId),
+        this._trainingApi.listSessions()
+      ]);
+
+      if (routines.length === 0) return null;
+
+      // Find last session for this plan
+      const planSessions = sessions
+        .filter(s => s.planId === planId && s.finishedAt !== null)
+        .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
+
+      if (planSessions.length === 0) {
+        return routines[0]; // Start with first
+      }
+
+      const lastRoutineId = planSessions[0].routineId;
+      const lastIndex = routines.findIndex(r => r.id === lastRoutineId);
+
+      if (lastIndex === -1 || lastIndex === routines.length - 1) {
+        return routines[0]; // Loop back or start fresh
+      }
+
+      return routines[lastIndex + 1];
+    } catch {
+      return null;
+    }
+  }
+
+  async addExercise(name: string, muscleGroup: MuscleGroup) {
     const session = this.activeSession();
     if (!session) return;
 
@@ -134,6 +224,21 @@ export class TrainingStateService {
     for (let i = 0; i < 3; i++) {
       await this.addSet(exercise.id, defaultReps, defaultWeight);
     }
+  }
+
+  async deleteExercise(exerciseId: string) {
+    const session = this.activeSession();
+    if (!session) return;
+
+    await this._trainingApi.deleteExercise(session.id, exerciseId);
+    
+    // Update local state
+    this.exercises.update(list => list.filter(e => e.id !== exerciseId));
+    this.setsByExercise.update(map => {
+      const newMap = { ...map };
+      delete newMap[exerciseId];
+      return newMap;
+    });
   }
 
   async addSet(exerciseId: string, reps: number, weight: number) {
@@ -186,7 +291,6 @@ export class TrainingStateService {
 
   private startTimer() {
     this.stopTimer();
-    this.sessionDurationSeconds.set(0);
     this._timerInterval = setInterval(() => {
       this.sessionDurationSeconds.update(s => s + 1);
     }, 1000);

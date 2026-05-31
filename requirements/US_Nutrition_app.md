@@ -13,7 +13,7 @@ A comprehensive history view provides insights into past performance via charts 
 - [x] **Unified Log Widget**: Quick Log presets and Custom Log form are combined in a single card for efficiency.
 - [x] **Daily Progress**: Visual progress bar for daily intake vs. goal.
 - [x] **Grouped History**: Swipe-up history page (90% height) showing entries grouped by date.
-- [x] **Sticky Intelligence**: A tactical chart remains fixed at the top of the history page.
+- [x] **Sticky Optimization**: A tactical chart remains fixed at the top of the history page.
 - [x] **Goal Visualization**: History charts include a horizontal target line representing the daily protein goal. Bars are color-coded (Green) when the goal is achieved.
 - [x] **Gesture Support**: The history swipe-up page supports native-like swipe-down gestures to close (via drag handle or header), ensuring a completely immersive mobile experience.
 - [x] **Goal Analytics**: History charts feature a minimalist target line with a right-aligned numeric label and success-based color coding.

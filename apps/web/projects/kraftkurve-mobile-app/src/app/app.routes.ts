@@ -12,7 +12,25 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', component: DashboardComponent },
-      { path: 'training', component: TrainingComponent },
+      { 
+        path: 'training', 
+        children: [
+          { path: '', redirectTo: 'terminal', pathMatch: 'full' },
+          { path: 'terminal', component: TrainingComponent },
+          { 
+            path: 'plans', 
+            loadComponent: () => import('./features/training/plan-list/plan-list.component').then(m => m.PlanListComponent) 
+          },
+          { 
+            path: 'plans/:id', 
+            loadComponent: () => import('./features/training/plan-editor/plan-editor.component').then(m => m.PlanEditorComponent) 
+          },
+          { 
+            path: 'plans/:id/routines/:routineId', 
+            loadComponent: () => import('./features/training/routine-editor/routine-editor.component').then(m => m.RoutineEditorComponent) 
+          }
+        ]
+      },
       { path: 'nutrition', component: NutritionComponent },
       { path: 'progress', component: ProgressComponent },
       { path: 'settings', component: SettingsComponent },

@@ -18,15 +18,39 @@
 .plans-grid {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+.plan-launch-card {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
+  padding: 12px;
+  background: var(--surface-container-high);
+  border: 1px solid var(--outline-variant);
+
+  .plan-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .next-label {
+      font-size: 14px;
+      color: var(--primary);
+    }
+
+    .warn-text {
+      color: var(--secondary);
+      font-size: 7px;
+    }
+  }
+
+  .plan-start-btn {
+    height: 40px !important;
+  }
 }
 
-.plan-btn {
-  height: 48px !important;
-  border: 1px solid var(--outline-variant) !important;
-}
-
-.suggestion-box {
+.manage-plans-btn {
   background: rgba(253, 255, 0, 0.05);
   border: 1px dashed var(--primary);
   padding: 12px;
@@ -106,18 +130,43 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px;
+    padding: 12px;
     background: var(--surface-container-high);
     border-left: 3px solid var(--primary);
+    
+    &.clickable {
+      cursor: pointer;
+      &:active { background: rgba(255, 255, 255, 0.05); }
+    }
   }
 
   .sess-meta {
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 4px;
 
-    .status-pill {
-      font-size: 6px;
+    .main-info {
+      display: flex;
+      justify-content: flex-start;
+      gap: 8px;
+      padding-right: 12px;
+      .label-caps { font-size: 10px; color: var(--primary); }
+      .routine-tag { color: var(--tertiary); opacity: 0.8; }
+      .data-mono { font-size: 12px; margin-left: auto; }
+    }
+
+    .sub-info {
+      display: flex;
+      gap: 12px;
+      .label-caps, .data-mono { font-size: 7px; opacity: 0.6; }
+    }
+
+    .status-row {
+      margin-top: 4px;
+    }
+
+    .status-pill {      font-size: 6px;
       padding: 1px 4px;
       width: fit-content;
       border-radius: 2px;
@@ -134,10 +183,74 @@
   }
 }
 
+.manage-plans-btn {
+  margin-top: 16px;
+  height: 48px;
+  border-style: dashed !important;
+}
+
+.superset-wrapper {
+  border: 2px solid var(--secondary);
+  border-radius: var(--radius-default);
+  padding: 12px;
+  margin-bottom: 24px;
+  background: rgba(255, 171, 243, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  
+  .superset-label {
+    position: absolute;
+    top: -12px;
+    left: 12px;
+    background: var(--secondary);
+    color: var(--on-secondary);
+    padding: 2px 10px;
+    font-size: 6px;
+    z-index: 10;
+  }
+
+  .superset-nested.log-card {
+    border: 1px solid var(--outline-variant);
+    background: var(--surface-container-high);
+    margin-bottom: 0;
+    
+    .log-header.tape {
+      margin-left: -1px; // Re-align with card border
+      background: var(--surface-container-highest);
+      color: var(--secondary);
+    }
+    
+    .log-content {
+      padding: 12px;
+    }
+  }
+}
+
+.delete-ex-btn {
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  
+  mat-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .training-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
   margin-bottom: 8px;
   padding: 12px;
   background: var(--surface-container-low);
@@ -151,17 +264,34 @@
 
   .header-actions {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    min-width: fit-content;
   }
 
   .pause-btn {
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
     color: var(--secondary);
     border: 1px solid var(--secondary);
+    mat-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; }
   }
 
   .title-group {
     margin-bottom: 4px;
+    overflow: hidden;
+    flex: 1;
+    margin-right: 12px;
+
+    .workout-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 14px;
+      margin: 0;
+    }
   }
 
   .workout-subtitle {
@@ -170,14 +300,19 @@
 
   .stats-group {
     text-align: right;
+    display: flex;
+    flex-direction: column;
     
     .duration-value {
       color: var(--primary);
+      font-size: 18px;
+      line-height: 1;
     }
 
     .duration-unit {
       color: var(--on-surface-variant);
-      margin-left: 4px;
+      font-size: 7px;
+      margin-top: 2px;
     }
   }
 }

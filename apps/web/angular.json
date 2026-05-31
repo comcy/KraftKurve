@@ -905,98 +905,123 @@
 					}
 				}
 			}
-    },
-    "kraftkurve-mobile-app": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss",
-          "skipTests": true
-        },
-        "@schematics/angular:class": {
-          "skipTests": true
-        },
-        "@schematics/angular:directive": {
-          "skipTests": true
-        },
-        "@schematics/angular:guard": {
-          "skipTests": true
-        },
-        "@schematics/angular:interceptor": {
-          "skipTests": true
-        },
-        "@schematics/angular:pipe": {
-          "skipTests": true
-        },
-        "@schematics/angular:resolver": {
-          "skipTests": true
-        },
-        "@schematics/angular:service": {
-          "skipTests": true
-        }
-      },
-      "root": "projects/kraftkurve-mobile-app",
-      "sourceRoot": "projects/kraftkurve-mobile-app/src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular/build:application",
-          "options": {
-            "browser": "projects/kraftkurve-mobile-app/src/main.ts",
-            "tsConfig": "projects/kraftkurve-mobile-app/tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "projects/kraftkurve-mobile-app/public"
-              }
-            ],
-            "styles": [
-              "projects/kraftkurve-mobile-app/src/styles.scss"
-            ]
-          },
-          "configurations": {
-            "production": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
-                }
-              ],
-              "outputHashing": "all",
-              "serviceWorker": "projects/kraftkurve-mobile-app/ngsw-config.json"
-            },
-            "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "options": {
-            "proxyConfig": "proxy.conf.json"
-          },
-          "configurations": {
-            "production": {
-              "buildTarget": "kraftkurve-mobile-app:build:production"
-            },
-            "development": {
-              "buildTarget": "kraftkurve-mobile-app:build:development"
-            }
-          },
-          "defaultConfiguration": "development"
-        }
-      }
-    }
+		},
+		"kraftkurve-mobile-app": {
+			"projectType": "application",
+			"schematics": {
+				"@schematics/angular:component": {
+					"style": "scss",
+					"skipTests": true
+				},
+				"@schematics/angular:class": {
+					"skipTests": true
+				},
+				"@schematics/angular:directive": {
+					"skipTests": true
+				},
+				"@schematics/angular:guard": {
+					"skipTests": true
+				},
+				"@schematics/angular:interceptor": {
+					"skipTests": true
+				},
+				"@schematics/angular:pipe": {
+					"skipTests": true
+				},
+				"@schematics/angular:resolver": {
+					"skipTests": true
+				},
+				"@schematics/angular:service": {
+					"skipTests": true
+				}
+			},
+			"root": "projects/kraftkurve-mobile-app",
+			"sourceRoot": "projects/kraftkurve-mobile-app/src",
+			"prefix": "app",
+			"architect": {
+				"build": {
+					"builder": "@angular/build:application",
+					"options": {
+						"browser": "projects/kraftkurve-mobile-app/src/main.ts",
+						"tsConfig": "projects/kraftkurve-mobile-app/tsconfig.app.json",
+						"inlineStyleLanguage": "scss",
+						"assets": [
+							{
+								"glob": "**/*",
+								"input": "projects/kraftkurve-mobile-app/public"
+							}
+						],
+						"styles": [
+							"projects/kraftkurve-mobile-app/src/styles.scss"
+						]
+					},
+					"configurations": {
+						"production": {
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "500kB",
+									"maximumError": "1MB"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "4kB",
+									"maximumError": "8kB"
+								}
+							],
+							"outputHashing": "all",
+							"serviceWorker": "projects/kraftkurve-mobile-app/ngsw-config.json"
+						},
+						"development": {
+							"optimization": false,
+							"extractLicenses": false,
+							"sourceMap": true
+						}
+					},
+					"defaultConfiguration": "production"
+				},
+				"serve": {
+					"builder": "@angular/build:dev-server",
+					"options": {
+						"proxyConfig": "proxy.conf.json"
+					},
+					"configurations": {
+						"production": {
+							"buildTarget": "kraftkurve-mobile-app:build:production"
+						},
+						"development": {
+							"buildTarget": "kraftkurve-mobile-app:build:development"
+						}
+					},
+					"defaultConfiguration": "development"
+				}
+			}
+		},
+		"lib-training-feature-details": {
+			"projectType": "library",
+			"root": "projects/lib-training-feature-details",
+			"sourceRoot": "projects/lib-training-feature-details/src",
+			"prefix": "lib",
+			"architect": {
+				"build": {
+					"builder": "@angular/build:ng-packagr",
+					"configurations": {
+						"production": {
+							"tsConfig": "projects/lib-training-feature-details/tsconfig.lib.prod.json"
+						},
+						"development": {
+							"tsConfig": "projects/lib-training-feature-details/tsconfig.lib.json"
+						}
+					},
+					"defaultConfiguration": "production"
+				},
+				"test": {
+					"builder": "@angular/build:unit-test",
+					"options": {
+						"tsConfig": "projects/lib-training-feature-details/tsconfig.spec.json"
+					}
+				}
+			}
+		}
 	}
-}	}
 }

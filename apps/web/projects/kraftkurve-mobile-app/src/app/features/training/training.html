@@ -11,19 +11,28 @@
           <div class="log-content">
             <div class="sessions-list">
               @for (sess of todaySessions(); track sess.id) {
-                <div class="session-item">
+                <div class="session-item clickable" (click)="openWorkoutDetail(sess)">
                   <div class="sess-meta">
-                    <span class="label-caps">{{ sess.templateType }}</span>
-                    <span class="data-mono">{{ sess.startedAt | date:'HH:mm' }}</span>
-                    @if (sess.finishedAt) {
-                      <span class="status-pill completed label-caps">COMPLETED</span>
-                    } @else if (sess.isPaused) {
-                      <span class="status-pill paused label-caps">PAUSED</span>
-                    } @else {
-                      <span class="status-pill active label-caps">ACTIVE</span>
-                    }
+                    <div class="main-info">
+                      <span class="label-caps">{{ sess.planName || sess.templateType }}</span>
+                      <span class="label-caps routine-tag" *ngIf="sess.routineName">/ {{ sess.routineName }}</span>
+                      <span class="data-mono">{{ sess.startedAt | date:'HH:mm' }}</span>
+                    </div>
+                    <div class="sub-info">
+                      <span class="label-caps">DETAILS: {{ sess.exerciseCount ?? 0 }} EXERCISES</span>
+                      <span class="data-mono">DUR: {{ formatDuration(sess.totalSeconds) }}</span>
+                    </div>
+                    <div class="status-row">
+                      @if (sess.finishedAt) {
+                        <span class="status-pill completed label-caps">COMPLETED</span>
+                      } @else if (sess.isPaused) {
+                        <span class="status-pill paused label-caps">PAUSED</span>
+                      } @else {
+                        <span class="status-pill active label-caps">ACTIVE</span>
+                      }
+                    </div>
                   </div>
-                  <button mat-stroked-button class="resume-btn label-caps" (click)="resumeSession(sess)">
+                  <button mat-stroked-button class="resume-btn label-caps" (click)="$event.stopPropagation(); resumeSession(sess)">
                     {{ sess.finishedAt ? 'RE-OPEN' : 'RESUME' }}
                   </button>
                 </div>
@@ -36,17 +45,35 @@
       <section class="log-card">
         <div class="log-header tape">ACTIVE PLANS</div>
         <div class="log-content">
-          @if (availablePlans().length > 0) {
+          @if (activePlansWithNextRoutine().length > 0) {
             <div class="plans-grid">
-              @for (plan of availablePlans(); track plan.id) {
-                <button mat-flat-button class="plan-btn btn-secondary" (click)="startPlanWorkout(plan.id)">
-                  <span class="label-caps">{{ plan.name }}</span>
-                </button>
+              @for (item of activePlansWithNextRoutine(); track item.plan.id) {
+                <div class="plan-launch-card">
+                  <div class="plan-info">
+                    <span class="label-caps">{{ item.plan.name }}</span>
+                    <span class="data-mono next-label" *ngIf="item.nextRoutine">NEXT: {{ item.nextRoutine.name }}</span>
+                    <span class="label-caps warn-text" *ngIf="!item.nextRoutine">NO ROUTINES DEFINED</span>
+                  </div>
+                  <button 
+                    mat-flat-button 
+                    class="plan-start-btn btn-secondary" 
+                    [disabled]="!item.nextRoutine"
+                    (click)="startPlanWorkout(item.plan.id, item.nextRoutine!.id)"
+                  >
+                    <mat-icon>play_arrow</mat-icon>
+                    <span class="label-caps">START SEQUENCE</span>
+                  </button>
+                </div>
               }
             </div>
           } @else {
-            <p class="label-caps empty-msg">NO ACTIVE PLANS DETECTED.</p>
+            <p class="label-caps empty-msg">NO ACTIVE PLANS DETECTED IN TIMEFRAME.</p>
           }
+
+          <button mat-stroked-button class="manage-plans-btn full-width" routerLink="/training/plans">
+            <mat-icon>settings_suggest</mat-icon>
+            <span class="label-caps">MANAGE PROTOCOLS / LIBRARY</span>
+          </button>
         </div>
       </section>
 
@@ -76,77 +103,115 @@
     </header>
 
     <div class="exercise-list">
-      @for (ex of exercises(); track ex.id) {
-        <section class="log-card">
-          <div class="log-header tape">
-            <span>{{ ex.exerciseName }}</span>
-          </div>
-
-          <div class="log-content">
-            <!-- Virtual Trainer Suggestion -->
-            @if (suggestions()[ex.id]) {
-              <div class="suggestion-box">
-                <span class="label-caps suggestion-title">INTELLIGENCE SUGGESTION:</span>
-                <p class="suggestion-text label-caps">
-                  TARGET: {{ suggestions()[ex.id]?.suggestedTarget?.weightKg }}KG x {{ suggestions()[ex.id]?.suggestedTarget?.reps }} REPS
-                </p>
-                <p class="suggestion-reason label-caps">{{ suggestions()[ex.id]?.reason }}</p>
-              </div>
-            }
-
-            <div class="sets-list">
-              @for (set of getSetsForExercise(ex.id); track set.id; let i = $index) {
-                <div class="set-row">
-                  <div class="set-number data-mono">{{ i + 1 }}</div>
-                  <div class="inputs-grid-enhanced">
-                    <div class="input-wrapper">
-                      <input 
-                        #weightInput
-                        type="text" 
-                        inputmode="decimal" 
-                        class="training-input data-mono" 
-                        [value]="set.weightKg"
-                        (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)"
-                      >
-                      <span class="input-unit label-caps">KG</span>
-                    </div>
-                    <div class="input-wrapper">
-                      <input 
-                        #repsInput
-                        type="text" 
-                        inputmode="numeric" 
-                        class="training-input data-mono" 
-                        [value]="set.reps"
-                        (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)"
-                      >
-                      <span class="input-unit label-caps">REPS</span>
-                    </div>
-                    <div class="input-wrapper rir-wrapper">
-                      <input 
-                        #rirInput
-                        type="text" 
-                        inputmode="numeric" 
-                        class="training-input data-mono rir-input" 
-                        [value]="set.rir ?? ''"
-                        placeholder="-"
-                        (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)"
-                      >
-                      <span class="input-unit label-caps">RIR</span>
-                    </div>
+      @for (group of groupedExercises(); track $index) {
+        @if (group.type === 'superset') {
+          <div class="superset-wrapper">
+            <div class="superset-label label-caps">SUPERSET_FLOW_ACTIVE</div>
+            @for (ex of group.exercises; track ex.id) {
+              <section class="log-card superset-nested">
+                <div class="log-header tape">
+                  <div class="header-main">
+                    <span>{{ ex.exerciseName }}</span>
+                    <button mat-icon-button color="warn" class="delete-ex-btn" (click)="onDeleteExercise(ex.id, ex.exerciseName)">
+                      <mat-icon>close</mat-icon>
+                    </button>
                   </div>
-                  <button mat-icon-button class="check-btn" [class.completed]="set.done" (click)="toggleSetDone(ex.id, set)">
-                    <mat-icon>{{ set.done ? 'done' : 'radio_button_unchecked' }}</mat-icon>
+                </div>
+                <div class="log-content">
+                  @if (suggestions()[ex.id]) {
+                    <div class="suggestion-box">
+                      <span class="label-caps suggestion-title">SUGGESTION:</span>
+                      <p class="suggestion-text label-caps">
+                        TARGET: {{ suggestions()[ex.id]?.suggestedTarget?.weightKg }}KG x {{ suggestions()[ex.id]?.suggestedTarget?.reps }} REPS
+                      </p>
+                      <p class="suggestion-reason label-caps">{{ suggestions()[ex.id]?.reason }}</p>
+                    </div>
+                  }
+                  <div class="sets-list">
+                    @for (set of getSetsForExercise(ex.id); track set.id; let i = $index) {
+                      <div class="set-row">
+                        <div class="set-number data-mono">{{ i + 1 }}</div>
+                        <div class="inputs-grid-enhanced">
+                          <div class="input-wrapper">
+                            <input #weightInput type="text" inputmode="decimal" class="training-input data-mono" [value]="set.weightKg" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
+                            <span class="input-unit label-caps">KG</span>
+                          </div>
+                          <div class="input-wrapper">
+                            <input #repsInput type="text" inputmode="numeric" class="training-input data-mono" [value]="set.reps" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
+                            <span class="input-unit label-caps">REPS</span>
+                          </div>
+                          <div class="input-wrapper rir-wrapper">
+                            <input #rirInput type="text" inputmode="numeric" class="training-input data-mono rir-input" [value]="set.rir ?? ''" placeholder="-" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
+                            <span class="input-unit label-caps">RIR</span>
+                          </div>
+                        </div>
+                        <button mat-icon-button class="check-btn" [class.completed]="set.done" (click)="toggleSetDone(ex.id, set)">
+                          <mat-icon>{{ set.done ? 'done' : 'radio_button_unchecked' }}</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                  <button mat-button class="add-set-btn label-caps" (click)="onAddSet(ex.id)">
+                    <mat-icon>add</mat-icon>
+                    <span>{{ addSetLabel }}</span>
                   </button>
                 </div>
-              }
-            </div>
-
-            <button mat-button class="add-set-btn label-caps" (click)="onAddSet(ex.id)">
-              <mat-icon>add</mat-icon>
-              <span>{{ addSetLabel }}</span>
-            </button>
+              </section>
+            }
           </div>
-        </section>
+        } @else {
+          @for (ex of group.exercises; track ex.id) {
+            <section class="log-card">
+              <div class="log-header tape">
+                <div class="header-main">
+                  <span>{{ ex.exerciseName }}</span>
+                  <button mat-icon-button color="warn" class="delete-ex-btn" (click)="onDeleteExercise(ex.id, ex.exerciseName)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+              <div class="log-content">
+                @if (suggestions()[ex.id]) {
+                  <div class="suggestion-box">
+                    <span class="label-caps suggestion-title">SUGGESTION:</span>
+                    <p class="suggestion-text label-caps">
+                      TARGET: {{ suggestions()[ex.id]?.suggestedTarget?.weightKg }}KG x {{ suggestions()[ex.id]?.suggestedTarget?.reps }} REPS
+                    </p>
+                    <p class="suggestion-reason label-caps">{{ suggestions()[ex.id]?.reason }}</p>
+                  </div>
+                }
+                <div class="sets-list">
+                  @for (set of getSetsForExercise(ex.id); track set.id; let i = $index) {
+                    <div class="set-row">
+                      <div class="set-number data-mono">{{ i + 1 }}</div>
+                      <div class="inputs-grid-enhanced">
+                        <div class="input-wrapper">
+                          <input #weightInput type="text" inputmode="decimal" class="training-input data-mono" [value]="set.weightKg" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
+                          <span class="input-unit label-caps">KG</span>
+                        </div>
+                        <div class="input-wrapper">
+                          <input #repsInput type="text" inputmode="numeric" class="training-input data-mono" [value]="set.reps" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
+                          <span class="input-unit label-caps">REPS</span>
+                        </div>
+                        <div class="input-wrapper rir-wrapper">
+                          <input #rirInput type="text" inputmode="numeric" class="training-input data-mono rir-input" [value]="set.rir ?? ''" placeholder="-" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
+                          <span class="input-unit label-caps">RIR</span>
+                        </div>
+                      </div>
+                      <button mat-icon-button class="check-btn" [class.completed]="set.done" (click)="toggleSetDone(ex.id, set)">
+                        <mat-icon>{{ set.done ? 'done' : 'radio_button_unchecked' }}</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+                <button mat-button class="add-set-btn label-caps" (click)="onAddSet(ex.id)">
+                  <mat-icon>add</mat-icon>
+                  <span>{{ addSetLabel }}</span>
+                </button>
+              </div>
+            </section>
+          }
+        }
       }
 
       <button mat-stroked-button class="add-exercise-btn full-width" (click)="onAddExercise()">

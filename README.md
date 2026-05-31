@@ -192,14 +192,18 @@ Frontend:
   - **Daily Grouping**: Einträge werden pro Tag gruppiert mit Gesamtsummen.
 4. **Settings**: Konfiguration von Tagesziel und Quick-Log Presets auf der Profil-Seite.
 
-## Training & Intel Flow
+## Training & Details Flow
 
 1. **Mission Control**: Dashboard zeigt den Status des letzten Workouts mit Schnellzugriff auf Details.
 2. **Workout Terminal**: Echtzeit-Tracking mit automatischer Stoppuhr und dynamischer Übungswahl.
-  - **Smart Defaults**: Neue Übungen starten automatisch mit 3 Sätzen (basiert auf Last-Time Intel).
+  - **Smart Provisioning**: Geplante Workouts laden automatisch alle Übungen, Sätze und Supersets der Routine.
+  - **Smart Defaults**: Neue Übungen starten automatisch mit Sätzen basierend auf Last-Time Details.
   - **Editable Tracking**: Gewichte und Reps werden direkt im Terminal editiert und per Blur-Event gespeichert.
-3. **Progression IQ**: Der virtuelle Trainer schlägt Ziele vor (Gewicht vs. Volumen), basierend auf der gewählten Strategie in den Settings.
-4. **Workout Archive**: Deep-Dive Intel zu vergangenen Sessions via Swipe-Up Bottom Sheet.
+3. **Protocol Sequence**: Intelligente Vorschläge für die "nächste Routine" basierend auf der Historie und der im Plan definierten Reihenfolge.
+4. **Library Expansion**: Neue Übungen werden automatisch in den globalen Katalog aufgenommen (Auto-Upsert) und sind per Autocomplete sofort suchbar.
+5. **Progression IQ**: Der virtuelle Trainer schlägt Ziele vor (Gewicht vs. Volumen), basierend auf der gewählten Strategie in den Settings.
+6. **Workout Archive**: Deep-Dive Details zu vergangenen Sessions via Swipe-Up Bottom Sheet.
+7. **Plan Management**: Vollständige Kontrolle über Zeiträume, Trainingsfrequenz (Sessions/Woche) und Routine-Reihenfolge (Drag & Drop).
 
 ## Auth & Admin Flow
 

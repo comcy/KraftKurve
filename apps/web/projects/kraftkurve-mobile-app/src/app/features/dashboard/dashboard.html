@@ -42,20 +42,23 @@
         <mat-icon>fitness_center</mat-icon>
         {{ lastWorkoutLabel }}
       </div>
-      <span class="badge label-caps">{{ lastSession()!.templateType }}</span>
+      <div class="badge-group">
+        <span class="badge label-caps">{{ lastSession()!.planName || lastSession()!.templateType }}</span>
+        <span class="label-caps routine-tag" *ngIf="lastSession()!.routineName">{{ lastSession()!.routineName }}</span>
+      </div>
     </div>
     <div class="log-content">
       <div class="workout-summary">
         <div class="summary-item">
-          <span class="label-caps">DATE</span>
-          <span class="data-mono">{{ formatDate(lastSession()!.date) }}</span>
+          <span class="label-caps">DATE & TIME</span>
+          <span class="data-mono">{{ formatDate(lastSession()!.date) }} @ {{ lastSession()!.startedAt | date:'HH:mm' }}</span>
         </div>
         <div class="summary-item">
-          <span class="label-caps">EXERCISES</span>
-          <span class="data-mono">{{ lastSessionExercises().length }}</span>
+          <span class="label-caps">DETAILS</span>
+          <span class="data-mono">{{ lastSession()!.exerciseCount ?? 0 }} EX / {{ formatDuration(lastSession()!.totalSeconds) }}</span>
         </div>
       </div>
-      <p class="label-caps detail-hint">TAP TO VIEW INTEL</p>
+      <p class="label-caps detail-hint">TAP TO VIEW DETAILS</p>
     </div>
   </section>
 

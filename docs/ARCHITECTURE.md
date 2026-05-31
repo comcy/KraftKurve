@@ -23,6 +23,17 @@
   - Unified persistent auth across all apps using `localStorage`.
   - Strict separation: Management features exclusively in Web Admin UI, Mobile remains a lean tracking tool.
   - Invitation-only registration flow.
-- **2026-05-28: Dashboard Intelligence & Workout Archive**.
+- **2026-05-28: Hierarchical Training Model**. [ADR-007](ADR-007.md)
+  - Multi-level planning architecture: `TrainingPlan` > `TrainingRoutine` > `TrainingExercise`.
+  - Support for custom timeframes, sessions per week, and cyclic execution sequences.
+  - Plan Lifecycle Optimization: Automated status classification (Active, Upcoming, Expired) based on temporal boundaries and the `active` flag.
+- **2026-05-28: NDJSON Concurrency & Atomic Integrity**.
+  - Mutex-based task queue (Mutex Lock) in the repository layer to ensure thread-safe file operations.
+  - Atomic Write Strategy (temp-rename) to prevent data corruption during write interruptions.
+- **2026-05-28: Decoupled Tactical Interaction**.
+  - Zero-alert policy: Complete replacement of native browser popups with a modular `TacticalDialog` system for multi-field input and confirmation.
+- **2026-05-28: Dashboard Optimization & Workout Archive**.
   - Implementation of "Mission Control" dashboard providing quick access to the most recent session's tactical data.
-  - Development of the "Workout Intel" component: a gesture-driven detailed view of historical training data.
+  - Development of the "Workout Details" component: a gesture-driven detailed view of historical training data.
+- **2026-05-29: Shared Workout Details Library**. [ADR-008](ADR-008.md)
+  - Extraction of `WorkoutDetailSheetComponent` into `lib-training-feature-details` for cross-feature reuse.

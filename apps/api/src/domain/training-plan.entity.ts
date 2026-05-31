@@ -5,6 +5,7 @@ export interface TrainingPlan extends BaseEntity {
   name: string;
   startDate: string; // YYYY-MM-DD
   endDate: string;   // YYYY-MM-DD
+  sessionsPerWeek: number;
   note: string | null;
   active: boolean;
 }

@@ -28,24 +28,57 @@
   - Overhauled History Swipe-Up to include **Daily Grouping** (entries categorized under date headers) and a **Sticky Tactical Chart** with Week/Month/Year toggles.
 - **Settings & Notifications Polish**:
   - Implemented **Dirty Checking** in Settings: The "Save Configuration" button is now disabled until actual changes (Goal or Presets) are detected.
-  - **Zero Alerts Mandate**: Replaced all native browser `alert()` calls with tactical-styled **MatSnackBar** notifications.
-  - Defined custom CSS for `kk-snackbar` and `kk-snackbar-error` to maintain the brutalist aesthetic.
+  - **Zero Alerts Mandate**: Replaced all native browser `alert()`, `confirm()`, and `prompt()` calls with tactical-styled **MatSnackBar** and a new reusable **TacticalDialogComponent**.
+  - Defined custom CSS for `kk-snackbar` and `kk-dialog-panel` to maintain the brutalist aesthetic while providing professional mobile interaction patterns.
 - **Nutrition Analytics & UI Polish**:
   - Added a **Target Goal Line** (dashed horizontal) to history charts with success shadowing.
   - Implemented **Success Coloring**: Chart bars turn Tertiary Green when the protein goal is met.
   - Enhanced **Close UI**: Moved the ✕ button to the absolute top-right with a larger hit-box and Primary Yellow highlight.
-  - **Gesture Intelligence**: Implemented native-like **Swipe-to-Close** for bottom sheets using CDK Drag, including a visual **Grab Handle** at the top.
+  - **Gesture Optimization**: Implemented native-like **Swipe-to-Close** for bottom sheets using CDK Drag, including a visual **Grab Handle** at the top.
   - **Scroll Isolation**: Fixed "scroll leakage" in history sheets by isolating the log list into a dedicated scroll container with `overscroll-behavior: contain`. This keeps the header fixed and prevents the whole sheet from drifting while reading logs.
   - **Transparency Polish**: Optimized CSS layers to ensure the underlying dashboard grid is visible through the sheet container during swiping gestures.
-- **Training Architecture & Intelligence**:
+- **Training Architecture & Optimization**:
   - Implemented **Hierarchical Training Plans**: Supports time-bound plans (4-12 weeks) with multiple predefined routines.
   - **Virtual Trainer (Progression IQ)**: Developed a Strategy pattern for training suggestions. Users can choose between **Weight-focused** (Progressive Overload) or **Rep-focused** (Volume-first) in their profile settings.
   - **Mobile Tracking Terminal**: Implemented a real-time tracking UI with an automated **Stopwatch**, dynamic exercise attachment, and intelligent performance suggestions based on "Last Time" values.
   - **Cardio Support**: Introduced separate data entities for Cardio records (Time/Distance) vs. Strength sets (Reps/Weight).
-- **Dashboard Intelligence & Cleanup**:
+- **Dashboard Optimization & Cleanup**:
   - Removed all placeholder widgets from the Dashboard to maintain high signal-to-noise ratio.
-  - Implemented the **"Last Workout" Intelligence Widget**: Displays key metrics from the most recent session.
-  - Developed the **"Workout Intel" Swipe-Up**: A high-performance detail view for workout sessions, featuring swipe-to-close and deep-dive set analysis.
+  - Implemented the **"Last Workout" Optimization Widget**: Displays key metrics from the most recent session.
+  - Developed the **"Workout Details" Swipe-Up**: A high-performance detail view for workout sessions, featuring swipe-to-close and deep-dive set analysis.
+- **Training Plan & Routine Architecture**:
+  - **Plan Library**: Restructured the mobile app to include a dedicated Plan Archive and multi-level editor (Plans > Routines > Exercises).
+  - **Superset Support**: Implemented `supersetGroupId` logic across both Routine templates and Active Sessions, allowing for logical and visual grouping of exercises.
+  - **Interactive Editing**: Developed a drag-and-drop Exercise Stack in the Routine Editor and integrated on-the-fly superset toggling.
+  - **Dynamic Provisioning**: Sessions started from a routine now automatically provision all exercises, sets, and superset links.
+  - **Protocol Overrides**: Implemented full metadata editing for Training Plans, allowing users to modify designations and timeframes (Start/End dates) via multi-field tactical dialogs.
+  - **Superset Visual Polish**: Enhanced superset visibility with a solid **Magenta highlight border container** around grouped exercises. Each group is clearly labeled as a "SUPERSET_FLOW", improving logical grouping clarity during workouts.
+  - **Dynamic Library & Search**: Implemented **Auto-Upsert** logic: new exercises defined in the routine editor are automatically saved to the global optimization catalog. Added **Autocomplete Search** with muscle group badges for seamless catalog integration.
+  - **Routine Details**: Updated the Plan Editor to display exact **Exercise Counts** for each routine, providing better high-level oversight of training protocols.
+  - **Execution Sequence Log**: Implemented a comprehensive session tracking view within the Plan Editor. It displays a combined list of **Completed Workouts** (with date, duration, and success coloring) and **Future Projections** (next 12 operations) based on the plan's routine sequence and target frequency.
+  - **Target Frequency**: Introduced **Sessions per Week** metadata for plans, allowing users to define their target training intensity and driving the automated sequence projection.
+  - **Dynamic Reordering**: Integrated Drag-and-Drop sequence management for routines within a plan, directly influencing the "Next Operation" logic.
+  - **Plan Lifecycle Optimization**: Refined plan status detection to be timeframe-aware. Plans are now classified as **ACTIVE**, **UPCOMING** (future start date), or **EXPIRED** (past end date). Mission Control strictly filters for truly active protocols, preventing future plans from being started prematurely.
+  - **Chronological Sorting**: Updated the Plan Archive to sort protocols by operational status and date, ensuring currently relevant plans are always prioritized at the top of the interface.
+  - **Data Integrity & Concurrency**: 
+    - Implemented a **Mutex Lock (Task Queue)** in the `NdjsonRepository` to ensure thread-safe file operations. This prevents race conditions and "no such file or directory" errors during concurrent read/write/rename operations.
+    - Refactored repository batch operations (`deleteByExercise`, `deleteBySession`) to use **Single Batch Writes** instead of multiple parallel deletes, significantly improving performance and database stability.
+    - Implemented an **Atomic Write Strategy** (temp file rename) to prevent file corruption.
+  - **Enriched Logs**: Updated "Today's Operations" and Dashboard to display start time, total duration, and exercise count for each session.
+- **2026-05-29: Workout Details & Terminology Alignment**
+  - **Shared Details Library**: Extracted `WorkoutDetailSheetComponent` into `lib-training-feature-details` for cross-feature reuse (Dashboard, Training, Plan Editor).
+  - **Log Refinement**: 
+    - Implemented **Execution Accuracy**: Workout logs now only show checkmarks for performed sets; skipped sets are displayed with a strikethrough and "close" icon.
+    - **Plan Context Enrichment**: Replaced generic "CUSTOM" labels in logs with actual **Plan Name** and **Routine Name** (e.g., "Protocol X / Push A").
+  - **Plan Hub Enhancements**:
+    - **Routine Previews**: Routine cards in the Plan Editor now display a small preview list of contained exercises.
+    - **Sequence Log Expansion**: The execution sequence log now always projects future sessions, ensuring continuity even if target slots are reached.
+    - **Tactical Interaction**: The "Today's Operations" list in the Training Hub is now clickable, opening the detailed swipe-up log.
+  - **Terminology Pivot**: Renamed project-wide terminology: **"Intel" -> "Details"** (UI/Library) and **"Intelligence" -> "Optimization"** (Architecture), reserving "Intelligence" for future advanced optimization features.
 - **Bug Fixes**: 
   - Resolved naming mismatches in backend repositories and fixed `esbuild` build cache crashes.
-  - **Auth Fix**: Fixed a 403 Forbidden error where users with the `admin` role were blocked from user-level tracking features (Nutrition/Training). Updated `requireUser` middleware to allow both roles.
+  - **Auth Fix**: Fixed a 403 Forbidden error where users with the `admin` role were blocked from user-level tracking features.
+  - **Provisioning Fix**: Resolved a 404 error during planned workout initialization by adding the missing `PUT /sessions/:id/exercises/:exerciseId` route and hardening the provisioning loop in `TrainingStateService`.
+  - **Validation Fix (400 Bad Request)**: Resolved an error when provisioning "legs" exercises by synchronizing the muscle group enums between backend (Zod) and frontend (TypeScript).
+  - **Timer Consistency**: Fixed a bug where pausing/resuming a workout would reset the stopwatch to zero; the timer now persists correctly across state changes.
+  - **Navigation Fix**: Resolved non-functional "Manage Plans" and "Start Workout" buttons by adding missing `RouterLink` imports.

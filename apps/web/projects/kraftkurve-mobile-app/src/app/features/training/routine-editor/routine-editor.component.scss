@@ -1,0 +1,112 @@
+.routine-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.exercise-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--surface-container-high);
+  border: 1px solid var(--outline-variant);
+  margin-bottom: 8px;
+  transition: border-color 0.2s ease;
+
+  &.nested {
+    margin-bottom: 4px;
+    border-color: rgba(255, 171, 243, 0.3);
+    &:last-child { margin-bottom: 0; }
+  }
+
+  .drag-handle {
+    cursor: grab;
+    opacity: 0.4;
+  }
+
+  .exercise-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .sub-label {
+      font-size: 6px;
+      opacity: 0.5;
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 4px;
+
+    .superset-btn {
+      &.active {
+        color: var(--secondary);
+      }
+    }
+  }
+}
+
+.superset-editor-wrapper {
+  border: 2px solid var(--secondary);
+  border-radius: var(--radius-default);
+  padding: 8px;
+  margin-bottom: 12px;
+  background: rgba(255, 171, 243, 0.05);
+  position: relative;
+
+  .superset-label {
+    position: absolute;
+    top: -10px;
+    left: 8px;
+    background: var(--secondary);
+    color: var(--on-secondary);
+    padding: 1px 8px;
+    font-size: 6px;
+    z-index: 10;
+  }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 24px 0 12px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.option-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  .muscle-badge {
+    font-size: 6px;
+    opacity: 0.5;
+    background: var(--surface-container-highest);
+    padding: 2px 6px;
+  }
+}
+
+.full-width {
+  width: 100% !important;
+}
+
+.empty-msg {
+  text-align: center;
+  opacity: 0.5;
+  padding: 24px 16px;
+}

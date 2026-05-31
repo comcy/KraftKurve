@@ -44,13 +44,16 @@ Users couldn't type more than one character into numeric preset fields in Settin
 - **Role Inclusivity**: Ensure that "User-level" permissions are inclusive of the "Admin" role (e.g., `role === 'user' || role === 'admin'`). Blocking admins from tracking features is a common "Over-Locking" mistake.
 - **Strict Separation**: Keep heavy management features (Admin UI) and lean tracking features (Mobile UI) in separate application bundles to maintain performance and focus.
 
-### Intelligence & Progress
-- **Subjective Intensity (RIR)**: Always provide a way for users to log "Reps In Reserve". This subjective data is critical for refining automated progression suggestions.
-- **Dynamic Overload**: Implement progression strategies (Weight-focused vs. Rep-focused) as decoupled logic. This allows the system to adapt suggestions based on user preference and observed intensity (RIR).
-- **Manual Confirmation**: Sets should start in an "Uncompleted" state. Requiring a manual "Check" acts as a user-verified commitment to the logged (or suggested) values, improving data quality.
+### Data Integrity & Validation
+- **Enum Synchronization**: When using rigid validation (e.g., Zod in the backend), always ensure that all UI-selectable options (e.g., muscle groups like "legs") are explicitly defined in the schema. Missing entries lead to opaque 400 Bad Request errors.
+- **Error Transparency**: Ensure backend errors are stringified before being passed to UI notifications; otherwise, they appear as useless `[object Object]` strings.
 
----
+### Architecture & Reusability
+- **Backend Data Enrichment**: Prefer enriching "flat" data entities (like Sessions) with related information (Plan Name, Routine Name) in the backend service layer. This keeps the frontend components lean and avoids complex client-side joins or redundant API calls.
+- **Feature Component Extraction**: When a complex UI component (like the Workout Details Sheet) is needed in multiple features (Dashboard, Training Hub, Plan Editor), extract it into a **shared feature library** immediately to maintain a single source of truth for tactical logs.
 
 ## 3. Communication & UX Patterns
 - **Zero Alert Policy**: Never use `window.alert()`. It blocks the main thread and feels unpolished. 
 - **Tactical Feedback**: Use `MatSnackBar` with project-specific CSS classes (`kk-snackbar`) for all non-critical notifications.
+- **Custom Dialog Terminal**: Never use `prompt()` or `confirm()`. Instead, use the `TacticalDialogComponent` with `MatDialog`. This provides a consistent "Archival" UI, supports mobile keypads properly, and doesn't block the browser's main thread.
+

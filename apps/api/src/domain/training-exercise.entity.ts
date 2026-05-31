@@ -20,5 +20,6 @@ export interface TrainingExercise extends BaseEntity {
   exerciseName: string;
   muscleGroup: MuscleGroup;
   order: number;
+  supersetGroupId: string | null;
   note: string | null;
 }

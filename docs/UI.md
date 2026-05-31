@@ -17,21 +17,23 @@
 
 ## Components & Refinements
 - **Log Cards**: 1px solid borders with 4px rounded corners and "tape" headers for section titles.
-- **Tactical Inputs**: 
-  - Numeric inputs use `type="text"` with `attr.inputmode="numeric|decimal"`.
-  - Browser spinner buttons are hidden for a cleaner, data-centric look.
-- **Nutrition Logic**:
-  - **Unified Entry Widget**: Combines Quick-Track buttons and Custom Log form in a single archival card.
-  - **Archival History**: Grouped list entries by date with sticky performance charts.
-- **Training Intelligence**:
-  - **Mission Control Dashboard**: Highlights the most recent session with immediate access to technical performance data (Intel).
-  - **Workout Archive (Intel)**: Detailed swipe-up logs showing every set, weight, and repetition from past sessions, optimized for analytical review.
+- **Superset Blocks**: Integrated containers with solid **Magenta borders** (`var(--secondary)`) that unify multiple exercises into a single logical unit.
+- **Tactical Dialog Terminal**: A custom UI replacement for all native popups, supporting multiple fields (date pickers, selects, text) while maintaining the archival look.
+- **Workout Details Archive**: 
+  - Detailed swipe-up logs showing every set, weight, and repetition from past sessions.
+  - **Execution Accuracy**: Distinct visualization for performed (checkmark) vs. skipped (strikethrough) sets.
+  - **Plan Context**: Automated display of Protocol and Routine names in log headers.
+- **Plan Configuration Details**:
+  - Routine cards feature an **Exercise Preview Stack** showing the first 5 movements in the protocol.
+  - **Execution Sequence Visuals**: A visual timeline in the plan editor that merges historical session completions (Tertiary Green) with upcoming projections.
+- **Optimization Sequencing**: Dynamic suggestions for the "Next Routine" based on historical completion and predefined protocol order.
 - **Gestural UI**: Bottom sheets feature a visual "Grab Handle" and support vertical swipe-to-dismiss functionality (via header/handle). Scrolling within the sheet is contained to the content area, keeping the header fixed.
 - **Transparent Layering**: Sheet containers are 100% transparent during gestures, allowing the underlying tactical grid to show through seamlessly.
-- **Bottom Sheets**: Custom full-width sheets (`kk-bottom-sheet`) for complex views like history, using a 90% screen height limit. Explicit close buttons are omitted to maximize data density.
+- **Bottom Sheets**: Custom full-width sheets (`kk-bottom-sheet`) for complex views like history, using a 90% screen height limit. 
+- **Tactical Interaction**: Primary lists (Today's Operations, Dashboard metrics) are clickable entry points to the Details Sheet.
 
 ## Color Palette
 - **Primary (Yellow #fdff00)**: Active focus, primary actions.
-- **Secondary (Magenta #ffabf3)**: Critical alerts, supersets.
-- **Tertiary (Green #00ff41)**: Success, completion, positive trends.
+- **Secondary (Magenta #ffabf3)**: Critical alerts, superset grouping.
+- **Tertiary (Green #00ff41)**: Success, completion, finished operations.
 - **Base (Black #131313)**: Main background, high-contrast canvas.

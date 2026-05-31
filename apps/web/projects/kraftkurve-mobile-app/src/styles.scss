@@ -259,6 +259,20 @@ html {
   }
 }
 
+// Dialog Overrides
+.kk-dialog-panel {
+  .mat-mdc-dialog-container {
+    --mdc-dialog-container-shape: 0;
+    --mdc-dialog-container-color: transparent;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  
+  .cdk-overlay-pane {
+    max-width: 90vw !important;
+  }
+}
+
 // Input Styling
 .training-input {
   background: var(--surface-container-high);

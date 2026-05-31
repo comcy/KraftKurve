@@ -7,7 +7,7 @@ import { DragDropModule, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { TrainingService, TrainingSessionDto, TrainingExerciseDto, TrainingSetDto } from 'lib-training-data-access';
 
 @Component({
-  selector: 'app-workout-detail-sheet',
+  selector: 'lib-workout-detail-sheet',
   standalone: true,
   imports: [CommonModule, MatIconModule, MatButtonModule, DragDropModule],
   template: `
@@ -20,7 +20,7 @@ import { TrainingService, TrainingSessionDto, TrainingExerciseDto, TrainingSetDt
       <!-- Sticky Header -->
       <header class="sheet-header" cdkDragHandle>
         <div class="header-top">
-          <span class="label-caps">WORKOUT ARCHIVE / INTEL</span>
+          <span class="label-caps">WORKOUT ARCHIVE / DETAILS</span>
         </div>
         
         <div class="session-meta">
@@ -29,8 +29,9 @@ import { TrainingService, TrainingSessionDto, TrainingExerciseDto, TrainingSetDt
             <span class="data-mono">{{ formatDate(data.session.date) }}</span>
           </div>
           <div class="meta-item">
-            <span class="label-caps">TYPE</span>
-            <span class="badge label-caps">{{ data.session.templateType }}</span>
+            <span class="label-caps">TYPE / PROTOCOL</span>
+            <span class="badge label-caps">{{ data.session.planName || data.session.templateType }}</span>
+            <span class="label-caps routine-sub" *ngIf="data.session.routineName">{{ data.session.routineName }}</span>
           </div>
         </div>
       </header>
@@ -46,14 +47,18 @@ import { TrainingService, TrainingSessionDto, TrainingExerciseDto, TrainingSetDt
               
               <ul class="set-list">
                 @for (set of setsByExercise()[ex.id]; track set.id; let i = $index) {
-                  <li class="set-item">
+                  <li class="set-item" [class.skipped]="!set.done">
                     <span class="set-num data-mono">S{{ i + 1 }}</span>
                     <div class="set-data">
                       <span class="data-mono">{{ set.weightKg }}KG</span>
                       <span class="label-caps">X</span>
                       <span class="data-mono">{{ set.reps }} REPS</span>
                     </div>
-                    <mat-icon class="status-icon">done</mat-icon>
+                    @if (set.done) {
+                      <mat-icon class="status-icon">done</mat-icon>
+                    } @else {
+                      <mat-icon class="status-icon skipped-icon">close</mat-icon>
+                    }
                   </li>
                 } @empty {
                   <li class="empty-sets label-caps">NO SET DATA ARCHIVED.</li>
@@ -129,6 +134,12 @@ import { TrainingService, TrainingSessionDto, TrainingExerciseDto, TrainingSetDt
         font-size: 8px;
         align-self: flex-start;
       }
+
+      .routine-sub {
+        font-size: 10px;
+        color: var(--tertiary);
+        margin-top: 2px;
+      }
     }
 
     .sheet-content {
@@ -179,6 +190,12 @@ import { TrainingService, TrainingSessionDto, TrainingExerciseDto, TrainingSetDt
         .label-caps { font-size: 8px; opacity: 0.5; }
       }
       .status-icon { color: var(--tertiary); font-size: 18px; width: 18px; height: 18px; }
+      
+      &.skipped {
+        opacity: 0.5;
+        .set-data { text-decoration: line-through; }
+        .skipped-icon { color: var(--error); }
+      }
     }
 
     .empty-sets {

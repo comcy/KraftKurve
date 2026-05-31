@@ -7,4 +7,5 @@ export interface ITrainingRoutineRepository extends IRepository<TrainingRoutine>
 
 export interface ITrainingRoutineExerciseRepository extends IRepository<TrainingRoutineExercise> {
   findByRoutineId(routineId: string): Promise<TrainingRoutineExercise[]>;
+  deleteByRoutine(routineId: string): Promise<void>;
 }

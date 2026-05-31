@@ -11,7 +11,8 @@ export class NdjsonTrainingExerciseRepository
   }
 
   async deleteBySession(sessionId: string): Promise<void> {
-    const items = await this.findBySession(sessionId);
-    await Promise.all(items.map((item) => this.deleteById(item.id)));
+    const all = await this.readAll();
+    const filtered = all.filter((exercise) => exercise.sessionId !== sessionId);
+    await this.writeAll(filtered);
   }
 }

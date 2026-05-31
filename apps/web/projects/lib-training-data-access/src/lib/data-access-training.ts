@@ -9,12 +9,15 @@ export interface TrainingSessionDto {
   id: string;
   userId: string;
   planId: string | null;
+  planName?: string;
   routineId: string | null;
+  routineName?: string;
   date: string;
   startedAt: string;
   finishedAt: string | null;
   totalSeconds: number;
   isPaused: boolean;
+  exerciseCount?: number;
   templateType: WorkoutTemplate;
   note: string | null;
   createdAt: string;
@@ -55,6 +58,7 @@ export type MuscleGroup =
   | 'quads'
   | 'hamstrings'
   | 'calves'
+  | 'legs'
   | 'full-body'
   | 'cardio';
 
@@ -64,6 +68,7 @@ export interface TrainingExerciseDto {
   exerciseName: string;
   muscleGroup: MuscleGroup;
   order: number;
+  supersetGroupId: string | null;
   note: string | null;
   createdAt: string;
   updatedAt: string;
@@ -102,6 +107,7 @@ export interface TrainingPlanDto {
   name: string;
   startDate: string;
   endDate: string;
+  sessionsPerWeek: number;
   note: string | null;
   active: boolean;
   createdAt: string;
@@ -114,6 +120,7 @@ export interface TrainingRoutineDto {
   planId: string;
   name: string;
   order: number;
+  exerciseCount: number;
   createdAt: string;
   updatedAt: string;
   version: number;
@@ -126,6 +133,7 @@ export interface TrainingRoutineExerciseDto {
   exerciseName: string;
   muscleGroup: MuscleGroup;
   order: number;
+  supersetGroupId: string | null;
   suggestedSets: number;
 }
 
@@ -168,6 +176,7 @@ export interface UpdateTrainingExerciseRequest {
   muscleGroup?: MuscleGroup;
   note?: string | null;
   order?: number;
+  supersetGroupId?: string | null;
 }
 
 export interface CreateTrainingSetRequest {
@@ -225,6 +234,7 @@ export interface CreateTrainingPlanRequest {
   name: string;
   startDate: string;
   endDate: string;
+  sessionsPerWeek: number;
   note?: string | null;
   active?: boolean;
 }
@@ -233,6 +243,7 @@ export interface UpdateTrainingPlanRequest {
   name?: string;
   startDate?: string;
   endDate?: string;
+  sessionsPerWeek?: number;
   note?: string | null;
   active?: boolean;
 }
@@ -530,12 +541,122 @@ export class TrainingService {
     }
   }
 
+  async createPlan(req: CreateTrainingPlanRequest): Promise<TrainingPlanDto> {
+    return this.executeWrite(
+      this.makeOperation('POST', `${this.apiBase}/plans`, req),
+      async (operation) => {
+        const res = await firstValueFrom(
+          this.http.post<{ plan: TrainingPlanDto }>(`${this.apiBase}/plans`, req, {
+            headers: this.idempotencyHeaders(operation.id),
+          }),
+        );
+        return res.plan;
+      },
+    );
+  }
+
+  async updatePlan(id: string, req: UpdateTrainingPlanRequest): Promise<TrainingPlanDto> {
+    try {
+      const res = await firstValueFrom(
+        this.http.put<{ plan: TrainingPlanDto }>(`${this.apiBase}/plans/${id}`, req),
+      );
+      return res.plan;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async deletePlan(id: string): Promise<void> {
+    try {
+      await firstValueFrom(this.http.delete(`${this.apiBase}/plans/${id}`));
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
   async listRoutines(planId: string): Promise<TrainingRoutineDto[]> {
     try {
       const res = await firstValueFrom(
         this.http.get<{ routines: TrainingRoutineDto[] }>(`${this.apiBase}/plans/${planId}/routines`),
       );
       return res.routines;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async createRoutine(planId: string, name: string): Promise<TrainingRoutineDto> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<{ routine: TrainingRoutineDto }>(`${this.apiBase}/plans/${planId}/routines`, { name }),
+      );
+      return res.routine;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async updateRoutine(id: string, name: string, order?: number): Promise<TrainingRoutineDto> {
+    try {
+      const res = await firstValueFrom(
+        this.http.put<{ routine: TrainingRoutineDto }>(`${this.apiBase}/routines/${id}`, { name, order }),
+      );
+      return res.routine;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async deleteRoutine(routineId: string): Promise<void> {
+    try {
+      await firstValueFrom(this.http.delete(`${this.apiBase}/routines/${routineId}`));
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async listRoutineExercises(routineId: string): Promise<TrainingRoutineExerciseDto[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<{ exercises: TrainingRoutineExerciseDto[] }>(`${this.apiBase}/routines/${routineId}/exercises`),
+      );
+      return res.exercises;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async addRoutineExercise(
+    routineId: string,
+    req: { exerciseId?: string; exerciseName: string; muscleGroup: MuscleGroup; suggestedSets: number },
+  ): Promise<TrainingRoutineExerciseDto> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<{ exercise: TrainingRoutineExerciseDto }>(`${this.apiBase}/routines/${routineId}/exercises`, req),
+      );
+      return res.exercise;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async updateRoutineExercise(
+    id: string,
+    req: { suggestedSets?: number; order?: number; supersetGroupId?: string | null },
+  ): Promise<TrainingRoutineExerciseDto> {
+    try {
+      const res = await firstValueFrom(
+        this.http.put<{ exercise: TrainingRoutineExerciseDto }>(`${this.apiBase}/routine-exercises/${id}`, req),
+      );
+      return res.exercise;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async deleteRoutineExercise(id: string): Promise<void> {
+    try {
+      await firstValueFrom(this.http.delete(`${this.apiBase}/routine-exercises/${id}`));
     } catch (error) {
       throw this.toError(error);
     }
@@ -704,7 +825,10 @@ export class TrainingService {
 
   private toError(error: unknown): Error {
     if (error instanceof HttpErrorResponse) {
-      const message = error.error?.error || error.error?.message || error.message;
+      const errBody = error.error;
+      const message = typeof errBody === 'object' && errBody !== null
+        ? (errBody.error || errBody.message || JSON.stringify(errBody))
+        : error.message;
       return new Error(message || 'Request failed');
     }
     return error instanceof Error ? error : new Error('Request failed');
