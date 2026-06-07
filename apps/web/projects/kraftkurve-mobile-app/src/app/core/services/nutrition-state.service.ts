@@ -49,7 +49,7 @@ export class NutritionStateService {
         name: 'Quick Log',
         mealType: 'snack',
         portionG: 0,
-        proteinG
+        proteinG: Number(proteinG)
       });
       await this.loadToday(); // Refresh
     } catch (error) {
@@ -66,7 +66,7 @@ export class NutritionStateService {
         name,
         mealType: 'snack',
         portionG: 0,
-        proteinG
+        proteinG: Number(proteinG)
       });
       await this.loadToday();
     } catch (error) {

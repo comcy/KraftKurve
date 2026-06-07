@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import { z } from 'zod';
-import { AuthRequest, requireUser as requireAuth } from '../../middleware/auth.middleware';
+import { AuthRequest, requireUser as requireAuth, requireAdmin } from '../../middleware/auth.middleware';
 import { TrainingService } from './training.service';
 import { IdempotencyService } from '../idempotency/idempotency.service';
 
@@ -24,6 +24,13 @@ const muscleGroupEnum = z.enum([
 
 const exerciseCategoryEnum = z.enum(['strength', 'cardio', 'flexibility', 'other']);
 const equipmentTypeEnum = z.enum(['barbell', 'dumbbell', 'machine', 'bodyweight', 'cable', 'other']);
+
+const overloadStrategyEnum = z.enum(['weight-focused', 'rep-focused']);
+
+const updateSettingsSchema = z.object({
+  overloadStrategy: overloadStrategyEnum.optional(),
+  virtualTrainerEnabled: z.boolean().optional(),
+});
 
 const createSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -60,6 +67,8 @@ const createCardioRecordSchema = z.object({
   heartRateAverage: z.number().int().min(30).max(250).optional().nullable(),
   note: z.string().max(1000).optional().nullable(),
 });
+
+const updateCardioRecordSchema = createCardioRecordSchema.partial();
 
 const createPlanSchema = z.object({
   name: z.string().min(1).max(120),
@@ -152,8 +161,6 @@ const stagnationQuerySchema = z.object({
   minCompletionRatio: z.coerce.number().min(0.3).max(1).default(0.65),
   deloadDropPercent: z.coerce.number().min(0.05).max(0.3).default(0.1),
 });
-
-const overloadStrategyEnum = z.enum(['weight-focused', 'rep-focused']);
 
 interface WriteResult {
   status: number;
@@ -347,8 +354,18 @@ export function createTrainingRouter(
       return;
     }
 
-    const record = await trainingService.createCardioRecord(readParam(req, 'exerciseId'), parsed.data);
-    res.status(201).json({ record });
+    await handleIdempotentWrite(req, res, async () => {
+      const record = await trainingService.createCardioRecord(
+        req.user!.sub,
+        readParam(req, 'id'),
+        readParam(req, 'exerciseId'),
+        parsed.data
+      );
+      if (!record) {
+        return { status: 404, body: { error: 'Exercise not found or unauthorized' } };
+      }
+      return { status: 201, body: { record } };
+    });
   });
 
   // ── Sets ────────────────────────────────────────────────────────────────
@@ -470,6 +487,12 @@ export function createTrainingRouter(
     res.status(201).json({ routine });
   });
 
+  router.get('/routines/:routineId', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const routine = await trainingService.getRoutine(readParam(req, 'routineId'));
+    if (!routine) return res.status(404).json({ error: 'Routine not found' });
+    res.status(200).json({ routine });
+  });
+
   router.put('/routines/:routineId', requireAuth as any, async (req: AuthRequest, res: Response) => {
     const routine = await trainingService.updateRoutine(readParam(req, 'routineId'), req.body.name, req.body.order);
     if (!routine) return res.status(404).json({ error: 'Routine not found' });
@@ -502,36 +525,83 @@ export function createTrainingRouter(
     res.status(204).send();
   });
 
-  // ── Virtual Trainer & Settings ───────────────────────────────────────────
+  // ── Progress Analytics ────────────────────────────────────────────────────
 
+  router.get('/progress/heatmap', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const parsed = heatmapQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+    const heatmap = await trainingService.getBodyHeatmap(req.user!.sub, parsed.data.days);
+    res.status(200).json({ heatmap });
+  });
+
+  router.get('/progress/calendar', requireAuth as any, async (req: AuthRequest, res: Response) => {
+    const days = heatmapQuerySchema.safeParse(req.query);
+    if (!days.success) {
+      res.status(400).json({ error: days.error.flatten() });
+      return;
+    }
+    const calendar = await trainingService.getWorkoutCalendar(req.user!.sub, days.data.days);
+    res.status(200).json({ calendar });
+  });
+
+  // ── Virtual Trainer & Settings ───────────────────────────────────────────
   router.get('/settings', requireAuth as any, async (req: AuthRequest, res: Response) => {
     const settings = await trainingService.getTrainingSettings(req.user!.sub);
     res.status(200).json({ settings });
   });
 
   router.put('/settings', requireAuth as any, async (req: AuthRequest, res: Response) => {
-    const parsed = z.object({ overloadStrategy: overloadStrategyEnum }).safeParse(req.body);
+    const parsed = updateSettingsSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.flatten() });
       return;
     }
-    const settings = await trainingService.updateTrainingSettings(req.user!.sub, parsed.data.overloadStrategy);
+    const settings = await trainingService.updateTrainingSettings(req.user!.sub, {
+      strategy: parsed.data.overloadStrategy,
+      virtualTrainerEnabled: parsed.data.virtualTrainerEnabled,
+    });
     res.status(200).json({ settings });
   });
 
   router.get('/suggestions', requireAuth as any, async (req: AuthRequest, res: Response) => {
     const name = typeof req.query['name'] === 'string' ? req.query['name'] : '';
+    const excludeSessionId = typeof req.query['sessionId'] === 'string' ? req.query['sessionId'] : undefined;
+    
     if (!name) {
       res.status(400).json({ error: 'name query param required' });
       return;
     }
-    const suggestion = await trainingService.getExerciseSuggestion(req.user!.sub, name);
+    const suggestion = await trainingService.getExerciseSuggestion(req.user!.sub, name, excludeSessionId);
     res.status(200).json({ suggestion });
   });
 
   router.get('/catalog', requireAuth as any, async (req: AuthRequest, res: Response) => {
     const list = await trainingService.listCatalog();
     res.status(200).json({ catalog: list });
+  });
+
+  router.post('/catalog', requireAuth as any, requireAdmin as any, async (req: AuthRequest, res: Response) => {
+    const parsed = createCatalogExerciseSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+    const exercise = await trainingService.createCatalogExercise(parsed.data);
+    res.status(201).json({ exercise });
+  });
+
+  router.put('/catalog/:id', requireAuth as any, requireAdmin as any, async (req: AuthRequest, res: Response) => {
+    const parsed = updateCatalogExerciseSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+    const exercise = await trainingService.updateCatalogExercise(String(req.params['id']), parsed.data);
+    if (!exercise) return res.status(404).json({ error: 'Exercise not found' });
+    res.status(200).json({ exercise });
+  });
+
+  router.delete('/catalog/:id', requireAuth as any, requireAdmin as any, async (req: AuthRequest, res: Response) => {
+    const deleted = await trainingService.deleteCatalogExercise(String(req.params['id']));
+    if (!deleted) return res.status(404).json({ error: 'Exercise not found' });
+    res.status(204).send();
   });
 
   return router;

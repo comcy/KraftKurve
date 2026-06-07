@@ -1,23 +1,19 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { ProgressService } from './data-access-progress';
 
-import { DataAccessProgress } from './data-access-progress';
+describe('ProgressService', () => {
+  let service: ProgressService;
 
-describe('DataAccessProgress', () => {
-  let component: DataAccessProgress;
-  let fixture: ComponentFixture<DataAccessProgress>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [DataAccessProgress]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(DataAccessProgress);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(ProgressService);
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should be created', () => {
+    expect(service).toBeTruthy();
   });
 });

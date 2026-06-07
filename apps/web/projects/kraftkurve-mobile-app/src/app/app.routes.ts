@@ -3,7 +3,6 @@ import { authGuard } from 'lib-auth-data-access';
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { TrainingComponent } from './features/training/training';
 import { NutritionComponent } from './features/nutrition/nutrition';
-import { ProgressComponent } from './features/progress/progress';
 import { SettingsComponent } from './features/settings/settings';
 
 export const routes: Routes = [
@@ -32,7 +31,11 @@ export const routes: Routes = [
         ]
       },
       { path: 'nutrition', component: NutritionComponent },
-      { path: 'progress', component: ProgressComponent },
+      {
+        path: 'progress',
+        loadComponent: () =>
+          import('lib-progress-feature-overview').then((m) => m.ProgressOverviewComponent),
+      },
       { path: 'settings', component: SettingsComponent },
     ],
   },

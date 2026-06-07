@@ -1,5 +1,5 @@
 <div class="nutrition-container">
-  <h1 class="headline-lg feature-title">{{ fuelProtocol }}</h1>
+  <h1 class="headline-lg feature-title">{{ i18n.t('nutrition.title') }}</h1>
 
   <!-- Progress Widget (Top) -->
   <section class="log-card">
@@ -9,7 +9,7 @@
       <div class="hole"></div>
     </div>
     <div class="log-header tape">
-      <span class="label-caps">{{ dailyIntake }}</span>
+      <span class="label-caps">{{ i18n.t('nutrition.dailyIntake') }}</span>
     </div>
     <div class="log-content">
       <div class="fuel-stats">
@@ -33,26 +33,26 @@
   <!-- Unified Log Entry Widget -->
   <section class="log-card">
     <div class="log-header tape">
-      <span class="label-caps">NUTRITION PROTOCOL / ADD</span>
+      <span class="label-caps">{{ i18n.t('nutrition.addTitle') }}</span>
     </div>
     <div class="log-content">
       <!-- Quick Log Section -->
       <div class="quick-log-section">
-        <span class="label-caps section-subtitle">{{ quickLogLabel }}</span>
+        <span class="label-caps section-subtitle">{{ i18n.t('nutrition.quickLog') }}</span>
         <div class="quick-log-grid">
           <button *ngFor="let amount of presets()" mat-stroked-button class="preset-btn" (click)="onQuickLog(amount)">
             <span class="data-mono">+{{ amount }}</span>
-            <span class="label-caps">g</span>
+            <span class="label-caps">{{ i18n.t('nutrition.unit.g') }}</span>
           </button>
         </div>
       </div>
 
       <div class="custom-log-section">
-        <span class="label-caps section-subtitle">{{ customLogLabel }}</span>
+        <span class="label-caps section-subtitle">{{ i18n.t('nutrition.customLog') }}</span>
         <div class="custom-log-row">
           <mat-form-field appearance="outline" class="custom-input">
-            <input matInput type="text" inputmode="numeric" placeholder="0" [(ngModel)]="customProtein">
-            <span matSuffix class="label-caps">G</span>
+            <input matInput type="number" inputmode="numeric" placeholder="0" [(ngModel)]="customProtein">
+            <span matSuffix class="label-caps">{{ i18n.t('nutrition.unit.G') }}</span>
           </mat-form-field>
           <button mat-flat-button class="log-btn btn-primary" (click)="onCustomLog()">
             <mat-icon>add</mat-icon>
@@ -66,7 +66,7 @@
   <div class="action-container">
     <button mat-stroked-button class="history-btn full-width" (click)="showHistory()">
       <mat-icon>history</mat-icon>
-      <span class="label-caps">{{ historyLabel }}</span>
+      <span class="label-caps">{{ i18n.t('nutrition.logHistory') }}</span>
     </button>
   </div>
 </div>

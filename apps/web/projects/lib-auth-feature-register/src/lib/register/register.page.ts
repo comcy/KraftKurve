@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from 'lib-auth-data-access';
 import { getErrorMessage } from '../auth-error.util';
+import { I18nService } from 'lib-i18n';
 
 @Component({
   selector: 'lib-register',
@@ -15,6 +16,7 @@ export class RegisterPage {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  protected readonly i18n = inject(I18nService);
 
   protected readonly submitting = signal(false);
   protected readonly serverError = signal<string | null>(null);

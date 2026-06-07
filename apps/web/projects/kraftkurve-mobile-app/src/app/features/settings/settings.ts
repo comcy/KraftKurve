@@ -8,19 +8,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
-import { ThemeService } from 'shared-utils';
+import { ThemeService, AppTheme } from 'shared-utils';
 import { NutritionStateService } from '../../core/services/nutrition-state.service';
 import { AuthService } from 'lib-auth-data-access';
 import { TrainingService, OverloadStrategy } from 'lib-training-data-access';
 import { Router } from '@angular/router';
+import { I18nService } from 'lib-i18n';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatButtonModule, 
-    MatIconModule, 
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
     MatSlideToggleModule,
     MatFormFieldModule,
     MatInputModule,
@@ -40,35 +41,32 @@ export class SettingsComponent implements OnInit {
   private readonly _router = inject(Router);
   private readonly _snackBar = inject(MatSnackBar);
   
-  protected readonly settingsTitle = 'USER PROTOCOL';
-  protected readonly themeMode = 'VISUAL OVERRIDE';
-  protected readonly fuelConfig = 'FUEL CONFIGURATION';
-  protected readonly trainingConfig = 'TRAINING PROTOCOL';
-  protected readonly accountConfig = 'ACCOUNT PROTOCOL';
-  protected readonly dark = 'DARK';
-  protected readonly light = 'LIGHT';
-
+  protected readonly i18n = inject(I18nService);
   protected readonly currentTheme = this._themeService.theme;
   protected readonly settings = this._nutritionState.settings;
 
   protected goalValue = signal<number>(0);
   protected presetValues = signal<number[]>([0, 0, 0]);
   protected overloadStrategy = signal<OverloadStrategy>('weight-focused');
+  protected virtualTrainerEnabled = signal<boolean>(false);
 
   private _initialGoal = 0;
   private _initialPresets: number[] = [0, 0, 0];
   private _initialStrategy: OverloadStrategy = 'weight-focused';
+  private _initialTrainerEnabled = false;
 
   protected readonly hasChanges = computed(() => {
     const currentGoal = Number(this.goalValue());
     const currentPresets = this.presetValues().map(v => Number(v));
     const currentStrategy = this.overloadStrategy();
+    const currentTrainerEnabled = this.virtualTrainerEnabled();
     
     const goalChanged = currentGoal !== this._initialGoal;
     const presetsChanged = JSON.stringify(currentPresets) !== JSON.stringify(this._initialPresets);
     const strategyChanged = currentStrategy !== this._initialStrategy;
+    const trainerChanged = currentTrainerEnabled !== this._initialTrainerEnabled;
     
-    return goalChanged || presetsChanged || strategyChanged;
+    return goalChanged || presetsChanged || strategyChanged || trainerChanged;
   });
 
   async ngOnInit() {
@@ -90,14 +88,16 @@ export class SettingsComponent implements OnInit {
     try {
       const tSettings = await this._trainingApi.getTrainingSettings();
       this.overloadStrategy.set(tSettings.overloadStrategy);
+      this.virtualTrainerEnabled.set(tSettings.virtualTrainerEnabled);
       this._initialStrategy = tSettings.overloadStrategy;
+      this._initialTrainerEnabled = tSettings.virtualTrainerEnabled;
     } catch {
       // ignore
     }
   }
 
-  protected toggleTheme() {
-    this._themeService.toggleTheme();
+  protected setTheme(theme: AppTheme) {
+    this._themeService.setTheme(theme);
   }
 
   async saveConfiguration() {
@@ -107,15 +107,20 @@ export class SettingsComponent implements OnInit {
       const goal = Number(this.goalValue());
       const presets = this.presetValues().map(v => Number(v));
       const strategy = this.overloadStrategy();
+      const trainerEnabled = this.virtualTrainerEnabled();
 
       await Promise.all([
         this._nutritionState.updateSettings(goal, presets),
-        this._trainingApi.updateTrainingSettings(strategy)
+        this._trainingApi.updateTrainingSettings({ 
+          strategy, 
+          virtualTrainerEnabled: trainerEnabled 
+        })
       ]);
       
       this._initialGoal = goal;
       this._initialPresets = [...presets];
       this._initialStrategy = strategy;
+      this._initialTrainerEnabled = trainerEnabled;
       
       this._snackBar.open('KONFIGURATION GESPEICHERT', 'OK', {
         duration: 3000,

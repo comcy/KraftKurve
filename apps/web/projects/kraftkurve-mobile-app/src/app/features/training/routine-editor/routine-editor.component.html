@@ -2,21 +2,26 @@
   <div class="header-nav">
     <a mat-button [routerLink]="['/training/plans', planId]">
       <mat-icon>arrow_back</mat-icon>
-      PLAN CONFIG
+      {{ i18n.t('routineEditor.parentTitle') }}
     </a>
   </div>
 
-  <h1 class="headline-lg title">ROUTINE_EDITOR</h1>
+  <div class="title-row">
+    <h1 class="headline-lg title">{{ routine()?.name || i18n.t('routineEditor.title') }}</h1>
+    <button mat-icon-button (click)="renameRoutine()" *ngIf="routine()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
 
   <!-- Active Routine Exercises -->
   <section class="log-card">
-    <div class="log-header tape">EXERCISE_STACK</div>
+    <div class="log-header tape">{{ i18n.t('routineEditor.exerciseStack') }}</div>
     <div class="log-content">
       <div class="drag-list" cdkDropList (cdkDropListDropped)="onDrop($event)">
         @for (group of groupedExercises(); track $index) {
           @if (group.type === 'superset') {
             <div class="superset-editor-wrapper">
-              <div class="superset-label label-caps">SUPERSET_BLOCK</div>
+              <div class="superset-label label-caps">{{ i18n.t('routineEditor.supersetBlock') }}</div>
               @for (ex of group.exercises; track ex.id; let i = $index) {
                 <div class="exercise-item nested" cdkDrag>
                   <div class="drag-handle" cdkDragHandle>
@@ -59,7 +64,7 @@
             }
           }
         } @empty {
-          <p class="empty-msg label-caps">EMPTY_STACK. ATTACH EXERCISES BELOW.</p>
+          <p class="empty-msg label-caps">{{ i18n.t('routineEditor.emptyStack') }}</p>
         }
       </div>
     </div>
@@ -68,7 +73,7 @@
   <!-- Exercise Catalog / Add -->
   <div class="search-box">
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label class="label-caps">SEARCH_OR_CREATE_EXERCISE</mat-label>
+      <mat-label class="label-caps">{{ i18n.t('routineEditor.searchOrCreate') }}</mat-label>
       <input type="text" matInput [formControl]="searchControl" [matAutocomplete]="auto">
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addExercise($event.option.value)">
         @for (option of filteredCatalog | async; track option.id) {
@@ -80,7 +85,7 @@
           </mat-option>
         } @empty {
           <mat-option disabled class="no-results">
-            <span class="label-caps">NO_EXISTING_DATA. CREATE NEW?</span>
+            <span class="label-caps">{{ i18n.t('routineEditor.noExistingData') }}</span>
           </mat-option>
         }
       </mat-autocomplete>

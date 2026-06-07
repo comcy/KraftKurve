@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve app-shell",
-    "start:mobile": "ng serve kraftkurve-mobile-app",
-    "build": "ng build app-shell",
-    "build:mobile": "ng build kraftkurve-mobile-app",
-    "watch": "ng build app-shell --watch --configuration development",
-    "test": "ng test app-shell"
+    "start": "ng serve kraftkurve-mobile-app",
+    "start:admin": "ng serve app-admin",
+    "build": "ng build kraftkurve-mobile-app",
+    "build:admin": "ng build app-admin",
+    "watch": "ng build kraftkurve-mobile-app --watch --configuration development",
+    "test": "ng test kraftkurve-mobile-app"
   },
   "prettier": {
     "printWidth": 100,
@@ -35,13 +35,11 @@
     "@angular/platform-browser": "^21.2.12",
     "@angular/router": "^21.2.12",
     "@angular/service-worker": "^21.2.12",
-    "@softarc/native-federation-node": "^3.3.4",
     "es-module-shims": "^1.5.12",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular-architects/native-federation": "^21.2.3",
     "@angular-devkit/build-angular": "^21.2.12",
     "@angular/build": "^21.2.12",
     "@angular/cli": "^21.2.12",

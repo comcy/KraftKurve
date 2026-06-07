@@ -4,9 +4,9 @@
     <div class="log-header tape">
       <div class="widget-title label-caps">
         <mat-icon>restaurant</mat-icon>
-        {{ fuelStatus }}
+        {{ i18n.t('dashboard.fuelStatus') }}
       </div>
-      <span class="badge label-caps">{{ protein }}</span>
+      <span class="badge label-caps">{{ i18n.t('dashboard.protein') }}</span>
     </div>
 
     <div class="log-content">
@@ -14,7 +14,7 @@
         <div class="fuel-value data-mono">
           <span class="current">{{ proteinCurrent() }}g</span> / {{ proteinTarget() }}g
         </div>
-        <div class="fuel-label label-caps">DAILY INTAKE</div>
+        <div class="fuel-label label-caps">{{ i18n.t('dashboard.dailyIntake') }}</div>
       </div>
 
       <div class="segmented-progress">
@@ -40,7 +40,7 @@
     <div class="log-header">
       <div class="widget-title label-caps">
         <mat-icon>fitness_center</mat-icon>
-        {{ lastWorkoutLabel }}
+        {{ i18n.t('dashboard.lastWorkout') }}
       </div>
       <div class="badge-group">
         <span class="badge label-caps">{{ lastSession()!.planName || lastSession()!.templateType }}</span>
@@ -50,15 +50,15 @@
     <div class="log-content">
       <div class="workout-summary">
         <div class="summary-item">
-          <span class="label-caps">DATE & TIME</span>
+          <span class="label-caps">{{ i18n.t('dashboard.dateTime') }}</span>
           <span class="data-mono">{{ formatDate(lastSession()!.date) }} @ {{ lastSession()!.startedAt | date:'HH:mm' }}</span>
         </div>
         <div class="summary-item">
-          <span class="label-caps">DETAILS</span>
-          <span class="data-mono">{{ lastSession()!.exerciseCount ?? 0 }} EX / {{ formatDuration(lastSession()!.totalSeconds) }}</span>
+          <span class="label-caps">{{ i18n.t('dashboard.details') }}</span>
+          <span class="data-mono">{{ lastSession()!.exerciseCount ?? 0 }} {{ i18n.t('dashboard.ex') }} / {{ formatDuration(lastSession()!.totalSeconds) }}</span>
         </div>
       </div>
-      <p class="label-caps detail-hint">TAP TO VIEW DETAILS</p>
+      <p class="label-caps detail-hint">{{ i18n.t('dashboard.tapToViewDetails') }}</p>
     </div>
   </section>
 
@@ -66,7 +66,7 @@
   <div class="action-container">
     <button mat-flat-button class="start-btn btn-primary" routerLink="/training">
       <mat-icon>play_arrow</mat-icon>
-      <span class="label-caps">{{ startWorkout }}</span>
+      <span class="label-caps">{{ i18n.t('dashboard.startWorkout') }}</span>
     </button>
   </div>
 </div>

@@ -1,21 +1,21 @@
 <main class="admin-dashboard">
   <section class="log-card">
-    <div class="log-header tape">ADMIN_LOG</div>
+    <div class="log-header tape">{{ i18n.t('admin.dashboard.header') }}</div>
     <div class="log-content">
-      <h2 class="label-caps">Dashboard</h2>
-      <p class="data-mono">Admin-Fokus: Invite-Codes fuer User-Freischaltung.</p>
-      
+      <h2 class="label-caps">{{ i18n.t('admin.dashboard.title') }}</h2>
+      <p class="data-mono">{{ i18n.t('admin.dashboard.subtitle') }}</p>
+
       <nav class="admin-nav-tabs">
         <a routerLink="/admin/invites" class="nav-tab">
-          <span class="tab-label">INVITES</span>
+          <span class="tab-label">{{ i18n.t('admin.dashboard.tab.invites') }}</span>
           <span class="tab-folder-marker"></span>
         </a>
         <a routerLink="/admin/users" class="nav-tab">
-          <span class="tab-label">USERS</span>
+          <span class="tab-label">{{ i18n.t('admin.dashboard.tab.users') }}</span>
           <span class="tab-folder-marker"></span>
         </a>
         <a routerLink="/admin/exercises" class="nav-tab">
-          <span class="tab-label">EXERCISES</span>
+          <span class="tab-label">{{ i18n.t('admin.dashboard.tab.exercises') }}</span>
           <span class="tab-folder-marker"></span>
         </a>
       </nav>

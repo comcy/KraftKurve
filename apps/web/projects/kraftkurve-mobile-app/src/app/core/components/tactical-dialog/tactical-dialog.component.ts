@@ -89,7 +89,7 @@ export interface TacticalDialogData {
   styles: [`
     .tactical-dialog-card {
       margin: 0;
-      border: 2px solid var(--primary);
+      border: 1px solid var(--primary);
     }
     
     .dialog-message {

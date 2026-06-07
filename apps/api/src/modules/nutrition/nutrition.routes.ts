@@ -10,8 +10,8 @@ const createEntrySchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   name: z.string().min(1).max(200),
   mealType: mealTypeEnum,
-  portionG: z.number().min(0).max(9999),
-  proteinG: z.number().min(0).max(9999),
+  portionG: z.coerce.number().min(0).max(9999),
+  proteinG: z.coerce.number().min(0).max(9999),
   note: z.string().max(2000).optional().nullable(),
 });
 
@@ -19,29 +19,29 @@ const updateEntrySchema = z
   .object({
     name: z.string().min(1).max(200).optional(),
     mealType: mealTypeEnum.optional(),
-    portionG: z.number().min(0).max(9999).optional(),
-    proteinG: z.number().min(0).max(9999).optional(),
+    portionG: z.coerce.number().min(0).max(9999).optional(),
+    proteinG: z.coerce.number().min(0).max(9999).optional(),
     note: z.string().max(2000).optional().nullable(),
   })
   .refine((v) => Object.keys(v).length > 0, { message: 'No fields to update' });
 
 const createFoodItemSchema = z.object({
   name: z.string().min(1).max(200),
-  proteinPer100g: z.number().min(0).max(999),
-  defaultPortionG: z.number().min(0).max(9999),
+  proteinPer100g: z.coerce.number().min(0).max(999),
+  defaultPortionG: z.coerce.number().min(0).max(9999),
 });
 
 const updateFoodItemSchema = z
   .object({
     name: z.string().min(1).max(200).optional(),
-    proteinPer100g: z.number().min(0).max(999).optional(),
-    defaultPortionG: z.number().min(0).max(9999).optional(),
+    proteinPer100g: z.coerce.number().min(0).max(999).optional(),
+    defaultPortionG: z.coerce.number().min(0).max(9999).optional(),
   })
   .refine((v) => Object.keys(v).length > 0, { message: 'No fields to update' });
 
 const setNutritionSettingsSchema = z.object({
-  proteinGoalG: z.number().min(1).max(9999).nullable().optional(),
-  proteinPresets: z.array(z.number().min(1).max(999)).length(3).optional(),
+  proteinGoalG: z.coerce.number().min(1).max(9999).nullable().optional(),
+  proteinPresets: z.array(z.coerce.number().min(1).max(999)).length(3).optional(),
 });
 
 interface WriteResult {

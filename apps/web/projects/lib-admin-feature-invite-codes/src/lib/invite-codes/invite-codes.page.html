@@ -1,12 +1,12 @@
 <main class="invite-page">
   <section class="log-card">
-    <div class="log-header tape">INVITE_MANAGEMENT</div>
+    <div class="log-header tape">{{ i18n.t('admin.invites.header') }}</div>
     <div class="log-content">
-      <h2 class="label-caps">Invite-Codes</h2>
-      <p class="data-mono">Admin darf nur User freischalten. Hier erzeugst du Invite-Codes.</p>
+      <h2 class="label-caps">{{ i18n.t('admin.invites.title') }}</h2>
+      <p class="data-mono">{{ i18n.t('admin.invites.subtitle') }}</p>
 
       <button class="tactical-btn primary full-width" (click)="createInvite()" [disabled]="creating()">
-        {{ creating() ? 'ERZEUGE…' : '+ NEW_INVITE' }}
+        {{ creating() ? i18n.t('admin.invites.creating') : i18n.t('admin.invites.new') }}
       </button>
 
       @if (error()) {
@@ -14,16 +14,16 @@
       }
 
       @if (!codes().length) {
-        <p class="empty data-mono">NO_DATA_AVAILABLE</p>
+        <p class="empty data-mono">{{ i18n.t('admin.invites.empty') }}</p>
       } @else {
         <div class="code-list">
           @for (entry of codes(); track entry.code) {
             <div class="code-item tactical-border">
               <div class="code-info">
                 <div class="code-value data-mono">{{ entry.code }}</div>
-                <div class="meta label-caps">EXP: {{ entry.expiresAt ?? 'INF' }}</div>
+                <div class="meta label-caps">{{ i18n.t('admin.invites.exp') }} {{ entry.expiresAt ?? i18n.t('admin.invites.inf') }}</div>
               </div>
-              <button class="tactical-btn secondary sm" (click)="copy(entry.code)">COPY</button>
+              <button class="tactical-btn secondary sm" (click)="copy(entry.code)">{{ i18n.t('admin.invites.copy') }}</button>
             </div>
           }
         </div>

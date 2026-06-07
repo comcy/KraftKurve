@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from 'lib-auth-data-access';
+import { I18nService } from 'lib-i18n';
 
 interface InviteCodeView {
   code: string;
@@ -17,6 +18,7 @@ interface InviteCodeView {
 })
 export class InviteCodesPage {
   private readonly authService = inject(AuthService);
+  protected readonly i18n = inject(I18nService);
 
   protected readonly creating = signal(false);
   protected readonly error = signal<string | null>(null);

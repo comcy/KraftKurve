@@ -4,9 +4,21 @@
   gap: 16px;
 }
 
-.title {
-  text-align: center;
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   margin-bottom: 24px;
+
+  .title {
+    margin: 0;
+  }
+
+  button {
+    opacity: 0.6;
+    &:hover { opacity: 1; }
+  }
 }
 
 .exercise-item {

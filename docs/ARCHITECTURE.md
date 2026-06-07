@@ -36,4 +36,5 @@
   - Implementation of "Mission Control" dashboard providing quick access to the most recent session's tactical data.
   - Development of the "Workout Details" component: a gesture-driven detailed view of historical training data.
 - **2026-05-29: Shared Workout Details Library**. [ADR-008](ADR-008.md)
+- **2026-06-01: Set-by-Set Progression Analysis (Virtual Trainer)**. [ADR-009](ADR-009.md)
   - Extraction of `WorkoutDetailSheetComponent` into `lib-training-feature-details` for cross-feature reuse.

@@ -8,6 +8,7 @@ import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-s
 import { FormsModule } from '@angular/forms';
 import { NutritionStateService } from '../../core/services/nutrition-state.service';
 import { NutritionHistorySheetComponent } from './nutrition-history-sheet.component';
+import { I18nService } from 'lib-i18n';
 
 @Component({
   selector: 'app-nutrition',
@@ -28,13 +29,7 @@ import { NutritionHistorySheetComponent } from './nutrition-history-sheet.compon
 export class NutritionComponent implements OnInit {
   private readonly nutritionState = inject(NutritionStateService);
   private readonly bottomSheet = inject(MatBottomSheet);
-
-  protected readonly fuelProtocol = 'NUTRITION PROTOCOL';
-  protected readonly dailyIntake = 'DAILY INTAKE';
-  protected readonly quickLogLabel = 'QUICK LOG';
-  protected readonly customLogLabel = 'CUSTOM LOG';
-  protected readonly historyLabel = 'LOG HISTORY';
-  protected readonly weekIndexLabel = '7-DAY STRENGTH INDEX';
+  protected readonly i18n = inject(I18nService);
 
   protected readonly proteinCurrent = this.nutritionState.totalProtein;
   protected readonly proteinTarget = this.nutritionState.proteinGoal;
@@ -58,7 +53,8 @@ export class NutritionComponent implements OnInit {
   }
 
   async onCustomLog() {
-    const amount = this.customProtein();
+    const val = this.customProtein();
+    const amount = val !== null ? Number(val) : 0;
     if (amount && amount > 0) {
       await this.nutritionState.logCustom('Manual Entry', amount);
       this.customProtein.set(null);

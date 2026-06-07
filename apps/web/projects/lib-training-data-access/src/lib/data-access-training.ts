@@ -140,6 +140,7 @@ export interface TrainingRoutineExerciseDto {
 export interface TrainingSettingsDto {
   userId: string;
   overloadStrategy: OverloadStrategy;
+  virtualTrainerEnabled: boolean;
 }
 
 export interface ExerciseSuggestionDto {
@@ -164,6 +165,7 @@ export interface TrainingSessionProgressDto {
   completedSets: number;
   completionPercent: number;
 }
+
 
 export interface CreateTrainingExerciseRequest {
   exerciseName: string;
@@ -528,6 +530,28 @@ export class TrainingService {
     );
   }
 
+  async updateCardioRecord(
+    sessionId: string,
+    exerciseId: string,
+    req: Partial<CreateCardioRecordRequest>,
+  ): Promise<CardioRecordDto> {
+    return this.executeWrite(
+      this.makeOperation('PUT', `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/cardio`, req),
+      async (operation) => {
+        const res = await firstValueFrom(
+          this.http.put<{ record: CardioRecordDto }>(
+            `${this.apiBase}/sessions/${sessionId}/exercises/${exerciseId}/cardio`,
+            req,
+            {
+              headers: this.idempotencyHeaders(operation.id),
+            },
+          ),
+        );
+        return res.record;
+      },
+    );
+  }
+
   // ── Plans & Routines ─────────────────────────────────────────────────────
 
   async listPlans(): Promise<TrainingPlanDto[]> {
@@ -589,6 +613,17 @@ export class TrainingService {
     try {
       const res = await firstValueFrom(
         this.http.post<{ routine: TrainingRoutineDto }>(`${this.apiBase}/plans/${planId}/routines`, { name }),
+      );
+      return res.routine;
+    } catch (error) {
+      throw this.toError(error);
+    }
+  }
+
+  async getRoutine(id: string): Promise<TrainingRoutineDto> {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<{ routine: TrainingRoutineDto }>(`${this.apiBase}/routines/${id}`),
       );
       return res.routine;
     } catch (error) {
@@ -675,12 +710,18 @@ export class TrainingService {
     }
   }
 
-  async updateTrainingSettings(strategy: OverloadStrategy): Promise<TrainingSettingsDto> {
+  async updateTrainingSettings(input: { strategy?: OverloadStrategy; virtualTrainerEnabled?: boolean }): Promise<TrainingSettingsDto> {
     return this.executeWrite(
-      this.makeOperation('PUT', `${this.apiBase}/settings`, { overloadStrategy: strategy }),
+      this.makeOperation('PUT', `${this.apiBase}/settings`, { 
+        overloadStrategy: input.strategy,
+        virtualTrainerEnabled: input.virtualTrainerEnabled 
+      }),
       async (operation) => {
         const res = await firstValueFrom(
-          this.http.put<{ settings: TrainingSettingsDto }>(`${this.apiBase}/settings`, { overloadStrategy: strategy }, {
+          this.http.put<{ settings: TrainingSettingsDto }>(`${this.apiBase}/settings`, { 
+            overloadStrategy: input.strategy,
+            virtualTrainerEnabled: input.virtualTrainerEnabled 
+          }, {
             headers: this.idempotencyHeaders(operation.id),
           }),
         );
@@ -689,11 +730,14 @@ export class TrainingService {
     );
   }
 
-  async getSuggestion(exerciseName: string): Promise<ExerciseSuggestionDto | null> {
+  async getSuggestion(exerciseName: string, excludeSessionId?: string): Promise<ExerciseSuggestionDto | null> {
     try {
+      const params: any = { name: exerciseName };
+      if (excludeSessionId) params.sessionId = excludeSessionId;
+
       const res = await firstValueFrom(
         this.http.get<{ suggestion: ExerciseSuggestionDto | null }>(
-          `${this.apiBase}/suggestions`, { params: { name: exerciseName } }
+          `${this.apiBase}/suggestions`, { params }
         ),
       );
       return res.suggestion;
@@ -711,6 +755,47 @@ export class TrainingService {
     } catch (error) {
       throw this.toError(error);
     }
+  }
+
+  async createCatalogExercise(req: CreateExerciseRequest): Promise<ExerciseDto> {
+    return this.executeWrite(
+      this.makeOperation('POST', `${this.apiBase}/catalog`, req),
+      async (operation) => {
+        const res = await firstValueFrom(
+          this.http.post<{ exercise: ExerciseDto }>(`${this.apiBase}/catalog`, req, {
+            headers: this.idempotencyHeaders(operation.id),
+          }),
+        );
+        return res.exercise;
+      },
+    );
+  }
+
+  async updateCatalogExercise(id: string, req: UpdateExerciseRequest): Promise<ExerciseDto> {
+    return this.executeWrite(
+      this.makeOperation('PUT', `${this.apiBase}/catalog/${id}`, req),
+      async (operation) => {
+        const res = await firstValueFrom(
+          this.http.put<{ exercise: ExerciseDto }>(`${this.apiBase}/catalog/${id}`, req, {
+            headers: this.idempotencyHeaders(operation.id),
+          }),
+        );
+        return res.exercise;
+      },
+    );
+  }
+
+  async deleteCatalogExercise(id: string): Promise<void> {
+    await this.executeWrite(
+      this.makeOperation('DELETE', `${this.apiBase}/catalog/${id}`),
+      async (operation) => {
+        await firstValueFrom(
+          this.http.delete(`${this.apiBase}/catalog/${id}`, {
+            headers: this.idempotencyHeaders(operation.id),
+          }),
+        );
+      },
+    );
   }
 
   // ── Implementation Details (Offline, Headers, Errors) ──────────────────────

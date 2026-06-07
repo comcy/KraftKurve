@@ -2,14 +2,14 @@
   <div class="header-nav">
     <a mat-button routerLink="/training/terminal">
       <mat-icon>arrow_back</mat-icon>
-      BACK TO HUB
+      {{ i18n.t('planList.backToHub') }}
     </a>
   </div>
 
-  <h1 class="headline-lg title">PLAN_ARCHIVE</h1>
+  <h1 class="headline-lg title">{{ i18n.t('planList.title') }}</h1>
 
   @if (loading()) {
-    <div class="loading label-caps">SYNCHRONIZING_ARCHIVE...</div>
+    <div class="loading label-caps">{{ i18n.t('planList.loading') }}</div>
   } @else {
     <div class="plan-list">
       @for (plan of plans(); track plan.id) {
@@ -29,22 +29,22 @@
           <div class="log-content">
             <div class="plan-meta">
               <div class="meta-item">
-                <span class="label-caps">TIMEFRAME</span>
+                <span class="label-caps">{{ i18n.t('planList.timeframe') }}</span>
                 <span class="data-mono">{{ plan.startDate | date:'dd.MM' }} - {{ plan.endDate | date:'dd.MM.yy' }}</span>
               </div>
             </div>
-            <p class="label-caps detail-hint">TAP TO EDIT ARCHIVE</p>
+            <p class="label-caps detail-hint">{{ i18n.t('planList.tapToEdit') }}</p>
           </div>
         </section>
       } @empty {
-        <p class="empty-msg label-caps">NO PROTOCOLS DETECTED.</p>
+        <p class="empty-msg label-caps">{{ i18n.t('planList.empty') }}</p>
       }
     </div>
 
     <div class="action-container">
       <button mat-flat-button class="create-btn btn-primary full-width" (click)="createPlan()">
         <mat-icon>add</mat-icon>
-        <span class="label-caps">INITIALIZE NEW PLAN</span>
+        <span class="label-caps">{{ i18n.t('planList.initializePlan') }}</span>
       </button>
     </div>
   }

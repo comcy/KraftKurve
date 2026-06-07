@@ -12,6 +12,7 @@ export type MuscleGroup =
   | 'quads'
   | 'hamstrings'
   | 'calves'
+  | 'legs'
   | 'full-body'
   | 'cardio';
 

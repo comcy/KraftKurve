@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { TrainingService, TrainingPlanDto, TrainingRoutineDto, TrainingSessionDto, TrainingRoutineExerciseDto } from 'lib-training-data-access';
 import { TacticalDialogComponent } from '../../../core/components/tactical-dialog/tactical-dialog.component';
+import { I18nService } from 'lib-i18n';
 
 @Component({
   selector: 'app-plan-editor',
@@ -36,6 +37,7 @@ export class PlanEditorComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly _dialog = inject(MatDialog);
   private readonly _bottomSheet = inject(MatBottomSheet);
+  protected readonly i18n = inject(I18nService);
 
   protected readonly plan = signal<TrainingPlanDto | null>(null);
   protected readonly routines = signal<TrainingRoutineDto[]>([]);
@@ -220,6 +222,30 @@ export class PlanEditorComponent implements OnInit {
       try {
         await this.trainingApi.deleteRoutine(id);
         this.routines.update(list => list.filter(r => r.id !== id));
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  async renameRoutine(routine: TrainingRoutineDto) {
+    const dialogRef = this._dialog.open(TacticalDialogComponent, {
+      data: {
+        title: 'RENAME ROUTINE',
+        message: 'Update the name of this routine.',
+        fields: [
+          { key: 'name', type: 'text', label: 'ROUTINE NAME', value: routine.name }
+        ],
+        confirmLabel: 'UPDATE'
+      },
+      panelClass: 'kk-dialog-panel'
+    });
+
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    if (result && result.name && result.name.trim()) {
+      try {
+        const updated = await this.trainingApi.updateRoutine(routine.id, result.name.trim());
+        this.routines.update(list => list.map(r => r.id === routine.id ? updated : r));
       } catch {
         // ignore
       }

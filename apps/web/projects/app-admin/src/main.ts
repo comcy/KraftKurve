@@ -1,9 +1,15 @@
-// Define ngDevMode at the very top to prevent ReferenceError in dev mode
-(window as any).ngDevMode = (window as any).ngDevMode || false;
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { Component } from '@angular/core';
+import { App } from './app/app';
 
-import { initFederation } from '@angular-architects/native-federation';
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [App],
+  template: `<app-admin-root [hideLayout]="false" />`
+})
+class RootComponent {}
 
-initFederation()
-  .catch(err => console.error(err))
-  .then(_ => import('./bootstrap'))
-  .catch(err => console.error(err));
+bootstrapApplication(RootComponent, appConfig)
+  .catch((err) => console.error(err));

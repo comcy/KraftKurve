@@ -11,6 +11,48 @@
 | Persistence | NDJSON (adapter-based, swap-ready) |
 | Paketmanager | pnpm |
 
+## Deployment
+
+KraftKurve ist für den Docker-Einsatz optimiert (ideal für Proxmox LXC oder Home-Server) und bietet ein interaktives Setup-Skript.
+
+**Hinweis**: Da KraftKurve eine PWA ist, wird **HTTPS/SSL** für den Offline-Modus und die Installation auf Mobilgeräten dringend empfohlen.
+
+### 1. Interaktives Setup (Empfohlen)
+
+Das Setup-Skript konfiguriert deine Admin-Zugangsdaten und lässt dich zwischen Docker und systemd wählen.
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+### 2. Docker Compose (Proxmox / Home-Server)
+
+Für eine isolierte Umgebung mit minimalem Wartungsaufwand:
+
+1.  **Repository klonen**: `git clone ... && cd KraftKurve`
+2.  **Setup ausführen**: `./setup.sh` (Wähle Option 1)
+3.  **Manuell starten** (Alternative zu Setup):
+    ```bash
+    # .env mit ADMIN_EMAIL, ADMIN_PASSWORD und PORT anlegen
+    docker compose up -d --build
+    ```
+4.  **Erreichbar unter**: `http://localhost:8080` (oder dein gewählter Port).
+
+### 3. systemd (Direkt auf Linux-Host)
+
+Wenn du kein Docker nutzen möchtest:
+
+1.  **Setup ausführen**: `./setup.sh` (Wähle Option 2)
+2.  **Service registrieren**:
+    ```bash
+    sudo cp kraftkurve-api.service /etc/systemd/system/
+    sudo systemctl enable --now kraftkurve-api
+    ```
+3.  **Frontend**: Serviere `apps/web/dist/kraftkurve-mobile-app/browser` via Nginx und leite `/api` an `localhost:3000` weiter.
+
+Detaillierte Anleitung & Proxmox-Tipps: [Deployment Guide](docs/DEPLOYMENT.md)
+
 ## Struktur
 
 ```

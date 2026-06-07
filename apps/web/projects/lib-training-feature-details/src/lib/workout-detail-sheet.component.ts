@@ -4,12 +4,25 @@ import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bott
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { DragDropModule, CdkDragEnd } from '@angular/cdk/drag-drop';
-import { TrainingService, TrainingSessionDto, TrainingExerciseDto, TrainingSetDto } from 'lib-training-data-access';
+import { 
+  TrainingService, 
+  TrainingSessionDto, 
+  TrainingExerciseDto, 
+  TrainingSetDto,
+  ExerciseSuggestionDto
+} from 'lib-training-data-access';
+import { VirtualTrainerSuggestionComponent } from 'lib-training-feature-virtual-trainer';
 
 @Component({
   selector: 'lib-workout-detail-sheet',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, DragDropModule],
+  imports: [
+    CommonModule, 
+    MatIconModule, 
+    MatButtonModule, 
+    DragDropModule, 
+    VirtualTrainerSuggestionComponent
+  ],
   template: `
     <div class="history-sheet" cdkDrag cdkDragLockAxis="y" (cdkDragEnded)="onDragEnd($event)">
       <!-- Drag Handle -->
@@ -44,6 +57,11 @@ import { TrainingService, TrainingSessionDto, TrainingExerciseDto, TrainingSetDt
               <div class="exercise-header label-caps">
                 {{ ex.exerciseName }}
               </div>
+
+              @if (virtualTrainerEnabled() && suggestions()[ex.id]) {
+                <kk-virtual-trainer-suggestion [suggestion]="suggestions()[ex.id]!">
+                </kk-virtual-trainer-suggestion>
+              }
               
               <ul class="set-list">
                 @for (set of setsByExercise()[ex.id]; track set.id; let i = $index) {
@@ -212,9 +230,18 @@ export class WorkoutDetailSheetComponent implements OnInit {
   protected readonly data = inject<{ session: TrainingSessionDto, exercises: TrainingExerciseDto[] }>(MAT_BOTTOM_SHEET_DATA);
 
   protected readonly setsByExercise = signal<Record<string, TrainingSetDto[]>>({});
+  protected readonly suggestions = signal<Record<string, ExerciseSuggestionDto | null>>({});
+  protected readonly virtualTrainerEnabled = signal<boolean>(false);
 
   async ngOnInit() {
-    await this.loadAllSets();
+    const [tSettings] = await Promise.all([
+      this.trainingApi.getTrainingSettings(),
+      this.loadAllSets()
+    ]);
+    this.virtualTrainerEnabled.set(tSettings.virtualTrainerEnabled);
+    if (tSettings.virtualTrainerEnabled) {
+      await this.loadAllSuggestions();
+    }
   }
 
   private async loadAllSets() {
@@ -228,6 +255,19 @@ export class WorkoutDetailSheetComponent implements OnInit {
       }
     }
     this.setsByExercise.set(map);
+  }
+
+  private async loadAllSuggestions() {
+    const map: Record<string, ExerciseSuggestionDto | null> = {};
+    for (const ex of this.data.exercises) {
+      try {
+        const suggestion = await this.trainingApi.getSuggestion(ex.exerciseName);
+        map[ex.id] = suggestion;
+      } catch {
+        map[ex.id] = null;
+      }
+    }
+    this.suggestions.set(map);
   }
 
   onDragEnd(event: CdkDragEnd): void {

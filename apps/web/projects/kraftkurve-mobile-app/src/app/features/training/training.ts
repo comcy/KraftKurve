@@ -12,6 +12,7 @@ import { firstValueFrom } from 'rxjs';
 import { TrainingStateService } from '../../core/services/training-state.service';
 import { TrainingService, TrainingPlanDto, TrainingSessionDto, ExerciseDto, TrainingRoutineDto, TrainingExerciseDto } from 'lib-training-data-access';
 import { TacticalDialogComponent } from '../../core/components/tactical-dialog/tactical-dialog.component';
+import { I18nService } from 'lib-i18n';
 
 @Component({
   selector: 'app-training',
@@ -37,17 +38,13 @@ export class TrainingComponent implements OnInit {
   private readonly _trainingApi = inject(TrainingService);
   private readonly _dialog = inject(MatDialog);
   private readonly _bottomSheet = inject(MatBottomSheet);
+  protected readonly i18n = inject(I18nService);
 
   protected readonly activeSession = this._trainingState.activeSession;
   protected readonly isPaused = this._trainingState.isPaused;
   protected readonly exercises = this._trainingState.exercises;
   protected readonly duration = this._trainingState.durationFormatted;
   protected readonly suggestions = this._trainingState.suggestions;
-  
-  protected readonly workoutTitle = 'WORKOUT TERMINAL';
-  protected readonly addSetLabel = 'ADD SET';
-  protected readonly finishWorkoutLabel = 'FINISH WORKOUT';
-  protected readonly startWorkoutLabel = 'START FREE WORKOUT';
 
   protected availablePlans = signal<TrainingPlanDto[]>([]);
   protected todaySessions = signal<TrainingSessionDto[]>([]);

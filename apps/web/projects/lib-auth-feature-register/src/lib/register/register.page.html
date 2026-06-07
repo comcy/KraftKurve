@@ -1,10 +1,10 @@
 <main class="auth-page">
   <section class="log-card auth-tactical-card">
-    <div class="log-header tape">ENROLLMENT_TERMINAL</div>
+    <div class="log-header tape">{{ i18n.t('auth.register.header') }}</div>
     <div class="log-content">
       <div class="auth-header">
-        <h1 class="label-caps">New_Account</h1>
-        <p class="data-mono">INVITE_REQUIRED_FOR_ACCESS</p>
+        <h1 class="label-caps">{{ i18n.t('auth.register.title') }}</h1>
+        <p class="data-mono">{{ i18n.t('auth.register.subtitle') }}</p>
       </div>
 
       <form class="auth-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
@@ -15,45 +15,61 @@
         }
 
         <label class="auth-field">
-          <span class="label-caps">Invite-Code</span>
-          <input class="tactical-input data-mono" type="text" formControlName="inviteCode" placeholder="CODE_REQUIRED" />
-          @if (registerForm.controls.inviteCode.touched && registerForm.controls.inviteCode.hasError('required')) {
-            <p class="error-msg label-caps">REQUIRED</p>
+          <span class="label-caps">{{ i18n.t('auth.register.inviteCode.label') }}</span>
+          <input class="tactical-input data-mono" type="text" formControlName="inviteCode" [placeholder]="i18n.t('auth.register.inviteCode.placeholder')" />
+          @if (registerForm.controls.inviteCode.touched) {
+            @if (registerForm.controls.inviteCode.hasError('required')) {
+              <p class="error-msg label-caps">{{ i18n.t('auth.register.error.required') }}</p>
+            } @else if (registerForm.controls.inviteCode.hasError('minlength')) {
+              <p class="error-msg label-caps">{{ i18n.t('auth.register.error.minLength8') }}</p>
+            }
           }
         </label>
 
         <label class="auth-field">
-          <span class="label-caps">Anzeigename</span>
-          <input class="tactical-input data-mono" type="text" formControlName="displayName" autocomplete="name" placeholder="CALLSIGN" />
-          @if (registerForm.controls.displayName.touched && registerForm.controls.displayName.hasError('required')) {
-            <p class="error-msg label-caps">REQUIRED</p>
+          <span class="label-caps">{{ i18n.t('auth.register.displayName.label') }}</span>
+          <input class="tactical-input data-mono" type="text" formControlName="displayName" autocomplete="name" [placeholder]="i18n.t('auth.register.displayName.placeholder')" />
+          @if (registerForm.controls.displayName.touched) {
+            @if (registerForm.controls.displayName.hasError('required')) {
+              <p class="error-msg label-caps">{{ i18n.t('auth.register.error.required') }}</p>
+            } @else if (registerForm.controls.displayName.hasError('minlength')) {
+              <p class="error-msg label-caps">{{ i18n.t('auth.register.error.minLength2') }}</p>
+            }
           }
         </label>
 
         <label class="auth-field">
-          <span class="label-caps">E-Mail</span>
-          <input class="tactical-input data-mono" type="email" formControlName="email" autocomplete="email" placeholder="USER@KRAFTKURVE.COM" />
-          @if (registerForm.controls.email.touched && registerForm.controls.email.hasError('required')) {
-            <p class="error-msg label-caps">REQUIRED</p>
+          <span class="label-caps">{{ i18n.t('auth.register.email.label') }}</span>
+          <input class="tactical-input data-mono" type="email" formControlName="email" autocomplete="email" [placeholder]="i18n.t('auth.register.email.placeholder')" />
+          @if (registerForm.controls.email.touched) {
+            @if (registerForm.controls.email.hasError('required')) {
+              <p class="error-msg label-caps">{{ i18n.t('auth.register.error.required') }}</p>
+            } @else if (registerForm.controls.email.hasError('email')) {
+              <p class="error-msg label-caps">{{ i18n.t('auth.register.error.invalidEmail') }}</p>
+            }
           }
         </label>
 
         <label class="auth-field">
-          <span class="label-caps">Passwort</span>
-          <input class="tactical-input data-mono" type="password" formControlName="password" autocomplete="new-password" placeholder="********" />
-          @if (registerForm.controls.password.touched && registerForm.controls.password.hasError('required')) {
-            <p class="error-msg label-caps">REQUIRED</p>
+          <span class="label-caps">{{ i18n.t('auth.register.password.label') }}</span>
+          <input class="tactical-input data-mono" type="password" formControlName="password" autocomplete="new-password" [placeholder]="i18n.t('auth.register.password.placeholder')" />
+          @if (registerForm.controls.password.touched) {
+            @if (registerForm.controls.password.hasError('required')) {
+              <p class="error-msg label-caps">{{ i18n.t('auth.register.error.required') }}</p>
+            } @else if (registerForm.controls.password.hasError('minlength')) {
+              <p class="error-msg label-caps">{{ i18n.t('auth.register.error.minLength8') }}</p>
+            }
           }
         </label>
 
-        <button class="tactical-btn primary full-width" type="submit" [disabled]="submitting()">
-          @if (submitting()) { ENROLLING... } @else { CREATE_ACCOUNT }
+        <button class="tactical-btn primary full-width" type="submit" [disabled]="submitting() || registerForm.invalid">
+          {{ submitting() ? i18n.t('auth.register.submit.loading') : i18n.t('auth.register.submit.idle') }}
         </button>
       </form>
 
       <div class="auth-footer">
-        <p class="label-caps">ALREADY_REGISTERED?</p>
-        <a class="tactical-btn secondary sm" routerLink="/auth/login">GO_TO_LOGIN</a>
+        <p class="label-caps">{{ i18n.t('auth.register.footer.question') }}</p>
+        <a class="tactical-btn secondary sm" routerLink="/auth/login">{{ i18n.t('auth.register.footer.link') }}</a>
       </div>
     </div>
   </section>

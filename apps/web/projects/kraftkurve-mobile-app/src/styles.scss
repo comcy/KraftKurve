@@ -9,9 +9,14 @@
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
+  --card-radius: var(--radius-default);
+  --shadow-card: none;
+  --shadow-sm: none;
+  --nav-label-size: 8px;
+  --nav-label-weight: 400;
 }
 
-:root.dark {
+:root.theme-tactical {
   // Colors from DESIGN.md
   --background: #131313;
   --on-background: #e5e2e1;
@@ -44,36 +49,112 @@
   --grid-color: rgba(255, 255, 255, 0.07);
 }
 
-:root.light {
-  --background: #ffffff;
-  --on-background: #131313;
-  --surface: #ffffff;
-  --surface-dim: #f5f5f5;
-  --surface-bright: #ffffff;
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #f8f8f8;
-  --surface-container: #f0f0f0;
-  --surface-container-high: #e5e5e5;
-  --surface-container-highest: #d0d0d0;
-  --on-surface: #131313;
-  --on-surface-variant: #444444;
-  --primary: #000000; 
-  --on-primary: #ffffff;
-  --primary-container: #fdff00;
-  --on-primary-container: #323200;
-  --primary-alt: #000000;
-  --header-icon-color: #000000;
-  --secondary: #d500d5; 
-  --on-secondary: #ffffff;
-  --secondary-container: #ffabf3;
-  --tertiary: #008f25; 
-  --on-tertiary: #ffffff;
-  --tertiary-container: #00ff41;
-  --error: #ba1a1a;
-  --on-error: #ffffff;
-  --outline: #79747e;
-  --outline-variant: #c4c6d0;
-  --grid-color: #e0e0e0;
+:root.theme-minimal-dark {
+  --font-headline: 'Inter', system-ui;
+  --font-body: 'Inter', system-ui;
+  --radius-sm: 0.375rem;
+  --radius-default: 0.625rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --card-radius: var(--radius-md);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  // MDC typography token overrides (Angular Material reads these at runtime)
+  --mdc-filled-text-field-input-text-font: 'Inter', system-ui;
+  --mdc-outlined-text-field-input-text-font: 'Inter', system-ui;
+  --mdc-filled-text-field-label-text-font: 'Inter', system-ui;
+  --mdc-outlined-text-field-label-text-font: 'Inter', system-ui;
+  --mat-select-trigger-text-font: 'Inter', system-ui;
+  --mat-option-label-text-font: 'Inter', system-ui;
+  --mdc-list-list-item-label-text-font: 'Inter', system-ui;
+  --mdc-typography-button-font-family: 'Inter', system-ui;
+  --nav-label-size: 11px;
+  --nav-label-weight: 500;
+
+  --background: #0F172A;
+  --on-background: #F1F5F9;
+  --surface: #1E293B;
+  --surface-dim: #0F172A;
+  --surface-bright: #334155;
+  --surface-container-lowest: #0B1120;
+  --surface-container-low: #162032;
+  --surface-container: #1E293B;
+  --surface-container-high: #263547;
+  --surface-container-highest: #334155;
+  --on-surface: #F1F5F9;
+  --on-surface-variant: #94A3B8;
+  --primary: #818CF8;
+  --on-primary: #1E1B4B;
+  --primary-container: #312E81;
+  --on-primary-container: #C7D2FE;
+  --primary-alt: #818CF8;
+  --header-icon-color: #818CF8;
+  --secondary: #A78BFA;
+  --on-secondary: #2E1065;
+  --secondary-container: #4C1D95;
+  --tertiary: #34D399;
+  --on-tertiary: #064E3B;
+  --tertiary-container: #065F46;
+  --error: #F87171;
+  --on-error: #7F1D1D;
+  --outline: #334155;
+  --outline-variant: #263547;
+  --grid-color: transparent;
+}
+
+:root.theme-minimal-light {
+  --font-headline: 'Inter', system-ui;
+  --font-body: 'Inter', system-ui;
+  --radius-sm: 0.375rem;
+  --radius-default: 0.625rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --card-radius: var(--radius-md);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  // MDC typography token overrides
+  --mdc-filled-text-field-input-text-font: 'Inter', system-ui;
+  --mdc-outlined-text-field-input-text-font: 'Inter', system-ui;
+  --mdc-filled-text-field-label-text-font: 'Inter', system-ui;
+  --mdc-outlined-text-field-label-text-font: 'Inter', system-ui;
+  --mat-select-trigger-text-font: 'Inter', system-ui;
+  --mat-option-label-text-font: 'Inter', system-ui;
+  --mdc-list-list-item-label-text-font: 'Inter', system-ui;
+  --mdc-typography-button-font-family: 'Inter', system-ui;
+  --nav-label-size: 11px;
+  --nav-label-weight: 500;
+
+  --background: #F8FAFC;
+  --on-background: #0F172A;
+  --surface: #FFFFFF;
+  --surface-dim: #F1F5F9;
+  --surface-bright: #FFFFFF;
+  --surface-container-lowest: #FFFFFF;
+  --surface-container-low: #F8FAFC;
+  --surface-container: #F1F5F9;
+  --surface-container-high: #E2E8F0;
+  --surface-container-highest: #CBD5E1;
+  --on-surface: #0F172A;
+  --on-surface-variant: #64748B;
+  --primary: #4F46E5;
+  --on-primary: #FFFFFF;
+  --primary-container: #EDE9FE;
+  --on-primary-container: #3730A3;
+  --primary-alt: #4F46E5;
+  --header-icon-color: #4F46E5;
+  --secondary: #7C3AED;
+  --on-secondary: #FFFFFF;
+  --secondary-container: #EDE9FE;
+  --tertiary: #059669;
+  --on-tertiary: #FFFFFF;
+  --tertiary-container: #D1FAE5;
+  --error: #DC2626;
+  --on-error: #FFFFFF;
+  --outline: #CBD5E1;
+  --outline-variant: #E2E8F0;
+  --grid-color: transparent;
 }
 
 * {
@@ -85,6 +166,8 @@
 html {
   height: 100%;
   background-color: var(--background) !important;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 html::before {
@@ -111,6 +194,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 // Hide number spinners
@@ -124,10 +209,13 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
-// Icon Fix for Material Symbols
+// Icon Fix for Material Symbols — force icon font and prevent parent inheritance from breaking ligatures
 mat-icon, .material-symbols-outlined {
   font-family: 'Material Symbols Outlined' !important;
-  font-style: normal;
+  font-style: normal !important;
+  font-weight: normal !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
 }
 
 // Snackbar Tactical Styles
@@ -154,38 +242,82 @@ mat-icon, .material-symbols-outlined {
 }
 
 // Typography Classes
-.headline-xl { font-family: var(--font-headline); font-size: 32px; line-height: 1.1; letter-spacing: -0.05em; text-transform: uppercase; }
-.headline-lg { font-family: var(--font-headline); font-size: 20px; line-height: 1.2; letter-spacing: 0.05em; text-transform: uppercase; }
-.headline-md { font-family: var(--font-headline); font-size: 16px; line-height: 1.2; letter-spacing: 0.05em; text-transform: uppercase; }
+.headline-xl { font-family: var(--font-headline); font-size: 32px; line-height: 1.1; letter-spacing: -0.05em; text-transform: uppercase; overflow-wrap: break-word; word-break: break-word; max-width: 100%; }
+.headline-lg { font-family: var(--font-headline); font-size: 20px; line-height: 1.2; letter-spacing: 0.05em; text-transform: uppercase; overflow-wrap: break-word; word-break: break-word; max-width: 100%; }
+.headline-md { font-family: var(--font-headline); font-size: 16px; line-height: 1.2; letter-spacing: 0.05em; text-transform: uppercase; overflow-wrap: break-word; word-break: break-word; max-width: 100%; }
 .body-lg { font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
 .body-md { font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
-.label-caps { font-family: var(--font-headline); font-size: 8px; line-height: 1; text-transform: uppercase; }
+.label-caps { font-family: var(--font-headline); font-size: 8px; line-height: 1; text-transform: uppercase; overflow-wrap: break-word; word-break: break-word; }
 .data-mono { font-family: var(--font-body); font-size: 18px; font-weight: 700; line-height: 1; letter-spacing: -0.05em; }
+
+// Minimal theme overrides
+:root.theme-minimal-dark, :root.theme-minimal-light {
+  // Typography
+  .headline-xl { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; text-transform: none; }
+  .headline-lg { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; text-transform: none; }
+  .headline-md { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
+  .label-caps  { font-size: 11px; font-weight: 500; letter-spacing: 0.04em; }
+  .data-mono   { font-size: 20px; font-weight: 700; letter-spacing: -0.03em; }
+
+  // Material buttons — undo tactical sizing, use readable Inter
+  .mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-flat-button,
+  .mat-mdc-outlined-button, .mat-mdc-tonal-button {
+    font-family: 'Inter', system-ui !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    letter-spacing: 0.01em !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  // Material form fields
+  .mdc-text-field__input,
+  .mdc-floating-label,
+  .mat-mdc-select-value-text,
+  .mat-mdc-option .mdc-list-item__primary-text,
+  .mat-mdc-form-field-hint,
+  .mat-mdc-form-field-error {
+    font-family: 'Inter', system-ui !important;
+    font-size: 14px !important;
+  }
+}
 
 // Branded Components
 .log-card {
   background: var(--surface-container-lowest);
   border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-default);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
   position: relative;
   overflow: hidden;
-  margin-bottom: 24px;
 
-  .log-header.tape {
-    background: var(--surface-container-highest);
-    margin-top: 8px;
-    margin-left: 8px; 
-    width: fit-content;
-    padding: 4px 16px;
-    border: none;
-    border-radius: 0;
-    box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
-    font-family: var(--font-headline);
-    font-size: 8px;
-    color: var(--on-surface);
-    text-transform: uppercase;
-    z-index: 3;
-    position: relative;
+  .log-header {
+    &:not(.tape) {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--surface-container-high);
+      border-bottom: 1px solid var(--outline-variant);
+      min-height: 40px;
+    }
+
+    &.tape {
+      background: var(--surface-container-highest);
+      margin-top: 8px;
+      margin-left: 8px;
+      width: fit-content;
+      padding: 4px 16px;
+      border: none;
+      border-radius: 0;
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+      font-family: var(--font-headline);
+      font-size: 8px;
+      color: var(--on-surface);
+      text-transform: uppercase;
+      z-index: 3;
+      position: relative;
+    }
   }
 
   .log-content {
@@ -212,6 +344,50 @@ mat-icon, .material-symbols-outlined {
     text-transform: uppercase;
     border-radius: 0;
   }
+}
+
+// Global utility classes
+.header-nav {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+
+  a, button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-headline);
+    font-size: 8px;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    opacity: 0.7;
+    padding-left: 0;
+    text-decoration: none;
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    &:hover { opacity: 1; }
+  }
+}
+
+.tactical-border { border: 1px solid var(--outline-variant); }
+
+.btn-primary {
+  background-color: var(--primary) !important;
+  color: var(--on-primary) !important;
+}
+.btn-secondary {
+  background-color: transparent !important;
+  color: var(--secondary) !important;
+  border-color: var(--secondary) !important;
+}
+.btn-warn {
+  color: var(--error) !important;
+  border-color: var(--error) !important;
+}
+.full-width { width: 100% !important; }
+.empty-msg {
+  text-align: center;
+  opacity: 0.5;
+  padding: 24px 16px;
 }
 
 // Material 3 Theme

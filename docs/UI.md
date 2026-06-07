@@ -31,6 +31,15 @@
 - **Transparent Layering**: Sheet containers are 100% transparent during gestures, allowing the underlying tactical grid to show through seamlessly.
 - **Bottom Sheets**: Custom full-width sheets (`kk-bottom-sheet`) for complex views like history, using a 90% screen height limit. 
 - **Tactical Interaction**: Primary lists (Today's Operations, Dashboard metrics) are clickable entry points to the Details Sheet.
+- **Dialog Aesthetics**: Tactual dialogs utilize a fine **1px** solid border of the Primary color for a high-tech, precise look.
+
+## AI-Assisted Optimization (Virtual Trainer)
+- **Color-Coded Suggestions**: Values suggested by the Virtual Trainer are displayed with a distinct **Electric Orange #ff9100** (AI Optimization color) with a subtle glow.
+- **Pre-fill Interaction**: Input fields for Weight and Reps are pre-filled with suggested values. The orange highlight persists until the value is changed or confirmed.
+- **Global Goal Badges**: Exercise headers feature a "Proposed Protocol" badge in the planning and active session views.
+
+## Tracking Specialized Payloads (Cardio)
+- **Dynamic Forms**: Exercises categorized under 'Cardio' replace the set list with a structured log for duration (minutes/seconds), distance (meters), intensity (avg BPM), and metabolic cost (calories).
 
 ## Color Palette
 - **Primary (Yellow #fdff00)**: Active focus, primary actions.

@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AuthService, APP_ID, AppId } from 'lib-auth-data-access';
 import { getErrorMessage } from '../auth-error.util';
+import { I18nService } from 'lib-i18n';
 
 @Component({
   selector: 'lib-login',
@@ -34,6 +35,7 @@ export class LoginPage {
   private readonly router = inject(Router);
   private readonly appId = inject(APP_ID);
   private readonly fb = inject(FormBuilder);
+  protected readonly i18n = inject(I18nService);
 
   protected readonly submitting = signal(false);
   protected readonly serverError = signal<string | null>(null);

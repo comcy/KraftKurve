@@ -6,7 +6,6 @@
 
 .settings-title {
   text-align: center;
-  margin-bottom: 16px;
 }
 
 .settings-list {
@@ -44,10 +43,37 @@
     gap: 12px;
   }
 
+  &.mode-toggle {
+    gap: 0;
+    border: 1px solid var(--outline-variant);
+    padding: 0;
+    background: var(--surface-container-low);
+    overflow: hidden;
+    justify-content: stretch;
+  }
+
   .label-caps {
     font-size: 10px;
     letter-spacing: 1px;
   }
+}
+
+.mode-btn {
+  flex: 1;
+  height: 32px;
+  padding: 0 8px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--outline-variant);
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  font-family: var(--font-headline);
+  font-size: 8px;
+  text-transform: uppercase;
+
+  &:last-child { border-right: none; }
+  &.active { background: var(--primary); color: var(--on-primary); }
+  &:hover:not(.active) { color: var(--on-surface); background: var(--surface-container-high); }
 }
 
 .presets-row {

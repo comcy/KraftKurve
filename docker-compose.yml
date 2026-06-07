@@ -1,0 +1,33 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: kraftkurve-api
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DEFAULT_ADMIN_EMAIL=${ADMIN_EMAIL:-admin@kraftkurve.local}
+      - DEFAULT_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    networks:
+      - kraftkurve-network
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: kraftkurve-web
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:80"
+    depends_on:
+      - api
+    networks:
+      - kraftkurve-network
+
+networks:
+  kraftkurve-network:
+    driver: bridge

@@ -7,6 +7,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { NutritionStateService } from '../../core/services/nutrition-state.service';
 import { TrainingService, TrainingSessionDto, TrainingExerciseDto } from 'lib-training-data-access';
+import { I18nService } from 'lib-i18n';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,11 +21,7 @@ export class DashboardComponent implements OnInit {
   private readonly nutritionState = inject(NutritionStateService);
   private readonly trainingApi = inject(TrainingService);
   private readonly bottomSheet = inject(MatBottomSheet);
-
-  protected readonly fuelStatus = 'FUEL STATUS';
-  protected readonly protein = 'PROTEIN';
-  protected readonly lastWorkoutLabel = 'LAST WORKOUT';
-  protected readonly startWorkout = 'START WORKOUT';
+  protected readonly i18n = inject(I18nService);
 
   // Nutrition data
   protected readonly proteinCurrent = this.nutritionState.totalProtein;

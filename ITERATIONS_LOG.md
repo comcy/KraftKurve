@@ -82,3 +82,21 @@
   - **Validation Fix (400 Bad Request)**: Resolved an error when provisioning "legs" exercises by synchronizing the muscle group enums between backend (Zod) and frontend (TypeScript).
   - **Timer Consistency**: Fixed a bug where pausing/resuming a workout would reset the stopwatch to zero; the timer now persists correctly across state changes.
   - **Navigation Fix**: Resolved non-functional "Manage Plans" and "Start Workout" buttons by adding missing `RouterLink` imports.
+- **2026-06-03: Virtual Trainer & Cardio Tactical Interface**
+  - **Virtual Trainer (v2)**: Implemented RIR-based fatigue analysis (ADR-009) with individual set tracking.
+  - **AI UI Refinement**: Introduced **Electric Orange (#ff9100)** as the primary highlight color for AI-suggested values, featuring a glow effect and pulsating indicators.
+  - **Cardio Tracking**: Developed dedicated entry forms for duration (m/s), distance, calories, and BPM. Added dynamic form switching based on muscle group.
+  - Visual Polishing: Reduced tactical dialog borders to 1px for a finer aesthetic. Fixed low-contrast hint text in Light Theme.
+  - Stability Fixes: Resolved 401 redirection loops, fixed corrupted backend routes, and ensured history-aware suggestions by excluding the current session ID.
+
+### Iteration 7: Dockerization & Deployment Planning
+- Implemented `docker-compose.yml` for unified backend and frontend orchestration.
+- Created multi-stage `Dockerfile` for `apps/api` (Node.js).
+- Created multi-stage `Dockerfile` for `apps/web` (Angular monolithic build + Nginx).
+- Configured Nginx proxy to handle `/api` requests, simplifying port exposure.
+- Added comprehensive `DEPLOYMENT.md` including Proxmox LXC setup details (Nesting, keyctl).
+- Verified storage persistence via Docker volumes (`./data` mount).
+- **Bug Fix**: Resolved a 400 error in Nutrition Tracking by ensuring numeric conversion of inputs.
+- **Bug Fix**: Fixed a compilation error in `training.routes.ts` caused by a trailing syntax character.
+- **Setup Utility**: Added `setup.sh` for interactive configuration of admin credentials and deployment choice (Docker vs systemd).
+

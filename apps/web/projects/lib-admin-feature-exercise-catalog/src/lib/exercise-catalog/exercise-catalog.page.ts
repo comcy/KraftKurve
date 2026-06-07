@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TrainingService, ExerciseDto, MuscleGroup, ExerciseCategory, EquipmentType } from 'lib-training-data-access';
+import { I18nService } from 'lib-i18n';
 
 @Component({
   selector: 'lib-exercise-catalog',
@@ -33,17 +34,7 @@ export class ExerciseCatalogPage implements OnInit {
   private readonly trainingService = inject(TrainingService);
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
-
-  // Labels
-  protected readonly labelPageTitle = 'Übungskatalog';
-  protected readonly labelAddExercise = 'Übung hinzufügen';
-  protected readonly labelEditExercise = 'Übung bearbeiten';
-  protected readonly labelCancel = 'Abbrechen';
-  protected readonly labelSave = 'Speichern';
-  protected readonly labelName = 'Name';
-  protected readonly labelCategory = 'Kategorie';
-  protected readonly labelMuscleGroup = 'Muskelgruppe';
-  protected readonly labelEquipment = 'Gerätetyp';
+  protected readonly i18n = inject(I18nService);
 
   // Data
   protected exercises = signal<ExerciseDto[]>([]);

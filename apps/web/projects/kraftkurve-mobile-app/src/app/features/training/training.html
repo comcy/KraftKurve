@@ -2,12 +2,12 @@
   <!-- Plan Selector (Overlay) -->
   @if (!activeSession() && showPlanSelector()) {
     <div class="plan-selector">
-      <h1 class="headline-lg feature-title">MISSION CONTROL</h1>
+      <h1 class="headline-lg feature-title">{{ i18n.t('training.missionControl') }}</h1>
 
       <!-- Today's Sessions -->
       @if (todaySessions().length > 0) {
         <section class="log-card today-sessions">
-          <div class="log-header tape">TODAY'S OPERATIONS</div>
+          <div class="log-header tape">{{ i18n.t('training.todaysOperations') }}</div>
           <div class="log-content">
             <div class="sessions-list">
               @for (sess of todaySessions(); track sess.id) {
@@ -19,21 +19,21 @@
                       <span class="data-mono">{{ sess.startedAt | date:'HH:mm' }}</span>
                     </div>
                     <div class="sub-info">
-                      <span class="label-caps">DETAILS: {{ sess.exerciseCount ?? 0 }} EXERCISES</span>
-                      <span class="data-mono">DUR: {{ formatDuration(sess.totalSeconds) }}</span>
+                      <span class="label-caps">{{ i18n.t('training.detailsExercises', { count: sess.exerciseCount ?? 0 }) }}</span>
+                      <span class="data-mono">{{ i18n.t('training.dur') }} {{ formatDuration(sess.totalSeconds) }}</span>
                     </div>
                     <div class="status-row">
                       @if (sess.finishedAt) {
-                        <span class="status-pill completed label-caps">COMPLETED</span>
+                        <span class="status-pill completed label-caps">{{ i18n.t('training.status.completed') }}</span>
                       } @else if (sess.isPaused) {
-                        <span class="status-pill paused label-caps">PAUSED</span>
+                        <span class="status-pill paused label-caps">{{ i18n.t('training.status.paused') }}</span>
                       } @else {
-                        <span class="status-pill active label-caps">ACTIVE</span>
+                        <span class="status-pill active label-caps">{{ i18n.t('training.status.active') }}</span>
                       }
                     </div>
                   </div>
                   <button mat-stroked-button class="resume-btn label-caps" (click)="$event.stopPropagation(); resumeSession(sess)">
-                    {{ sess.finishedAt ? 'RE-OPEN' : 'RESUME' }}
+                    {{ sess.finishedAt ? i18n.t('training.action.reopen') : i18n.t('training.action.resume') }}
                   </button>
                 </div>
               }
@@ -41,9 +41,9 @@
           </div>
         </section>
       }
-      
+
       <section class="log-card">
-        <div class="log-header tape">ACTIVE PLANS</div>
+        <div class="log-header tape">{{ i18n.t('training.activePlans') }}</div>
         <div class="log-content">
           @if (activePlansWithNextRoutine().length > 0) {
             <div class="plans-grid">
@@ -51,35 +51,35 @@
                 <div class="plan-launch-card">
                   <div class="plan-info">
                     <span class="label-caps">{{ item.plan.name }}</span>
-                    <span class="data-mono next-label" *ngIf="item.nextRoutine">NEXT: {{ item.nextRoutine.name }}</span>
-                    <span class="label-caps warn-text" *ngIf="!item.nextRoutine">NO ROUTINES DEFINED</span>
+                    <span class="data-mono next-label" *ngIf="item.nextRoutine">{{ i18n.t('training.next') }} {{ item.nextRoutine.name }}</span>
+                    <span class="label-caps warn-text" *ngIf="!item.nextRoutine">{{ i18n.t('training.noRoutinesDefined') }}</span>
                   </div>
-                  <button 
-                    mat-flat-button 
-                    class="plan-start-btn btn-secondary" 
+                  <button
+                    mat-flat-button
+                    class="plan-start-btn btn-secondary"
                     [disabled]="!item.nextRoutine"
                     (click)="startPlanWorkout(item.plan.id, item.nextRoutine!.id)"
                   >
                     <mat-icon>play_arrow</mat-icon>
-                    <span class="label-caps">START SEQUENCE</span>
+                    <span class="label-caps">{{ i18n.t('training.startSequence') }}</span>
                   </button>
                 </div>
               }
             </div>
           } @else {
-            <p class="label-caps empty-msg">NO ACTIVE PLANS DETECTED IN TIMEFRAME.</p>
+            <p class="label-caps empty-msg">{{ i18n.t('training.noActivePlans') }}</p>
           }
 
           <button mat-stroked-button class="manage-plans-btn full-width" routerLink="/training/plans">
             <mat-icon>settings_suggest</mat-icon>
-            <span class="label-caps">MANAGE PROTOCOLS / LIBRARY</span>
+            <span class="label-caps">{{ i18n.t('training.manageProtocols') }}</span>
           </button>
         </div>
       </section>
 
       <button mat-flat-button class="start-btn btn-primary full-width" (click)="startFreeWorkout()">
         <mat-icon>add</mat-icon>
-        <span class="label-caps">{{ startWorkoutLabel }}</span>
+        <span class="label-caps">{{ i18n.t('training.startFreeWorkout') }}</span>
       </button>
     </div>
   }
@@ -88,13 +88,16 @@
   @if (activeSession()) {
     <header class="training-header" [class.paused-bg]="isPaused()">
       <div class="title-group">
-        <h1 class="headline-lg workout-title">{{ workoutTitle }}</h1>
-        <p class="label-caps workout-status">{{ isPaused() ? 'SESSION PAUSED' : 'SESSION IN PROGRESS' }}</p>
+        <h1 class="headline-lg workout-title">{{ i18n.t('training.title') }}</h1>
+        <p class="label-caps routine-subtitle" *ngIf="activeSession()?.routineName">
+          {{ activeSession()?.planName }}: {{ activeSession()?.routineName }}
+        </p>
+        <p class="label-caps workout-status">{{ isPaused() ? i18n.t('training.sessionPaused') : i18n.t('training.sessionInProgress') }}</p>
       </div>
       <div class="header-actions">
         <div class="stats-group">
           <span class="data-mono duration-value" [class.blink]="isPaused()">{{ duration() }}</span>
-          <span class="label-caps duration-unit">STOPWATCH</span>
+          <span class="label-caps duration-unit">{{ i18n.t('training.stopwatch') }}</span>
         </div>
         <button mat-icon-button class="pause-btn" (click)="togglePause()">
           <mat-icon>{{ isPaused() ? 'play_arrow' : 'pause' }}</mat-icon>
@@ -106,7 +109,7 @@
       @for (group of groupedExercises(); track $index) {
         @if (group.type === 'superset') {
           <div class="superset-wrapper">
-            <div class="superset-label label-caps">SUPERSET_FLOW_ACTIVE</div>
+            <div class="superset-label label-caps">{{ i18n.t('training.supersetFlowActive') }}</div>
             @for (ex of group.exercises; track ex.id) {
               <section class="log-card superset-nested">
                 <div class="log-header tape">
@@ -120,9 +123,9 @@
                 <div class="log-content">
                   @if (suggestions()[ex.id]) {
                     <div class="suggestion-box">
-                      <span class="label-caps suggestion-title">SUGGESTION:</span>
+                      <span class="label-caps suggestion-title">{{ i18n.t('training.suggestion') }}</span>
                       <p class="suggestion-text label-caps">
-                        TARGET: {{ suggestions()[ex.id]?.suggestedTarget?.weightKg }}KG x {{ suggestions()[ex.id]?.suggestedTarget?.reps }} REPS
+                        {{ i18n.t('training.target') }} {{ suggestions()[ex.id]?.suggestedTarget?.weightKg }}{{ i18n.t('training.kgX') }}{{ suggestions()[ex.id]?.suggestedTarget?.reps }} {{ i18n.t('training.reps') }}
                       </p>
                       <p class="suggestion-reason label-caps">{{ suggestions()[ex.id]?.reason }}</p>
                     </div>
@@ -134,15 +137,15 @@
                         <div class="inputs-grid-enhanced">
                           <div class="input-wrapper">
                             <input #weightInput type="text" inputmode="decimal" class="training-input data-mono" [value]="set.weightKg" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
-                            <span class="input-unit label-caps">KG</span>
+                            <span class="input-unit label-caps">{{ i18n.t('training.kg') }}</span>
                           </div>
                           <div class="input-wrapper">
                             <input #repsInput type="text" inputmode="numeric" class="training-input data-mono" [value]="set.reps" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
-                            <span class="input-unit label-caps">REPS</span>
+                            <span class="input-unit label-caps">{{ i18n.t('training.reps') }}</span>
                           </div>
                           <div class="input-wrapper rir-wrapper">
                             <input #rirInput type="text" inputmode="numeric" class="training-input data-mono rir-input" [value]="set.rir ?? ''" placeholder="-" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
-                            <span class="input-unit label-caps">RIR</span>
+                            <span class="input-unit label-caps">{{ i18n.t('training.rir') }}</span>
                           </div>
                         </div>
                         <button mat-icon-button class="check-btn" [class.completed]="set.done" (click)="toggleSetDone(ex.id, set)">
@@ -153,7 +156,7 @@
                   </div>
                   <button mat-button class="add-set-btn label-caps" (click)="onAddSet(ex.id)">
                     <mat-icon>add</mat-icon>
-                    <span>{{ addSetLabel }}</span>
+                    <span>{{ i18n.t('training.addSet') }}</span>
                   </button>
                 </div>
               </section>
@@ -173,9 +176,9 @@
               <div class="log-content">
                 @if (suggestions()[ex.id]) {
                   <div class="suggestion-box">
-                    <span class="label-caps suggestion-title">SUGGESTION:</span>
+                    <span class="label-caps suggestion-title">{{ i18n.t('training.suggestion') }}</span>
                     <p class="suggestion-text label-caps">
-                      TARGET: {{ suggestions()[ex.id]?.suggestedTarget?.weightKg }}KG x {{ suggestions()[ex.id]?.suggestedTarget?.reps }} REPS
+                      {{ i18n.t('training.target') }} {{ suggestions()[ex.id]?.suggestedTarget?.weightKg }}{{ i18n.t('training.kgX') }}{{ suggestions()[ex.id]?.suggestedTarget?.reps }} {{ i18n.t('training.reps') }}
                     </p>
                     <p class="suggestion-reason label-caps">{{ suggestions()[ex.id]?.reason }}</p>
                   </div>
@@ -187,15 +190,15 @@
                       <div class="inputs-grid-enhanced">
                         <div class="input-wrapper">
                           <input #weightInput type="text" inputmode="decimal" class="training-input data-mono" [value]="set.weightKg" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
-                          <span class="input-unit label-caps">KG</span>
+                          <span class="input-unit label-caps">{{ i18n.t('training.kg') }}</span>
                         </div>
                         <div class="input-wrapper">
                           <input #repsInput type="text" inputmode="numeric" class="training-input data-mono" [value]="set.reps" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
-                          <span class="input-unit label-caps">REPS</span>
+                          <span class="input-unit label-caps">{{ i18n.t('training.reps') }}</span>
                         </div>
                         <div class="input-wrapper rir-wrapper">
                           <input #rirInput type="text" inputmode="numeric" class="training-input data-mono rir-input" [value]="set.rir ?? ''" placeholder="-" (blur)="onUpdateSet(ex.id, set.id, repsInput.value, weightInput.value, rirInput.value)">
-                          <span class="input-unit label-caps">RIR</span>
+                          <span class="input-unit label-caps">{{ i18n.t('training.rir') }}</span>
                         </div>
                       </div>
                       <button mat-icon-button class="check-btn" [class.completed]="set.done" (click)="toggleSetDone(ex.id, set)">
@@ -206,7 +209,7 @@
                 </div>
                 <button mat-button class="add-set-btn label-caps" (click)="onAddSet(ex.id)">
                   <mat-icon>add</mat-icon>
-                  <span>{{ addSetLabel }}</span>
+                  <span>{{ i18n.t('training.addSet') }}</span>
                 </button>
               </div>
             </section>
@@ -216,7 +219,7 @@
 
       <button mat-stroked-button class="add-exercise-btn full-width" (click)="onAddExercise()">
         <mat-icon>playlist_add</mat-icon>
-        <span class="label-caps">ATTACH EXERCISE</span>
+        <span class="label-caps">{{ i18n.t('training.attachExercise') }}</span>
       </button>
     </div>
 
@@ -224,7 +227,7 @@
     <div class="finish-container">
       <button mat-flat-button class="finish-btn btn-primary full-width" (click)="onFinish()">
         <mat-icon>sports_score</mat-icon>
-        <span class="label-caps">{{ finishWorkoutLabel }}</span>
+        <span class="label-caps">{{ i18n.t('training.finishWorkout') }}</span>
       </button>
     </div>
   }

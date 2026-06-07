@@ -2,16 +2,16 @@
   <div class="header-nav">
     <a mat-button routerLink="/training/plans">
       <mat-icon>arrow_back</mat-icon>
-      PLAN ARCHIVE
+      {{ i18n.t('planEditor.parentTitle') }}
     </a>
   </div>
 
-  <h1 class="headline-lg title">PROTOCOL_OVERRIDE</h1>
+  <h1 class="headline-lg title">{{ i18n.t('planEditor.overrideTitle') }}</h1>
 
   <!-- Plan Config -->
   <section class="log-card">
     <div class="log-header tape">
-      <span>BASE_METADATA</span>
+      <span>{{ i18n.t('planEditor.baseMetadata') }}</span>
       <button mat-icon-button class="edit-plan-btn" (click)="editPlan()">
         <mat-icon>edit</mat-icon>
       </button>
@@ -19,16 +19,16 @@
     <div class="log-content">
       <div class="meta-grid">
         <div class="input-group">
-          <span class="label-caps">PROTOCOL NAME</span>
+          <span class="label-caps">{{ i18n.t('planEditor.protocolName') }}</span>
           <div class="data-value data-mono">{{ plan()!.name }}</div>
         </div>
         <div class="meta-row-duo">
           <div class="input-group">
-            <span class="label-caps">TARGET_FREQUENCY</span>
-            <div class="data-value data-mono">{{ plan()!.sessionsPerWeek }} SESS / WEEK</div>
+            <span class="label-caps">{{ i18n.t('planEditor.targetFrequency') }}</span>
+            <div class="data-value data-mono">{{ plan()!.sessionsPerWeek }} {{ i18n.t('planEditor.sessWeek') }}</div>
           </div>
           <div class="input-group">
-            <span class="label-caps">TIMEFRAME</span>
+            <span class="label-caps">{{ i18n.t('planEditor.timeframe') }}</span>
             <div class="data-value data-mono">{{ plan()!.startDate | date:'dd.MM' }} - {{ plan()!.endDate | date:'dd.MM.yy' }}</div>
           </div>
         </div>
@@ -38,11 +38,11 @@
 
   <!-- Execution Sequence / History -->
   <section class="log-card sequence-card">
-    <div class="log-header tape">EXECUTION_SEQUENCE_LOG</div>
+    <div class="log-header tape">{{ i18n.t('planEditor.executionLog') }}</div>
     <div class="log-content sequence-content">
       <div class="sequence-list">
         @for (item of planExecutionSequence(); track item.id) {
-          <div class="sequence-item" 
+          <div class="sequence-item"
             [class.completed]="item.status === 'completed'"
             [class.clickable]="item.status === 'completed'"
             (click)="item.status === 'completed' && openSessionDetail(item.id)">
@@ -65,13 +65,13 @@
 
   <!-- Routines List -->
   <div class="section-header">
-    <h2 class="label-caps section-title">ACTIVE_ROUTINES (DRAG TO SEQUENCE)</h2>
+    <h2 class="label-caps section-title">{{ i18n.t('planEditor.activeRoutines') }}</h2>
     <button mat-flat-button class="add-routine-btn btn-primary sm" (click)="addRoutine()">
       <mat-icon>add</mat-icon>
-      <span class="label-caps">ATTACH_ROUTINE</span>
+      <span class="label-caps">{{ i18n.t('planEditor.attachRoutine') }}</span>
     </button>
   </div>
-  
+
   <div class="routine-list" cdkDropList (cdkDropListDropped)="onDrop($event)">
     @for (routine of routines(); track routine.id) {
       <div class="log-card routine-item" cdkDrag>
@@ -81,7 +81,10 @@
             <span class="label-caps">{{ routine.name }}</span>
           </div>
           <div class="header-end">
-            <span class="label-caps count-badge">DETAILS: <span class="data-mono">{{ routine.exerciseCount }}</span></span>
+            <button mat-icon-button (click)="renameRoutine(routine)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <span class="label-caps count-badge">{{ i18n.t('planEditor.details') }} <span class="data-mono">{{ routine.exerciseCount }}</span></span>
             <button mat-icon-button color="warn" (click)="deleteRoutine(routine.id)">
               <mat-icon>delete</mat-icon>
             </button>
@@ -94,7 +97,7 @@
                 <li class="data-mono">{{ ex.exerciseName }}</li>
               }
               @if (exercises.length > 5) {
-                <li class="label-caps more-hint">+ {{ exercises.length - 5 }} MORE</li>
+                <li class="label-caps more-hint">{{ i18n.t('planEditor.more', { count: exercises.length - 5 }) }}</li>
               }
             </ul>
           }
@@ -102,11 +105,11 @@
           <button mat-flat-button class="edit-btn btn-secondary full-width"
             [routerLink]="['/training/plans', plan()!.id, 'routines', routine.id]">
             <mat-icon>tune</mat-icon>
-            <span class="label-caps">CONFIGURE EXERCISES</span>
+            <span class="label-caps">{{ i18n.t('planEditor.configureExercises') }}</span>
           </button>
         </div>      </div>
     } @empty {
-      <p class="empty-msg label-caps">NO ROUTINES ATTACHED.</p>
+      <p class="empty-msg label-caps">{{ i18n.t('planEditor.noRoutines') }}</p>
     }
   </div>
 </div>

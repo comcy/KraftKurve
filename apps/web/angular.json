@@ -1,1027 +1,611 @@
 {
-	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-	"version": 1,
-	"cli": {
-		"packageManager": "pnpm"
-	},
-	"newProjectRoot": "projects",
-	"projects": {
-		"app-shell": {
-			"projectType": "application",
-			"schematics": {
-				"@schematics/angular:component": {
-					"style": "scss"
-				}
-			},
-			"root": "projects/app-shell",
-			"sourceRoot": "projects/app-shell/src",
-			"prefix": "app",
-			"architect": {
-				"build": {
-					"builder": "@angular-architects/native-federation:build",
-					"options": {},
-					"configurations": {
-						"production": {
-							"target": "app-shell:esbuild:production"
-						},
-						"development": {
-							"target": "app-shell:esbuild:development",
-							"dev": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve": {
-					"builder": "@angular-architects/native-federation:build",
-					"options": {
-						"target": "app-shell:serve-original:development",
-						"rebuildDelay": 500,
-						"dev": true,
-						"cacheExternalArtifacts": false,
-						"port": 0
-					}
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/app-shell/tsconfig.spec.json"
-					}
-				},
-				"esbuild": {
-					"builder": "@angular/build:application",
-					"options": {
-						"browser": "projects/app-shell/src/main.ts",
-						"tsConfig": "projects/app-shell/tsconfig.app.json",
-						"inlineStyleLanguage": "scss",
-						"assets": [
-							{
-								"glob": "**/*",
-								"input": "projects/app-shell/public"
-							}
-						],
-						"styles": [
-							"projects/app-shell/src/styles.scss"
-						],
-						"polyfills": [
-							"es-module-shims"
-						]
-					},
-					"configurations": {
-						"production": {
-							"budgets": [
-								{
-									"type": "initial",
-									"maximumWarning": "500kB",
-									"maximumError": "1MB"
-								},
-								{
-									"type": "anyComponentStyle",
-									"maximumWarning": "4kB",
-									"maximumError": "8kB"
-								}
-							],
-							"outputHashing": "all",
-							"serviceWorker": "projects/app-shell/ngsw-config.json"
-						},
-						"development": {
-							"optimization": false,
-							"extractLicenses": false,
-							"sourceMap": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve-original": {
-					"builder": "@angular/build:dev-server",
-					"options": {
-						"proxyConfig": "proxy.conf.json",
-						"port": 4200
-					},
-					"configurations": {
-						"production": {
-							"buildTarget": "app-shell:esbuild:production"
-						},
-						"development": {
-							"buildTarget": "app-shell:esbuild:development"
-						}
-					},
-					"defaultConfiguration": "development"
-				}
-			}
-		},
-		"app-training": {
-			"projectType": "application",
-			"schematics": {
-				"@schematics/angular:component": {
-					"style": "scss",
-					"skipTests": true
-				},
-				"@schematics/angular:class": {
-					"skipTests": true
-				},
-				"@schematics/angular:directive": {
-					"skipTests": true
-				},
-				"@schematics/angular:guard": {
-					"skipTests": true
-				},
-				"@schematics/angular:interceptor": {
-					"skipTests": true
-				},
-				"@schematics/angular:pipe": {
-					"skipTests": true
-				},
-				"@schematics/angular:resolver": {
-					"skipTests": true
-				},
-				"@schematics/angular:service": {
-					"skipTests": true
-				}
-			},
-			"root": "projects/app-training",
-			"sourceRoot": "projects/app-training/src",
-			"prefix": "app",
-			"architect": {
-				"build": {
-					"builder": "@angular-architects/native-federation:build",
-					"options": {},
-					"configurations": {
-						"production": {
-							"target": "app-training:esbuild:production"
-						},
-						"development": {
-							"target": "app-training:esbuild:development",
-							"dev": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve": {
-					"builder": "@angular-architects/native-federation:build",
-					"options": {
-						"target": "app-training:serve-original:development",
-						"rebuildDelay": 500,
-						"dev": true,
-						"cacheExternalArtifacts": false,
-						"port": 0
-					}
-				},
-				"esbuild": {
-					"builder": "@angular/build:application",
-					"options": {
-						"browser": "projects/app-training/src/main.ts",
-						"tsConfig": "projects/app-training/tsconfig.app.json",
-						"inlineStyleLanguage": "scss",
-						"assets": [
-							{
-								"glob": "**/*",
-								"input": "projects/app-training/public"
-							}
-						],
-						"styles": [
-							"projects/app-training/src/styles.scss"
-						],
-						"polyfills": [
-							"es-module-shims"
-						]
-					},
-					"configurations": {
-						"production": {
-							"budgets": [
-								{
-									"type": "initial",
-									"maximumWarning": "500kB",
-									"maximumError": "1MB"
-								},
-								{
-									"type": "anyComponentStyle",
-									"maximumWarning": "4kB",
-									"maximumError": "8kB"
-								}
-							],
-							"outputHashing": "all"
-						},
-						"development": {
-							"optimization": false,
-							"extractLicenses": false,
-							"sourceMap": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve-original": {
-					"builder": "@angular/build:dev-server",
-					"options": {
-						"proxyConfig": "proxy.conf.json",
-						"port": 4202
-					},
-					"configurations": {
-						"production": {
-							"buildTarget": "app-training:esbuild:production"
-						},
-						"development": {
-							"buildTarget": "app-training:esbuild:development"
-						}
-					},
-					"defaultConfiguration": "development"
-				}
-			}
-		},
-		"app-admin": {
-			"projectType": "application",
-			"schematics": {
-				"@schematics/angular:component": {
-					"style": "scss",
-					"skipTests": true
-				},
-				"@schematics/angular:class": {
-					"skipTests": true
-				},
-				"@schematics/angular:directive": {
-					"skipTests": true
-				},
-				"@schematics/angular:guard": {
-					"skipTests": true
-				},
-				"@schematics/angular:interceptor": {
-					"skipTests": true
-				},
-				"@schematics/angular:pipe": {
-					"skipTests": true
-				},
-				"@schematics/angular:resolver": {
-					"skipTests": true
-				},
-				"@schematics/angular:service": {
-					"skipTests": true
-				}
-			},
-			"root": "projects/app-admin",
-			"sourceRoot": "projects/app-admin/src",
-			"prefix": "app",
-			"architect": {
-				"build": {
-					"builder": "@angular-architects/native-federation:build",
-					"options": {},
-					"configurations": {
-						"production": {
-							"target": "app-admin:esbuild:production"
-						},
-						"development": {
-							"target": "app-admin:esbuild:development",
-							"dev": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve": {
-					"builder": "@angular-architects/native-federation:build",
-					"options": {
-						"target": "app-admin:serve-original:development",
-						"rebuildDelay": 500,
-						"dev": true,
-						"cacheExternalArtifacts": false,
-						"port": 0
-					}
-				},
-				"esbuild": {
-					"builder": "@angular/build:application",
-					"options": {
-						"browser": "projects/app-admin/src/main.ts",
-						"tsConfig": "projects/app-admin/tsconfig.app.json",
-						"inlineStyleLanguage": "scss",
-						"assets": [
-							{
-								"glob": "**/*",
-								"input": "projects/app-admin/public"
-							}
-						],
-						"styles": [
-							"projects/app-admin/src/styles.scss"
-						],
-						"polyfills": [
-							"es-module-shims",
-							"projects/app-admin/src/polyfills.ts"
-						]
-					},
-					"configurations": {
-						"production": {
-							"budgets": [
-								{
-									"type": "initial",
-									"maximumWarning": "500kB",
-									"maximumError": "1MB"
-								},
-								{
-									"type": "anyComponentStyle",
-									"maximumWarning": "4kB",
-									"maximumError": "8kB"
-								}
-							],
-							"outputHashing": "all"
-						},
-						"development": {
-							"optimization": false,
-							"extractLicenses": false,
-							"sourceMap": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve-original": {
-					"builder": "@angular/build:dev-server",
-					"options": {
-						"proxyConfig": "proxy.conf.json",
-						"port": 4201
-					},
-					"configurations": {
-						"production": {
-							"buildTarget": "app-admin:esbuild:production"
-						},
-						"development": {
-							"buildTarget": "app-admin:esbuild:development"
-						}
-					},
-					"defaultConfiguration": "development"
-				}
-			}
-		},
-		"app-nutrition": {
-			"projectType": "application",
-			"schematics": {
-				"@schematics/angular:component": {
-					"style": "scss",
-					"skipTests": true
-				},
-				"@schematics/angular:class": {
-					"skipTests": true
-				},
-				"@schematics/angular:directive": {
-					"skipTests": true
-				},
-				"@schematics/angular:guard": {
-					"skipTests": true
-				},
-				"@schematics/angular:interceptor": {
-					"skipTests": true
-				},
-				"@schematics/angular:pipe": {
-					"skipTests": true
-				},
-				"@schematics/angular:resolver": {
-					"skipTests": true
-				},
-				"@schematics/angular:service": {
-					"skipTests": true
-				}
-			},
-			"root": "projects/app-nutrition",
-			"sourceRoot": "projects/app-nutrition/src",
-			"prefix": "app",
-			"architect": {
-				"build": {
-					"builder": "@angular-architects/native-federation:build",
-					"options": {},
-					"configurations": {
-						"production": {
-							"target": "app-nutrition:esbuild:production"
-						},
-						"development": {
-							"target": "app-nutrition:esbuild:development",
-							"dev": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve": {
-					"builder": "@angular-architects/native-federation:build",
-					"options": {
-						"target": "app-nutrition:serve-original:development",
-						"rebuildDelay": 500,
-						"dev": true,
-						"cacheExternalArtifacts": false,
-						"port": 0
-					}
-				},
-				"esbuild": {
-					"builder": "@angular/build:application",
-					"options": {
-						"browser": "projects/app-nutrition/src/main.ts",
-						"tsConfig": "projects/app-nutrition/tsconfig.app.json",
-						"inlineStyleLanguage": "scss",
-						"assets": [
-							{
-								"glob": "**/*",
-								"input": "projects/app-nutrition/public"
-							}
-						],
-						"styles": [
-							"projects/app-nutrition/src/styles.scss"
-						],
-						"polyfills": [
-							"es-module-shims"
-						]
-					},
-					"configurations": {
-						"production": {
-							"budgets": [
-								{
-									"type": "initial",
-									"maximumWarning": "500kB",
-									"maximumError": "1MB"
-								},
-								{
-									"type": "anyComponentStyle",
-									"maximumWarning": "4kB",
-									"maximumError": "8kB"
-								}
-							],
-							"outputHashing": "all"
-						},
-						"development": {
-							"optimization": false,
-							"extractLicenses": false,
-							"sourceMap": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve-original": {
-					"builder": "@angular/build:dev-server",
-					"configurations": {
-						"production": {
-							"buildTarget": "app-nutrition:esbuild:production"
-						},
-						"development": {
-							"buildTarget": "app-nutrition:esbuild:development"
-						}
-					},
-					"defaultConfiguration": "development",
-					"options": {
-						"proxyConfig": "proxy.conf.json",
-						"port": 4203
-					}
-				}
-			}
-		},
-		"shared-models": {
-			"projectType": "library",
-			"root": "projects/shared-models",
-			"sourceRoot": "projects/shared-models/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/shared-models/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/shared-models/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/shared-models/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"shared-utils": {
-			"projectType": "library",
-			"root": "projects/shared-utils",
-			"sourceRoot": "projects/shared-utils/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/shared-utils/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/shared-utils/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/shared-utils/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-admin-data-access": {
-			"projectType": "library",
-			"root": "projects/lib-admin-data-access",
-			"sourceRoot": "projects/lib-admin-data-access/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-admin-data-access/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-admin-data-access/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-admin-data-access/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-auth-data-access": {
-			"projectType": "library",
-			"root": "projects/lib-auth-data-access",
-			"sourceRoot": "projects/lib-auth-data-access/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-auth-data-access/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-auth-data-access/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-auth-data-access/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-nutrition-data-access": {
-			"projectType": "library",
-			"root": "projects/lib-nutrition-data-access",
-			"sourceRoot": "projects/lib-nutrition-data-access/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-nutrition-data-access/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-nutrition-data-access/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-nutrition-data-access/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-progress-data-access": {
-			"projectType": "library",
-			"root": "projects/lib-progress-data-access",
-			"sourceRoot": "projects/lib-progress-data-access/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-progress-data-access/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-progress-data-access/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-progress-data-access/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-training-data-access": {
-			"projectType": "library",
-			"root": "projects/lib-training-data-access",
-			"sourceRoot": "projects/lib-training-data-access/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-training-data-access/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-training-data-access/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-training-data-access/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-admin-feature-dashboard": {
-			"projectType": "library",
-			"root": "projects/lib-admin-feature-dashboard",
-			"sourceRoot": "projects/lib-admin-feature-dashboard/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-admin-feature-dashboard/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-admin-feature-dashboard/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-admin-feature-dashboard/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-admin-feature-exercise-catalog": {
-			"projectType": "library",
-			"root": "projects/lib-admin-feature-exercise-catalog",
-			"sourceRoot": "projects/lib-admin-feature-exercise-catalog/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-admin-feature-exercise-catalog/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-admin-feature-exercise-catalog/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-admin-feature-exercise-catalog/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-admin-feature-invite-codes": {
-			"projectType": "library",
-			"root": "projects/lib-admin-feature-invite-codes",
-			"sourceRoot": "projects/lib-admin-feature-invite-codes/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-admin-feature-invite-codes/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-admin-feature-invite-codes/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-admin-feature-invite-codes/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-admin-feature-user-list": {
-			"projectType": "library",
-			"root": "projects/lib-admin-feature-user-list",
-			"sourceRoot": "projects/lib-admin-feature-user-list/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-admin-feature-user-list/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-admin-feature-user-list/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-admin-feature-user-list/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-auth-feature-login": {
-			"projectType": "library",
-			"root": "projects/lib-auth-feature-login",
-			"sourceRoot": "projects/lib-auth-feature-login/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-auth-feature-login/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-auth-feature-login/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-auth-feature-login/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-auth-feature-register": {
-			"projectType": "library",
-			"root": "projects/lib-auth-feature-register",
-			"sourceRoot": "projects/lib-auth-feature-register/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-auth-feature-register/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-auth-feature-register/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-auth-feature-register/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-training-feature-overview": {
-			"projectType": "library",
-			"root": "projects/lib-training-feature-overview",
-			"sourceRoot": "projects/lib-training-feature-overview/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-training-feature-overview/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-training-feature-overview/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-training-feature-overview/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-training-feature-session": {
-			"projectType": "library",
-			"root": "projects/lib-training-feature-session",
-			"sourceRoot": "projects/lib-training-feature-session/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-training-feature-session/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-training-feature-session/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-training-feature-session/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-nutrition-feature-overview": {
-			"projectType": "library",
-			"root": "projects/lib-nutrition-feature-overview",
-			"sourceRoot": "projects/lib-nutrition-feature-overview/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-nutrition-feature-overview/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-nutrition-feature-overview/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-nutrition-feature-overview/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"lib-progress-feature-overview": {
-			"projectType": "library",
-			"root": "projects/lib-progress-feature-overview",
-			"sourceRoot": "projects/lib-progress-feature-overview/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-progress-feature-overview/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-progress-feature-overview/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-progress-feature-overview/tsconfig.spec.json"
-					}
-				}
-			}
-		},
-		"kraftkurve-mobile-app": {
-			"projectType": "application",
-			"schematics": {
-				"@schematics/angular:component": {
-					"style": "scss",
-					"skipTests": true
-				},
-				"@schematics/angular:class": {
-					"skipTests": true
-				},
-				"@schematics/angular:directive": {
-					"skipTests": true
-				},
-				"@schematics/angular:guard": {
-					"skipTests": true
-				},
-				"@schematics/angular:interceptor": {
-					"skipTests": true
-				},
-				"@schematics/angular:pipe": {
-					"skipTests": true
-				},
-				"@schematics/angular:resolver": {
-					"skipTests": true
-				},
-				"@schematics/angular:service": {
-					"skipTests": true
-				}
-			},
-			"root": "projects/kraftkurve-mobile-app",
-			"sourceRoot": "projects/kraftkurve-mobile-app/src",
-			"prefix": "app",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:application",
-					"options": {
-						"browser": "projects/kraftkurve-mobile-app/src/main.ts",
-						"tsConfig": "projects/kraftkurve-mobile-app/tsconfig.app.json",
-						"inlineStyleLanguage": "scss",
-						"assets": [
-							{
-								"glob": "**/*",
-								"input": "projects/kraftkurve-mobile-app/public"
-							}
-						],
-						"styles": [
-							"projects/kraftkurve-mobile-app/src/styles.scss"
-						]
-					},
-					"configurations": {
-						"production": {
-							"budgets": [
-								{
-									"type": "initial",
-									"maximumWarning": "500kB",
-									"maximumError": "1MB"
-								},
-								{
-									"type": "anyComponentStyle",
-									"maximumWarning": "4kB",
-									"maximumError": "8kB"
-								}
-							],
-							"outputHashing": "all",
-							"serviceWorker": "projects/kraftkurve-mobile-app/ngsw-config.json"
-						},
-						"development": {
-							"optimization": false,
-							"extractLicenses": false,
-							"sourceMap": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve": {
-					"builder": "@angular/build:dev-server",
-					"options": {
-						"proxyConfig": "proxy.conf.json"
-					},
-					"configurations": {
-						"production": {
-							"buildTarget": "kraftkurve-mobile-app:build:production"
-						},
-						"development": {
-							"buildTarget": "kraftkurve-mobile-app:build:development"
-						}
-					},
-					"defaultConfiguration": "development"
-				}
-			}
-		},
-		"lib-training-feature-details": {
-			"projectType": "library",
-			"root": "projects/lib-training-feature-details",
-			"sourceRoot": "projects/lib-training-feature-details/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular/build:ng-packagr",
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/lib-training-feature-details/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/lib-training-feature-details/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular/build:unit-test",
-					"options": {
-						"tsConfig": "projects/lib-training-feature-details/tsconfig.spec.json"
-					}
-				}
-			}
-		}
-	}
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "pnpm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "app-admin": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss",
+          "skipTests": true
+        },
+        "@schematics/angular:class": {
+          "skipTests": true
+        },
+        "@schematics/angular:directive": {
+          "skipTests": true
+        },
+        "@schematics/angular:guard": {
+          "skipTests": true
+        },
+        "@schematics/angular:interceptor": {
+          "skipTests": true
+        },
+        "@schematics/angular:pipe": {
+          "skipTests": true
+        },
+        "@schematics/angular:resolver": {
+          "skipTests": true
+        },
+        "@schematics/angular:service": {
+          "skipTests": true
+        }
+      },
+      "root": "projects/app-admin",
+      "sourceRoot": "projects/app-admin/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/app-admin/src/main.ts",
+            "tsConfig": "projects/app-admin/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/app-admin/public"
+              }
+            ],
+            "styles": [
+              "projects/app-admin/src/styles.scss"
+            ],
+            "polyfills": [
+              "projects/app-admin/src/polyfills.ts"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json",
+            "port": 4201
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "app-admin:esbuild:production"
+            },
+            "development": {
+              "buildTarget": "app-admin:esbuild:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
+    "shared-utils": {
+      "projectType": "library",
+      "root": "projects/shared-utils",
+      "sourceRoot": "projects/shared-utils/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared-utils/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/shared-utils/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/shared-utils/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-admin-data-access": {
+      "projectType": "library",
+      "root": "projects/lib-admin-data-access",
+      "sourceRoot": "projects/lib-admin-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-admin-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-admin-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-admin-data-access/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-auth-data-access": {
+      "projectType": "library",
+      "root": "projects/lib-auth-data-access",
+      "sourceRoot": "projects/lib-auth-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-auth-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-auth-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-auth-data-access/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-nutrition-data-access": {
+      "projectType": "library",
+      "root": "projects/lib-nutrition-data-access",
+      "sourceRoot": "projects/lib-nutrition-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-nutrition-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-nutrition-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-nutrition-data-access/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-training-data-access": {
+      "projectType": "library",
+      "root": "projects/lib-training-data-access",
+      "sourceRoot": "projects/lib-training-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-training-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-training-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-training-data-access/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-admin-feature-dashboard": {
+      "projectType": "library",
+      "root": "projects/lib-admin-feature-dashboard",
+      "sourceRoot": "projects/lib-admin-feature-dashboard/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-admin-feature-dashboard/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-admin-feature-dashboard/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-admin-feature-dashboard/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-admin-feature-exercise-catalog": {
+      "projectType": "library",
+      "root": "projects/lib-admin-feature-exercise-catalog",
+      "sourceRoot": "projects/lib-admin-feature-exercise-catalog/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-admin-feature-exercise-catalog/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-admin-feature-exercise-catalog/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-admin-feature-exercise-catalog/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-admin-feature-invite-codes": {
+      "projectType": "library",
+      "root": "projects/lib-admin-feature-invite-codes",
+      "sourceRoot": "projects/lib-admin-feature-invite-codes/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-admin-feature-invite-codes/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-admin-feature-invite-codes/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-admin-feature-invite-codes/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-admin-feature-user-list": {
+      "projectType": "library",
+      "root": "projects/lib-admin-feature-user-list",
+      "sourceRoot": "projects/lib-admin-feature-user-list/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-admin-feature-user-list/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-admin-feature-user-list/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-admin-feature-user-list/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-auth-feature-login": {
+      "projectType": "library",
+      "root": "projects/lib-auth-feature-login",
+      "sourceRoot": "projects/lib-auth-feature-login/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-auth-feature-login/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-auth-feature-login/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-auth-feature-login/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-auth-feature-register": {
+      "projectType": "library",
+      "root": "projects/lib-auth-feature-register",
+      "sourceRoot": "projects/lib-auth-feature-register/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-auth-feature-register/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-auth-feature-register/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-auth-feature-register/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "kraftkurve-mobile-app": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss",
+          "skipTests": true
+        },
+        "@schematics/angular:class": {
+          "skipTests": true
+        },
+        "@schematics/angular:directive": {
+          "skipTests": true
+        },
+        "@schematics/angular:guard": {
+          "skipTests": true
+        },
+        "@schematics/angular:interceptor": {
+          "skipTests": true
+        },
+        "@schematics/angular:pipe": {
+          "skipTests": true
+        },
+        "@schematics/angular:resolver": {
+          "skipTests": true
+        },
+        "@schematics/angular:service": {
+          "skipTests": true
+        }
+      },
+      "root": "projects/kraftkurve-mobile-app",
+      "sourceRoot": "projects/kraftkurve-mobile-app/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/kraftkurve-mobile-app/src/main.ts",
+            "tsConfig": "projects/kraftkurve-mobile-app/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/kraftkurve-mobile-app/public"
+              }
+            ],
+            "styles": [
+              "projects/kraftkurve-mobile-app/src/styles.scss"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all",
+              "serviceWorker": "projects/kraftkurve-mobile-app/ngsw-config.json"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "kraftkurve-mobile-app:build:production"
+            },
+            "development": {
+              "buildTarget": "kraftkurve-mobile-app:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
+    "lib-training-feature-details": {
+      "projectType": "library",
+      "root": "projects/lib-training-feature-details",
+      "sourceRoot": "projects/lib-training-feature-details/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-training-feature-details/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-training-feature-details/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-training-feature-details/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-training-feature-virtual-trainer": {
+      "projectType": "library",
+      "root": "projects/lib-training-feature-virtual-trainer",
+      "sourceRoot": "projects/lib-training-feature-virtual-trainer/src",
+      "prefix": "kk",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-training-feature-virtual-trainer/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-training-feature-virtual-trainer/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-training-feature-virtual-trainer/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-i18n": {
+      "projectType": "library",
+      "root": "projects/lib-i18n",
+      "sourceRoot": "projects/lib-i18n/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-i18n/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-i18n/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-i18n/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-progress-data-access": {
+      "projectType": "library",
+      "root": "projects/lib-progress-data-access",
+      "sourceRoot": "projects/lib-progress-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-progress-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-progress-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-progress-data-access/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "lib-progress-feature-overview": {
+      "projectType": "library",
+      "root": "projects/lib-progress-feature-overview",
+      "sourceRoot": "projects/lib-progress-feature-overview/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib-progress-feature-overview/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib-progress-feature-overview/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/lib-progress-feature-overview/tsconfig.spec.json"
+          }
+        }
+      }
+    }
+  }
 }

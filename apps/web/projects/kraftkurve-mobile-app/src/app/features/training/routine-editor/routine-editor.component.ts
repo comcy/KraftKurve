@@ -9,10 +9,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { firstValueFrom, Observable, map, startWith } from 'rxjs';
-import { TrainingService, TrainingRoutineExerciseDto, ExerciseDto } from 'lib-training-data-access';
+import { TrainingService, TrainingRoutineExerciseDto, ExerciseDto, TrainingRoutineDto } from 'lib-training-data-access';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { v4 as uuidv4 } from 'uuid';
 import { TacticalDialogComponent } from '../../../core/components/tactical-dialog/tactical-dialog.component';
+import { I18nService } from 'lib-i18n';
 
 @Component({
   selector: 'app-routine-editor',
@@ -37,7 +38,9 @@ export class RoutineEditorComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly trainingApi = inject(TrainingService);
   private readonly _dialog = inject(MatDialog);
+  protected readonly i18n = inject(I18nService);
 
+  protected readonly routine = signal<TrainingRoutineDto | null>(null);
   protected readonly exercises = signal<TrainingRoutineExerciseDto[]>([]);
   protected readonly catalog = signal<ExerciseDto[]>([]);
   protected readonly loading = signal(false);
@@ -73,7 +76,7 @@ export class RoutineEditorComponent implements OnInit {
     this.routineId = this.route.snapshot.paramMap.get('routineId') ?? '';
     
     if (this.routineId) {
-      await Promise.all([this.loadExercises(), this.loadCatalog()]);
+      await Promise.all([this.loadRoutine(), this.loadExercises(), this.loadCatalog()]);
       
       this.filteredCatalog = this.searchControl.valueChanges.pipe(
         startWith(''),
@@ -90,6 +93,15 @@ export class RoutineEditorComponent implements OnInit {
       option.name.toLowerCase().includes(filterValue) && 
       !existingNames.includes(option.name.toLowerCase())
     );
+  }
+
+  async loadRoutine() {
+    try {
+      const r = await this.trainingApi.getRoutine(this.routineId);
+      this.routine.set(r);
+    } catch {
+      // ignore
+    }
   }
 
   async loadExercises() {
@@ -110,6 +122,33 @@ export class RoutineEditorComponent implements OnInit {
       this.catalog.set(list);
     } catch {
       // ignore
+    }
+  }
+
+  async renameRoutine() {
+    const r = this.routine();
+    if (!r) return;
+
+    const dialogRef = this._dialog.open(TacticalDialogComponent, {
+      data: {
+        title: 'RENAME ROUTINE',
+        message: 'Update the name of this routine.',
+        fields: [
+          { key: 'name', type: 'text', label: 'ROUTINE NAME', value: r.name }
+        ],
+        confirmLabel: 'UPDATE'
+      },
+      panelClass: 'kk-dialog-panel'
+    });
+
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    if (result && result.name && result.name.trim()) {
+      try {
+        const updated = await this.trainingApi.updateRoutine(this.routineId, result.name.trim());
+        this.routine.set(updated);
+      } catch {
+        // ignore
+      }
     }
   }
 

@@ -34,6 +34,12 @@ app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
 
+// Request Logger
+app.use((req, _res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 // Wire services
 const authService = new AuthService(userRepository, inviteRepository);
 const trainingService = new TrainingService(
@@ -63,6 +69,16 @@ app.use('/auth', createAuthRouter(authService));
 app.use('/training', createTrainingRouter(trainingService, idempotencyService));
 app.use('/nutrition', createNutritionRouter(nutritionService, idempotencyService));
 
+// Global Error Handler
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('[Global Error Handler]', err);
+  const status = err.status || 500;
+  res.status(status).json({
+    error: err.message || 'Internal Server Error',
+    stack: process.env['NODE_ENV'] === 'development' ? err.stack : undefined,
+  });
+});
+
 function generateAdminPassword(): string {
   // 18 chars with mixed classes to be strong but terminal-safe.
   const raw = randomBytes(18).toString('base64url');
@@ -71,15 +87,20 @@ function generateAdminPassword(): string {
 
 async function bootstrapAdminIfMissing(): Promise<void> {
   const email = process.env['DEFAULT_ADMIN_EMAIL'] ?? 'admin@kraftkurve.local';
-  const password = generateAdminPassword();
+  const envPassword = process.env['DEFAULT_ADMIN_PASSWORD'];
+  const password = envPassword || generateAdminPassword();
   const { created, user } = await authService.ensureAdminExists(email, password);
 
   if (created) {
     console.log('');
     console.log('=== KraftKurve Admin Bootstrap ===');
     console.log(`Admin email: ${email}`);
-    console.log(`Admin password: ${password}`);
-    console.log('Please log in and change the password.');
+    if (envPassword) {
+      console.log(`Admin password: [SET VIA ENVIRONMENT]`);
+    } else {
+      console.log(`Admin password: ${password}`);
+    }
+    console.log('Please log in and change the password immediately.');
     console.log('==================================');
     console.log('');
   } else {

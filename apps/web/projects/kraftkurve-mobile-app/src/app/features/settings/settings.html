@@ -1,38 +1,50 @@
 <div class="settings-container">
-  <h1 class="headline-lg settings-title">{{ settingsTitle }}</h1>
+  <h1 class="headline-lg settings-title">{{ i18n.t('settings.title') }}</h1>
 
   <div class="settings-list">
+    <!-- Language Override -->
+    <section class="settings-group">
+      <h2 class="label-caps group-title">{{ i18n.t('settings.language') }}</h2>
+      <div class="settings-card">
+        <div class="setting-item mode-toggle">
+          <button class="mode-btn label-caps" [class.active]="i18n.lang() === 'nerdy'" (click)="i18n.setLang('nerdy')">NERDY</button>
+          <button class="mode-btn label-caps" [class.active]="i18n.lang() === 'de'" (click)="i18n.setLang('de')">DE</button>
+          <button class="mode-btn label-caps" [class.active]="i18n.lang() === 'en'" (click)="i18n.setLang('en')">EN</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Visual Override -->
     <section class="settings-group">
-      <h2 class="label-caps group-title">{{ themeMode }}</h2>
+      <h2 class="label-caps group-title">{{ i18n.t('settings.visualOverride') }}</h2>
       <div class="settings-card">
-        <div class="setting-item">
-          <span class="label-caps">{{ currentTheme() === 'dark' ? dark : light }} MODE</span>
-          <mat-slide-toggle [checked]="currentTheme() === 'light'" (change)="toggleTheme()">
-          </mat-slide-toggle>
+        <div class="setting-item mode-toggle">
+          <button class="mode-btn label-caps" [class.active]="currentTheme() === 'tactical'" (click)="setTheme('tactical')">{{ i18n.t('settings.themeTactical') }}</button>
+          <button class="mode-btn label-caps" [class.active]="currentTheme() === 'minimal-dark'" (click)="setTheme('minimal-dark')">{{ i18n.t('settings.themeMinimalDark') }}</button>
+          <button class="mode-btn label-caps" [class.active]="currentTheme() === 'minimal-light'" (click)="setTheme('minimal-light')">{{ i18n.t('settings.themeMinimalLight') }}</button>
         </div>
       </div>
     </section>
 
     <!-- Fuel Configuration -->
     <section class="settings-group">
-      <h2 class="label-caps group-title">{{ fuelConfig }}</h2>
+      <h2 class="label-caps group-title">{{ i18n.t('settings.fuelConfig') }}</h2>
       <div class="settings-card">
         <div class="setting-item">
-          <span class="label-caps">DAILY PROTEIN GOAL</span>
+          <span class="label-caps">{{ i18n.t('settings.dailyProteinGoal') }}</span>
           <mat-form-field appearance="outline" class="small-input">
             <input matInput type="text" inputmode="decimal" [ngModel]="goalValue()" (ngModelChange)="goalValue.set($event)">
-            <span matSuffix class="label-caps">G</span>
+            <span matSuffix class="label-caps">{{ i18n.t('settings.unit.G') }}</span>
           </mat-form-field>
         </div>
 
         <div class="setting-item column">
-          <span class="label-caps">QUICK LOG PRESETS</span>
+          <span class="label-caps">{{ i18n.t('settings.quickLogPresets') }}</span>
           <div class="presets-row">
             @for (p of presetValues(); track $index; let i = $index) {
               <mat-form-field appearance="outline" class="tiny-input">
                 <input matInput type="text" inputmode="decimal" [ngModel]="p" (ngModelChange)="updatePreset(i, $event)">
-                <span matSuffix class="label-caps">G</span>
+                <span matSuffix class="label-caps">{{ i18n.t('settings.unit.G') }}</span>
               </mat-form-field>
             }
           </div>
@@ -42,32 +54,40 @@
 
     <!-- Training Protocol -->
     <section class="settings-group">
-      <h2 class="label-caps group-title">{{ trainingConfig }}</h2>
+      <h2 class="label-caps group-title">{{ i18n.t('settings.trainingProtocol') }}</h2>
       <div class="settings-card">
-        <div class="setting-item column">
-          <span class="label-caps">PROGRESSION STRATEGY</span>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-select [ngModel]="overloadStrategy()" (ngModelChange)="overloadStrategy.set($event)">
-              <mat-option value="weight-focused">WEIGHT-FOCUSED (PROG. OVERLOAD)</mat-option>
-              <mat-option value="rep-focused">REP-FOCUSED (VOLUME FIRST)</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <p class="sub-label label-caps">DETERMINES VIRTUAL TRAINER SUGGESTIONS.</p>
+        <div class="setting-item">
+          <span class="label-caps">{{ i18n.t('settings.virtualTrainer') }}</span>
+          <mat-slide-toggle [checked]="virtualTrainerEnabled()" (change)="virtualTrainerEnabled.set($event.checked)">
+          </mat-slide-toggle>
         </div>
 
+        @if (virtualTrainerEnabled()) {
+          <div class="setting-item column">
+            <span class="label-caps">{{ i18n.t('settings.progressionStrategy') }}</span>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-select [ngModel]="overloadStrategy()" (ngModelChange)="overloadStrategy.set($event)">
+                <mat-option value="weight-focused">{{ i18n.t('settings.weightFocused') }}</mat-option>
+                <mat-option value="rep-focused">{{ i18n.t('settings.repFocused') }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <p class="sub-label label-caps">{{ i18n.t('settings.aiSuggestionNote') }}</p>
+          </div>
+        }
+
         <button mat-flat-button class="save-btn btn-primary" (click)="saveConfiguration()" [disabled]="!hasChanges()">
-          <span class="label-caps">{{ hasChanges() ? 'SAVE CONFIGURATION' : 'NO CHANGES DETECTED' }}</span>
+          <span class="label-caps">{{ hasChanges() ? i18n.t('settings.saveConfiguration') : i18n.t('settings.noChanges') }}</span>
         </button>
       </div>
     </section>
 
     <!-- Account Protocol -->
     <section class="settings-group">
-      <h2 class="label-caps group-title">{{ accountConfig }}</h2>
+      <h2 class="label-caps group-title">{{ i18n.t('settings.accountProtocol') }}</h2>
       <div class="settings-card">
         <button mat-stroked-button class="logout-btn btn-warn full-width" (click)="onLogout()">
           <mat-icon>logout</mat-icon>
-          <span class="label-caps">TERMINATE SESSION / LOGOUT</span>
+          <span class="label-caps">{{ i18n.t('settings.logout') }}</span>
         </button>
       </div>
     </section>

@@ -133,6 +133,7 @@ export interface UpdateExerciseInput {
 export interface BodyHeatmapEntry {
   totalSets: number;
   completedSets: number;
+  sessionCount: number;
 }
 
 export interface BodyHeatmapInsight {
@@ -204,42 +205,48 @@ export class TrainingService {
     private readonly catalog: IExerciseRepository,
   ) {}
 
-  async listUserSessions(userId: string): Promise<(TrainingSession & { exerciseCount: number; planName?: string; routineName?: string })[]> {
+  private async enrichSession(session: TrainingSession): Promise<any> {
+    const exercises = await this.exercises.findBySession(session.id);
+    let planName: string | undefined;
+    let routineName: string | undefined;
+
+    if (session.planId) {
+      const plan = await this.plans.findById(session.planId);
+      planName = plan ? plan.name : undefined;
+    }
+
+    if (session.routineId) {
+      const routines = await this.routines.findByPlanId(session.planId!);
+      const routine = routines.find((r) => r.id === session.routineId);
+      routineName = routine ? routine.name : undefined;
+    }
+
+    return {
+      ...session,
+      exerciseCount: exercises.length,
+      planName,
+      routineName,
+    };
+  }
+
+  async listUserSessions(userId: string): Promise<any[]> {
     const list = await this.sessions.findByUser(userId);
-    const plans = await this.plans.findByUserId(userId);
-    const enriched = await Promise.all(
-      list.map(async (s) => {
-        const exercises = await this.exercises.findBySession(s.id);
-        const plan = s.planId ? plans.find((p) => p.id === s.planId) : null;
-        let routineName: string | undefined;
-        if (s.routineId) {
-          const routines = await this.routines.findByPlanId(s.planId!);
-          const routine = routines.find((r) => r.id === s.routineId);
-          routineName = routine ? routine.name : undefined;
-        }
-        return {
-          ...s,
-          exerciseCount: exercises.length,
-          planName: plan ? plan.name : undefined,
-          routineName,
-        };
-      }),
-    );
+    const enriched = await Promise.all(list.map((s) => this.enrichSession(s)));
     return enriched.sort((a, b) => b.startedAt.localeCompare(a.startedAt));
   }
 
-  async getSession(userId: string, sessionId: string): Promise<TrainingSession | null> {
+  async getSession(userId: string, sessionId: string): Promise<any | null> {
     const session = await this.sessions.findById(sessionId);
     if (!session || session.userId !== userId) {
       return null;
     }
-    return session;
+    return this.enrichSession(session);
   }
 
   async createSession(
     userId: string,
     input: CreateTrainingSessionInput,
-  ): Promise<TrainingSession> {
+  ): Promise<any> {
     const session: TrainingSession = {
       ...baseEntity(),
       userId,
@@ -253,16 +260,17 @@ export class TrainingService {
       totalSeconds: input.totalSeconds ?? 0,
       isPaused: input.isPaused ?? false,
     };
-    return this.sessions.save(session);
+    const saved = await this.sessions.save(session);
+    return this.enrichSession(saved);
   }
 
   async updateSession(
     userId: string,
     sessionId: string,
     input: UpdateTrainingSessionInput,
-  ): Promise<TrainingSession | null> {
-    const session = await this.getSession(userId, sessionId);
-    if (!session) {
+  ): Promise<any | null> {
+    const session = await this.sessions.findById(sessionId);
+    if (!session || session.userId !== userId) {
       return null;
     }
 
@@ -281,7 +289,8 @@ export class TrainingService {
       version: session.version + 1,
     };
 
-    return this.sessions.save(updated);
+    const saved = await this.sessions.save(updated);
+    return this.enrichSession(saved);
   }
 
   async deleteSession(userId: string, sessionId: string): Promise<boolean> {
@@ -480,12 +489,17 @@ export class TrainingService {
   }
 
   async createCardioRecord(
-    trainingExerciseId: string,
+    userId: string,
+    sessionId: string,
+    exerciseId: string,
     input: CreateCardioRecordInput,
-  ): Promise<CardioRecord> {
+  ): Promise<CardioRecord | null> {
+    const exercise = await this.getExerciseForUser(userId, sessionId, exerciseId);
+    if (!exercise) return null;
+
     const record: CardioRecord = {
       ...baseEntity(),
-      trainingExerciseId,
+      trainingExerciseId: exerciseId,
       durationSeconds: input.durationSeconds,
       distanceMeters: input.distanceMeters ?? null,
       caloriesBurned: input.caloriesBurned ?? null,
@@ -493,6 +507,31 @@ export class TrainingService {
       note: input.note ?? null,
     };
     return this.cardio.save(record);
+  }
+
+  async updateCardioRecord(
+    userId: string,
+    sessionId: string,
+    exerciseId: string,
+    input: Partial<CreateCardioRecordInput>,
+  ): Promise<CardioRecord | null> {
+    const exercise = await this.getExerciseForUser(userId, sessionId, exerciseId);
+    if (!exercise) return null;
+
+    const existing = await this.cardio.findByTrainingExerciseId(exerciseId);
+    if (!existing) return null;
+
+    const updated: CardioRecord = {
+      ...existing,
+      durationSeconds: input.durationSeconds ?? existing.durationSeconds,
+      distanceMeters: input.distanceMeters !== undefined ? input.distanceMeters : existing.distanceMeters,
+      caloriesBurned: input.caloriesBurned !== undefined ? input.caloriesBurned : existing.caloriesBurned,
+      heartRateAverage: input.heartRateAverage !== undefined ? input.heartRateAverage : existing.heartRateAverage,
+      note: input.note !== undefined ? input.note : existing.note,
+      updatedAt: now(),
+      version: existing.version + 1,
+    };
+    return this.cardio.save(updated);
   }
 
   // ── Training Plans & Routines ─────────────────────────────────────────────
@@ -585,6 +624,13 @@ export class TrainingService {
     return this.routines.save(updated);
   }
 
+  async getRoutine(routineId: string): Promise<(TrainingRoutine & { exerciseCount: number }) | null> {
+    const routine = await this.routines.findById(routineId);
+    if (!routine) return null;
+    const exercises = await this.routineExercises.findByRoutineId(routineId);
+    return { ...routine, exerciseCount: exercises.length };
+  }
+
   async deleteRoutine(routineId: string): Promise<void> {
     await this.routineExercises.deleteByRoutine(routineId);
     await this.routines.deleteById(routineId);
@@ -662,65 +708,89 @@ export class TrainingService {
       ...baseEntity(),
       userId,
       overloadStrategy: 'weight-focused',
+      virtualTrainerEnabled: false,
     };
     return this.settings.save(defaults);
   }
 
-  async updateTrainingSettings(userId: string, strategy: OverloadStrategy): Promise<TrainingSettings> {
+  async updateTrainingSettings(
+    userId: string,
+    input: { strategy?: OverloadStrategy; virtualTrainerEnabled?: boolean },
+  ): Promise<TrainingSettings> {
     const existing = await this.getTrainingSettings(userId);
     const updated: TrainingSettings = {
       ...existing,
-      overloadStrategy: strategy,
+      overloadStrategy: input.strategy ?? existing.overloadStrategy,
+      virtualTrainerEnabled: input.virtualTrainerEnabled ?? existing.virtualTrainerEnabled,
       updatedAt: now(),
       version: existing.version + 1,
     };
     return this.settings.save(updated);
   }
 
-  async getExerciseSuggestion(userId: string, exerciseName: string): Promise<ExerciseSuggestion | null> {
+  async getExerciseSuggestion(
+    userId: string, 
+    exerciseName: string, 
+    excludeSessionId?: string
+  ): Promise<ExerciseSuggestion | null> {
     const settings = await this.getTrainingSettings(userId);
-    const lastPerf = await this.getLastExerciseSets(userId, exerciseName);
+    const lastPerf = await this.getLastExerciseSets(userId, exerciseName, excludeSessionId);
 
     if (!lastPerf || lastPerf.sets.length === 0) {
+      const defaultWeight = settings.overloadStrategy === 'weight-focused' ? 20 : 15;
+      const defaultReps = settings.overloadStrategy === 'rep-focused' ? 12 : 10;
+      
       return {
         exerciseName,
         strategy: settings.overloadStrategy,
         lastPerformance: null,
-        suggestedTarget: { sets: 3, weightKg: 0, reps: 10 },
-        reason: 'Keine historischen Daten gefunden. Starte mit Standardwerten.',
+        suggestedTarget: { sets: 3, weightKg: defaultWeight, reps: defaultReps },
+        reason: 'Keine historischen Daten gefunden. Starte mit Standard-Protokoll.',
       };
     }
 
     const lastSets = lastPerf.sets;
     const avgWeight = lastSets.reduce((s, e) => s + e.weightKg, 0) / lastSets.length;
     const avgReps = lastSets.reduce((s, e) => s + e.reps, 0) / lastSets.length;
-    const avgRir = lastSets.reduce((s, e) => s + (e.rir ?? 0), 0) / lastSets.length;
+    
+    // Set-by-Set RIR Analysis (Fatigue Curve)
+    const minRir = Math.min(...lastSets.map(s => s.rir ?? 0));
+    const maxRir = Math.max(...lastSets.map(s => s.rir ?? 0));
+    const lastSetRir = lastSets[lastSets.length - 1].rir ?? 0;
     
     let suggestedWeight = avgWeight;
     let suggestedReps = Math.round(avgReps);
     let reason = '';
 
-    // Logic: Adjust progression speed based on RIR
-    const effortMultiplier = avgRir > 2 ? 2 : (avgRir >= 1 ? 1 : 0.5);
-
+    // Logic according to ADR-009
     if (settings.overloadStrategy === 'weight-focused') {
-      const step = 1.25 * effortMultiplier;
-      suggestedWeight = this.roundToStep(avgWeight + step, 0.5);
-      reason = avgRir > 2 
-        ? `Niedrige Intensität erkannt (RIR ${avgRir.toFixed(1)}). Aggressivere Gewichtssteigerung.` 
-        : 'Progressive Overload: Fokus auf Gewichtserhöhung.';
+      if (minRir >= 2) {
+        // High RIR across all sets -> Progressive Overload
+        const step = maxRir > 3 ? 2.5 : 1.25;
+        suggestedWeight = this.roundToStep(avgWeight + step, 0.5);
+        reason = `Hohe Reserve erkannt (RIR min ${minRir}). Gewicht erhöht für Progressiven Overload.`;
+      } else if (lastSetRir >= 1) {
+        // Moderate intensity -> Slight weight increase or maintain reps
+        suggestedWeight = this.roundToStep(avgWeight + 0.5, 0.5);
+        reason = 'Moderate Intensität. Leichte Gewichtserhöhung vorgeschlagen.';
+      } else {
+        // Low RIR on last set -> Consolidate
+        reason = 'Intensitätslimit fast erreicht. Gewicht halten zur Konsolidierung.';
+      }
     } else {
       // Rep-focused
-      if (avgReps >= 12 && avgRir >= 1) {
-        suggestedWeight = this.roundToStep(avgWeight + (2.5 * effortMultiplier), 0.5);
+      if (avgReps >= 12 && minRir >= 1) {
+        suggestedWeight = this.roundToStep(avgWeight + 1.25, 0.5);
         suggestedReps = 8;
-        reason = 'Rep-Limit erreicht und Puffer vorhanden. Gewicht erhöht.';
+        reason = 'Rep-Limit erreicht bei ausreichender Reserve. Gewicht erhöht, Reps reduziert.';
+      } else if (minRir >= 2) {
+        suggestedReps = Math.round(avgReps + 2);
+        reason = `Hohe Reserve (min RIR ${minRir}). Deutliche Volumensteigerung empfohlen.`;
+      } else if (lastSetRir >= 1) {
+        suggestedReps = Math.round(avgReps + 1);
+        reason = 'Eine Wiederholung mehr zur Volumensteigerung.';
       } else {
-        const repStep = avgRir > 2 ? 2 : 1;
-        suggestedReps = Math.round(avgReps + repStep);
-        reason = avgRir > 2 
-          ? `Niedrige Intensität (RIR ${avgRir.toFixed(1)}). Mehr Wiederholungen vorgeschlagen.`
-          : 'Volume-Fokus: Eine Wiederholung mehr als beim letzten Mal.';
+        reason = 'Erschöpfung am Satzende erreicht. Volumen halten zur Stabilisierung.';
       }
     }
 
@@ -774,7 +844,7 @@ export class TrainingService {
 
     const muscles = ALL_MUSCLE_GROUPS.reduce<Record<MuscleGroup, BodyHeatmapEntry>>(
       (acc, group) => {
-        acc[group] = { totalSets: 0, completedSets: 0 };
+        acc[group] = { totalSets: 0, completedSets: 0, sessionCount: 0 };
         return acc;
       },
       {} as Record<MuscleGroup, BodyHeatmapEntry>,
@@ -782,10 +852,15 @@ export class TrainingService {
 
     for (const session of sessions) {
       const exercises = await this.exercises.findBySession(session.id);
+      const musclesSeen = new Set<MuscleGroup>();
       for (const exercise of exercises) {
         const sets = await this.sets.findByExercise(exercise.id);
         muscles[exercise.muscleGroup].totalSets += sets.length;
         muscles[exercise.muscleGroup].completedSets += sets.filter((set) => set.done).length;
+        if (!musclesSeen.has(exercise.muscleGroup)) {
+          muscles[exercise.muscleGroup].sessionCount++;
+          musclesSeen.add(exercise.muscleGroup);
+        }
       }
     }
 
@@ -801,6 +876,36 @@ export class TrainingService {
       totalCompletedSets,
       muscles,
     };
+  }
+
+  async getWorkoutCalendar(
+    userId: string,
+    days: number,
+  ): Promise<{ date: string; sessionCount: number; templates: string[] }[]> {
+    const safeDays = Math.max(1, Math.min(365, days));
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - safeDays + 1);
+    const cutoffStr = cutoffDate.toISOString().slice(0, 10);
+
+    const sessions = (await this.sessions.findByUser(userId)).filter(
+      (s) => s.date >= cutoffStr,
+    );
+
+    const byDate = new Map<string, { count: number; templates: Set<string> }>();
+    for (const s of sessions) {
+      if (!byDate.has(s.date)) byDate.set(s.date, { count: 0, templates: new Set() });
+      const entry = byDate.get(s.date)!;
+      entry.count++;
+      entry.templates.add(s.templateType);
+    }
+
+    return Array.from(byDate.entries())
+      .map(([date, { count, templates }]) => ({
+        date,
+        sessionCount: count,
+        templates: Array.from(templates),
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
   }
 
   async getStagnationSuggestions(

@@ -12,9 +12,6 @@
       "lib-nutrition-data-access": [
         "./projects/lib-nutrition-data-access/src/public-api"
       ],
-      "lib-progress-data-access": [
-        "./projects/lib-progress-data-access/src/public-api"
-      ],
       "lib-training-data-access": [
         "./projects/lib-training-data-access/src/public-api"
       ],
@@ -36,26 +33,23 @@
       "lib-auth-feature-register": [
         "./projects/lib-auth-feature-register/src/public-api"
       ],
-      "lib-nutrition-feature-overview": [
-        "./projects/lib-nutrition-feature-overview/src/public-api"
-      ],
-      "lib-progress-feature-overview": [
-        "./projects/lib-progress-feature-overview/src/public-api"
-      ],
       "lib-training-feature-details": [
         "./projects/lib-training-feature-details/src/public-api"
       ],
-      "lib-training-feature-overview": [
-        "./projects/lib-training-feature-overview/src/public-api"
-      ],
-      "lib-training-feature-session": [
-        "./projects/lib-training-feature-session/src/public-api"
-      ],
-      "shared-models": [
-        "./projects/shared-models/src/public-api"
+      "lib-training-feature-virtual-trainer": [
+        "./projects/lib-training-feature-virtual-trainer/src/public-api"
       ],
       "shared-utils": [
         "./projects/shared-utils/src/public-api"
+      ],
+      "lib-i18n": [
+        "./projects/lib-i18n/src/public-api"
+      ],
+      "lib-progress-data-access": [
+        "./projects/lib-progress-data-access/src/public-api"
+      ],
+      "lib-progress-feature-overview": [
+        "./projects/lib-progress-feature-overview/src/public-api"
       ]
     },
     "noImplicitOverride": true,
@@ -67,7 +61,8 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2022",
-    "module": "preserve"
+    "module": "preserve",
+    "resolveJsonModule": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -78,28 +73,10 @@
   "files": [],
   "references": [
     {
-      "path": "./projects/app-shell/tsconfig.app.json"
-    },
-    {
-      "path": "./projects/app-shell/tsconfig.spec.json"
-    },
-    {
       "path": "./projects/app-admin/tsconfig.app.json"
     },
     {
       "path": "./projects/app-admin/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/app-nutrition/tsconfig.app.json"
-    },
-    {
-      "path": "./projects/app-nutrition/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/app-training/tsconfig.app.json"
-    },
-    {
-      "path": "./projects/app-training/tsconfig.spec.json"
     },
     {
       "path": "./projects/lib-admin-data-access/tsconfig.lib.json"
@@ -118,12 +95,6 @@
     },
     {
       "path": "./projects/lib-nutrition-data-access/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/lib-progress-data-access/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/lib-progress-data-access/tsconfig.spec.json"
     },
     {
       "path": "./projects/lib-training-data-access/tsconfig.lib.json"
@@ -168,36 +139,6 @@
       "path": "./projects/lib-auth-feature-register/tsconfig.spec.json"
     },
     {
-      "path": "./projects/lib-training-feature-overview/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/lib-training-feature-overview/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/lib-training-feature-session/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/lib-training-feature-session/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/lib-nutrition-feature-overview/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/lib-nutrition-feature-overview/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/lib-progress-feature-overview/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/lib-progress-feature-overview/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/shared-models/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/shared-models/tsconfig.spec.json"
-    },
-    {
       "path": "./projects/shared-utils/tsconfig.lib.json"
     },
     {
@@ -211,6 +152,30 @@
     },
     {
       "path": "./projects/lib-training-feature-details/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-training-feature-virtual-trainer/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-training-feature-virtual-trainer/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-i18n/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-i18n/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-progress-data-access/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-progress-data-access/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/lib-progress-feature-overview/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/lib-progress-feature-overview/tsconfig.spec.json"
     }
   ]
 }

@@ -28,9 +28,9 @@
   }
 
   .header-logo {
-    max-height: 80px; 
+    max-height: 100px;
     width: auto;
-    max-width: 100%;
+    max-width: calc(100% - 32px);
     object-fit: contain;
   }
 }
@@ -92,7 +92,8 @@
 
     .nav-label {
       font-family: var(--font-headline);
-      font-size: 8px;
+      font-size: var(--nav-label-size, 8px);
+      font-weight: var(--nav-label-weight, 400);
     }
 
     &.active {

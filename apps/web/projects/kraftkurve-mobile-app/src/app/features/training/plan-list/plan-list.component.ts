@@ -7,6 +7,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { TrainingService, TrainingPlanDto } from 'lib-training-data-access';
 import { TacticalDialogComponent } from '../../../core/components/tactical-dialog/tactical-dialog.component';
+import { I18nService } from 'lib-i18n';
 
 @Component({
   selector: 'app-plan-list',
@@ -20,6 +21,7 @@ export class PlanListComponent implements OnInit {
   private readonly trainingApi = inject(TrainingService);
   private readonly router = inject(Router);
   private readonly _dialog = inject(MatDialog);
+  protected readonly i18n = inject(I18nService);
 
   protected readonly plans = signal<TrainingPlanDto[]>([]);
   protected readonly loading = signal(false);

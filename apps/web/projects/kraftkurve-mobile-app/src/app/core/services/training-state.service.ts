@@ -57,10 +57,14 @@ export class TrainingStateService {
       this.isPaused.set(false);
       this.startTimer();
 
-      // If routineId is provided, pre-populate exercises
+      const [tSettings, routineExercises] = await Promise.all([
+        this._trainingApi.getTrainingSettings(),
+        routineId ? this._trainingApi.listRoutineExercises(routineId) : Promise.resolve([])
+      ]);
+      
+      const vtEnabled = tSettings.virtualTrainerEnabled;
+
       if (routineId) {
-        const routineExercises = await this._trainingApi.listRoutineExercises(routineId);
-        
         for (const re of routineExercises) {
           try {
             const activeEx = await this._trainingApi.createExercise(session.id, {
@@ -68,19 +72,23 @@ export class TrainingStateService {
               muscleGroup: re.muscleGroup,
             });
             
-            // Link superset if present
             if (re.supersetGroupId) {
               await this._trainingApi.updateExercise(session.id, activeEx.id, {
                 supersetGroupId: re.supersetGroupId
               });
             }
 
-            // Get performance optimization for defaults
-            const suggestion = await this._trainingApi.getSuggestion(re.exerciseName);
-            const reps = suggestion?.suggestedTarget?.reps || 10;
-            const weight = suggestion?.suggestedTarget?.weightKg || 0;
+            let reps = 10;
+            let weight = 0;
+            
+            if (vtEnabled) {
+              const suggestion = await this._trainingApi.getSuggestion(re.exerciseName, session.id);
+              if (suggestion) {
+                reps = suggestion.suggestedTarget.reps;
+                weight = suggestion.suggestedTarget.weightKg;
+              }
+            }
 
-            // Create suggested sets
             for (let i = 0; i < re.suggestedSets; i++) {
               await this._trainingApi.createSet(session.id, activeEx.id, {
                 reps,
@@ -109,16 +117,22 @@ export class TrainingStateService {
     this.sessionDurationSeconds.set(session.totalSeconds);
     this.isPaused.set(session.isPaused);
     
-    // Load existing data
-    const exercises = await this._trainingApi.listExercises(session.id);
+    const [exercises, tSettings] = await Promise.all([
+      this._trainingApi.listExercises(session.id),
+      this._trainingApi.getTrainingSettings()
+    ]);
+    const vtEnabled = tSettings.virtualTrainerEnabled;
     this.exercises.set(exercises);
     
     const setsMap: Record<string, TrainingSetDto[]> = {};
     for (const ex of exercises) {
       const sets = await this._trainingApi.listSets(session.id, ex.id);
       setsMap[ex.id] = sets;
-      const suggestion = await this._trainingApi.getSuggestion(ex.exerciseName);
-      this.suggestions.update(map => ({ ...map, [ex.id]: suggestion }));
+      
+      if (vtEnabled) {
+        const suggestion = await this._trainingApi.getSuggestion(ex.exerciseName);
+        this.suggestions.update(map => ({ ...map, [ex.id]: suggestion }));
+      }
     }
     this.setsByExercise.set(setsMap);
 
@@ -156,7 +170,6 @@ export class TrainingStateService {
 
     this.stopTimer();
 
-    // Verification: If no exercises were added, discard the session entirely
     const exercises = this.exercises();
     if (exercises.length === 0) {
       await this._trainingApi.deleteSession(session.id);
@@ -181,20 +194,19 @@ export class TrainingStateService {
 
       if (routines.length === 0) return null;
 
-      // Find last session for this plan
       const planSessions = sessions
         .filter(s => s.planId === planId && s.finishedAt !== null)
         .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
 
       if (planSessions.length === 0) {
-        return routines[0]; // Start with first
+        return routines[0];
       }
 
       const lastRoutineId = planSessions[0].routineId;
       const lastIndex = routines.findIndex(r => r.id === lastRoutineId);
 
       if (lastIndex === -1 || lastIndex === routines.length - 1) {
-        return routines[0]; // Loop back or start fresh
+        return routines[0];
       }
 
       return routines[lastIndex + 1];
@@ -207,19 +219,24 @@ export class TrainingStateService {
     const session = this.activeSession();
     if (!session) return;
 
-    const exercise = await this._trainingApi.createExercise(session.id, {
-      exerciseName: name,
-      muscleGroup
-    });
+    const [exercise, tSettings] = await Promise.all([
+      this._trainingApi.createExercise(session.id, { exerciseName: name, muscleGroup }),
+      this._trainingApi.getTrainingSettings()
+    ]);
+    
     this.exercises.update(list => [...list, exercise]);
     
-    // Load suggestion
-    const suggestion = await this._trainingApi.getSuggestion(name);
-    this.suggestions.update(map => ({ ...map, [exercise.id]: suggestion }));
+    let defaultReps = 10;
+    let defaultWeight = 0;
 
-    // Create 3 default sets
-    const defaultReps = suggestion?.suggestedTarget?.reps || 10;
-    const defaultWeight = suggestion?.suggestedTarget?.weightKg || 0;
+    if (tSettings.virtualTrainerEnabled) {
+      const suggestion = await this._trainingApi.getSuggestion(name, session.id);
+      this.suggestions.update(map => ({ ...map, [exercise.id]: suggestion }));
+      if (suggestion) {
+        defaultReps = suggestion.suggestedTarget.reps;
+        defaultWeight = suggestion.suggestedTarget.weightKg;
+      }
+    }
 
     for (let i = 0; i < 3; i++) {
       await this.addSet(exercise.id, defaultReps, defaultWeight);
@@ -232,7 +249,6 @@ export class TrainingStateService {
 
     await this._trainingApi.deleteExercise(session.id, exerciseId);
     
-    // Update local state
     this.exercises.update(list => list.filter(e => e.id !== exerciseId));
     this.setsByExercise.update(map => {
       const newMap = { ...map };
@@ -248,8 +264,7 @@ export class TrainingStateService {
     const set = await this._trainingApi.createSet(session.id, exerciseId, {
       reps,
       weightKg: weight,
-      rir: null,
-      done: false // Start as uncompleted
+      done: false
     });
     this.setsByExercise.update(map => {
       const list = map[exerciseId] || [];
@@ -284,7 +299,6 @@ export class TrainingStateService {
     await this._trainingApi.updateExercise(session.id, exerciseId, {
       order: newOrder
     });
-    // Refresh list or optimistic update
     const list = await this._trainingApi.listExercises(session.id);
     this.exercises.set(list);
   }

@@ -1,26 +1,26 @@
 <div class="catalog-container">
   <div class="catalog-header">
-    <h1>{{ labelPageTitle }}</h1>
+    <h1>{{ i18n.t('admin.exercises.title') }}</h1>
     <button mat-flat-button color="primary" (click)="showAddForm = !showAddForm">
       <mat-icon>{{ showAddForm ? 'close' : 'add' }}</mat-icon>
-      {{ showAddForm ? labelCancel : labelAddExercise }}
+      {{ showAddForm ? i18n.t('admin.exercises.cancel') : i18n.t('admin.exercises.add') }}
     </button>
   </div>
 
   @if (showAddForm) {
     <mat-card class="edit-card">
       <mat-card-header>
-        <mat-card-title>{{ editingExerciseId ? labelEditExercise : labelAddExercise }}</mat-card-title>
+        <mat-card-title>{{ editingExerciseId ? i18n.t('admin.exercises.edit') : i18n.t('admin.exercises.add') }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <form [formGroup]="exerciseForm" (ngSubmit)="saveExercise()" class="exercise-form">
           <mat-form-field appearance="outline">
-            <mat-label>{{ labelName }}</mat-label>
-            <input matInput formControlName="name" placeholder="z.B. Bankdrücken">
+            <mat-label>{{ i18n.t('admin.exercises.name') }}</mat-label>
+            <input matInput formControlName="name" [placeholder]="i18n.t('admin.exercises.namePlaceholder')">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>{{ labelCategory }}</mat-label>
+            <mat-label>{{ i18n.t('admin.exercises.category') }}</mat-label>
             <mat-select formControlName="category">
               @for (cat of categories; track cat) {
                 <mat-option [value]="cat">{{ cat }}</mat-option>
@@ -29,7 +29,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>{{ labelMuscleGroup }}</mat-label>
+            <mat-label>{{ i18n.t('admin.exercises.muscleGroup') }}</mat-label>
             <mat-select formControlName="muscleGroup">
               @for (mg of muscleGroups; track mg) {
                 <mat-option [value]="mg">{{ mg }}</mat-option>
@@ -38,7 +38,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>{{ labelEquipment }}</mat-label>
+            <mat-label>{{ i18n.t('admin.exercises.equipment') }}</mat-label>
             <mat-select formControlName="equipmentType">
               @for (eq of equipmentTypes; track eq) {
                 <mat-option [value]="eq">{{ eq }}</mat-option>
@@ -48,7 +48,7 @@
 
           <div class="form-actions">
             <button mat-flat-button color="primary" type="submit" [disabled]="exerciseForm.invalid">
-              {{ labelSave }}
+              {{ i18n.t('admin.exercises.save') }}
             </button>
           </div>
         </form>
@@ -59,17 +59,17 @@
   <div class="table-container mat-elevation-z2">
     <table mat-table [dataSource]="exercises()">
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>{{ labelName }}</th>
+        <th mat-header-cell *matHeaderCellDef>{{ i18n.t('admin.exercises.name') }}</th>
         <td mat-cell *matCellDef="let element">{{ element.name }}</td>
       </ng-container>
 
       <ng-container matColumnDef="muscleGroup">
-        <th mat-header-cell *matHeaderCellDef>{{ labelMuscleGroup }}</th>
+        <th mat-header-cell *matHeaderCellDef>{{ i18n.t('admin.exercises.muscleGroup') }}</th>
         <td mat-cell *matCellDef="let element">{{ element.muscleGroup }}</td>
       </ng-container>
 
       <ng-container matColumnDef="category">
-        <th mat-header-cell *matHeaderCellDef>{{ labelCategory }}</th>
+        <th mat-header-cell *matHeaderCellDef>{{ i18n.t('admin.exercises.category') }}</th>
         <td mat-cell *matCellDef="let element">{{ element.category }}</td>
       </ng-container>
 
@@ -90,9 +90,7 @@
     </table>
 
     @if (exercises().length === 0) {
-      <div class="empty-state">
-        Keine Übungen im Katalog gefunden.
-      </div>
+      <div class="empty-state">{{ i18n.t('admin.exercises.empty') }}</div>
     }
   </div>
 </div>
