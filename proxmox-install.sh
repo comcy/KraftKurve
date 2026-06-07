@@ -72,12 +72,20 @@ next_ct_id() {
 
 # ─── rootdir-fähige Storages ─────────────────────────────────────────────────
 list_storages() {
-  # $1=Name $2=Type $3=Status — filter active storages that support container rootfs
-  pvesm status 2>/dev/null \
-    | awk 'NR>1 && $3=="active" {print $1}' \
-    | while read -r s; do
-        pvesm list "$s" --content rootdir &>/dev/null && echo "$s" || true
-      done
+  # Parse /etc/pve/storage.cfg directly — most reliable; pvesm flags vary by version.
+  # Format: each stanza starts with "type: name" on a line beginning at col 0;
+  # options are indented. We print the stanza name whenever its content line includes rootdir.
+  local cfg="/etc/pve/storage.cfg"
+  if [[ -f "$cfg" ]]; then
+    awk '
+      /^[a-zA-Z]/ { if (name && has_rootdir) print name; name = $2; has_rootdir = 0 }
+      /^[[:space:]]+content / && /rootdir/ { has_rootdir = 1 }
+      END { if (name && has_rootdir) print name }
+    ' "$cfg"
+    return
+  fi
+  # Fallback: pvesm status (column layout: Name Type Status ...)
+  pvesm status 2>/dev/null | awk 'NR>1 && $3=="active" {print $1}' || true
 }
 
 # ─── Debian 12 Template sicherstellen ────────────────────────────────────────
