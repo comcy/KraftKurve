@@ -194,8 +194,8 @@ echo -e "  ${BOLD}Admin-Zugangsdaten${CL}"
 ADMIN_EMAIL="$(ask    "Admin-Email"    "admin@kraftkurve.local")"
 ADMIN_PASSWORD="$(ask_secret "Admin-Passwort")"
 
-# JWT Secret automatisch generieren (2× UUID, kein Bindestrich)
-JWT_SECRET="$(tr -dc 'a-f0-9' < /dev/urandom | head -c 64)"
+# JWT Secret automatisch generieren
+JWT_SECRET="$(openssl rand -hex 32)"
 
 # Zusammenfassung vor dem Start
 echo ""
