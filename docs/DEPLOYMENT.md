@@ -1,17 +1,46 @@
 # Deployment Guide
 
-This guide describes how to deploy KraftKurve using Docker Compose or systemd. This setup is suitable for home servers (e.g., Proxmox LXC), testing, and production environments.
+## Proxmox — Ein-Zeiler (empfohlen)
 
-## Prerequisites
-- Docker and Docker Compose (for Docker deployment)
-- Node.js >= 22 and pnpm (for systemd deployment)
-- A Reverse Proxy (Nginx Proxy Manager, Traefik, Caddy) for SSL/HTTPS.
+Auf dem Proxmox-Host als root ausführen:
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/comcy/KraftKurve/main/proxmox-install.sh)"
+```
+
+Das Script (`proxmox-install.sh`) erledigt vollautomatisch:
+
+1. Debian 12 LXC erstellen (unprivileged, `nesting=1`, `keyctl=1`)
+2. Docker CE installieren
+3. Repo klonen (`github.com/comcy/KraftKurve`)
+4. `.env` mit Admin-Credentials und JWT-Secret schreiben
+5. `docker compose up -d --build` starten
+
+Interaktive Eingaben (mit sinnvollen Defaults):
+
+| Eingabe | Default |
+|---|---|
+| Container-ID | nächste freie |
+| Hostname | `kraftkurve` |
+| Root-Passwort | Pflichtfeld |
+| Storage / Disk / RAM / Cores | auto / 8GB / 1024MB / 2 |
+| Netzwerk-IP | `dhcp` |
+| App-Port | `8080` |
+| Admin-Email | `admin@kraftkurve.local` |
+| Admin-Passwort | Pflichtfeld |
+
+Nach Abschluss ist die App unter `http://<LXC-IP>:8080` erreichbar.
 
 ---
 
-## Quick Start (Interactive Setup)
+## Prerequisites (manuelle Deployments)
+- Docker und Docker Compose
+- Node.js >= 22 und pnpm (für systemd)
+- Reverse Proxy (Nginx Proxy Manager, Traefik, Caddy) für SSL/HTTPS
 
-The easiest way to get started is by using the interactive setup script. It will guide you through setting your admin credentials and choosing a deployment method.
+---
+
+## Manuelles Quick Start
 
 ```bash
 chmod +x setup.sh

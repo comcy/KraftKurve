@@ -38,3 +38,8 @@
 - **2026-05-29: Shared Workout Details Library**. [ADR-008](ADR-008.md)
 - **2026-06-01: Set-by-Set Progression Analysis (Virtual Trainer)**. [ADR-009](ADR-009.md)
   - Extraction of `WorkoutDetailSheetComponent` into `lib-training-feature-details` for cross-feature reuse.
+- **2026-06-06: Progress Analytics Library**.
+  - New `lib-progress-data-access`: `ProgressService`, calendar + heatmap DTOs. Depends on `lib-training-data-access` for `MuscleGroup` enum (unidirectional).
+  - New `lib-progress-feature-overview`: `ProgressOverviewComponent` — lazy-loaded from main app.
+- **2026-06-07: Multi-Theme System via CSS Custom Properties**. [ADR-010](ADR-010.md)
+  - `AppTheme = 'tactical' | 'minimal-dark' | 'minimal-light'` — 3 switchable themes via CSS vars on `:root.theme-{name}`.

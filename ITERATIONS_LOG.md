@@ -89,6 +89,31 @@
   - Visual Polishing: Reduced tactical dialog borders to 1px for a finer aesthetic. Fixed low-contrast hint text in Light Theme.
   - Stability Fixes: Resolved 401 redirection loops, fixed corrupted backend routes, and ensured history-aware suggestions by excluding the current session ID.
 
+### Iteration 8: Progress Analytics + Multi-Theme System (2026-06-06 – 2026-06-07)
+
+**Progress Analytics**
+- New API endpoints: `GET /training/progress/heatmap?days=N` (muscle group frequency) + `GET /training/progress/calendar?days=N` (session count + template type per day)
+- New lib `lib-progress-data-access`: `ProgressService`, `BodyHeatmapInsightDto`, `WorkoutCalendarDayDto`; imports `MuscleGroup` from `lib-training-data-access` (unidirectional dep)
+- New lib `lib-progress-feature-overview`: `ProgressOverviewComponent` — GitHub-style workout calendar colored by session template (push/pull/legs/cardio/full/custom) + muscle load bar chart; 28D/90D toggle
+- Registered both libs in `tsconfig.json`, `angular.json`; lazy-loaded in `app.routes.ts`
+
+**Horizontal Scroll Fix**
+- Added `overflow-x: hidden; max-width: 100vw` to `html` + `body`
+- Added `overflow-wrap: break-word; word-break: break-word` to `.headline-*` and `.label-caps`
+- Shortened German i18n strings that overflowed mobile viewport (Press Start 2P is fixed-width ~21px/char)
+
+**3-Theme System**
+- `ThemeService` (`shared-utils`): type `'dark'|'light'` → `AppTheme = 'tactical'|'minimal-dark'|'minimal-light'`; replaces `toggleTheme()` with `setTheme(theme)`; backward-compat migration in constructor; applies `theme-{name}` class to `<html>`
+- `index.html`: added Inter font (all weights+italic), updated bootstrap inline script for new class names with backward-compat mapping
+- `styles.scss`:
+  - Renamed `:root.dark` → `:root.theme-tactical`; removed old `:root.light`
+  - Added `:root.theme-minimal-dark` + `:root.theme-minimal-light`: Inter font, indigo/slate palette, `--radius-md: 0.75rem`, `--card-radius: var(--radius-md)`, `--shadow-card`, no background grid
+  - Added nested `.theme-minimal-*` block: typography overrides (natural font sizes, no uppercase), Material button overrides (14px, no uppercase), Material form field overrides (Inter via MDC CSS tokens + direct !important)
+  - Added `--nav-label-size` / `--nav-label-weight` CSS vars for theme-responsive nav labels
+  - Fixed `mat-icon` global rule: added `text-transform: none !important; font-weight: normal !important; letter-spacing: normal !important` to prevent parent button `text-transform: uppercase` from breaking Material Symbols ligature icons
+- Settings: replaced `mat-slide-toggle` theme toggle with 3-button selector (same `.mode-btn` pattern as language)
+- `app.scss`: header logo `max-height` 80px → 100px; nav label uses `var(--nav-label-size)`
+
 ### Iteration 7: Dockerization & Deployment Planning
 - Implemented `docker-compose.yml` for unified backend and frontend orchestration.
 - Created multi-stage `Dockerfile` for `apps/api` (Node.js).
