@@ -88,28 +88,45 @@ list_storages() {
   pvesm status 2>/dev/null | awk 'NR>1 && $3=="active" {print $1}' || true
 }
 
+# ─── vztmpl-fähigen Storage finden ───────────────────────────────────────────
+find_tmpl_storage() {
+  # Only directory-type storages support vztmpl (local-lvm/ZFS pools do not)
+  local cfg="/etc/pve/storage.cfg" result
+  if [[ -f "$cfg" ]]; then
+    result=$(awk '
+      /^[a-zA-Z]/ { if (name && has_vztmpl) print name; name = $2; has_vztmpl = 0 }
+      /^[[:space:]]+content / && /vztmpl/ { has_vztmpl = 1 }
+      END { if (name && has_vztmpl) print name }
+    ' "$cfg" | head -n1)
+    [[ -n "$result" ]] && echo "$result" && return
+  fi
+  echo "local"
+}
+
 # ─── Debian 12 Template sicherstellen ────────────────────────────────────────
 ensure_template() {
+  # NOTE: all msg_* calls use >&2 so they appear on the terminal even when
+  # this function is called inside $() where stdout is captured.
   local storage="${1}" tmpl available
 
-  msg_info "Suche Debian 12 Template"
+  msg_info "Suche Debian 12 Template" >&2
   tmpl=$(pveam list "$storage" 2>/dev/null \
     | awk '/debian-12-standard/ {print $1}' | tail -n1 || true)
 
   if [[ -z "$tmpl" ]]; then
-    msg_info "Template nicht lokal — lade Paketliste"
+    msg_info "Template nicht lokal — lade Paketliste" >&2
     pveam update &>/dev/null
     available=$(pveam available --section "$DEBIAN_TEMPLATE_SECTION" 2>/dev/null \
       | awk '/debian-12-standard/ {print $2}' | tail -n1 || true)
     [[ -z "$available" ]] \
       && msg_error "Kein Debian 12 Template in der Proxmox-Datenbank gefunden."
-    msg_info "Lade herunter: $available"
-    pveam download "$storage" "$available" &>/dev/null \
-      || msg_error "Template-Download fehlgeschlagen."
+    msg_info "Lade herunter: $available" >&2
+    pveam download "$storage" "$available" \
+      || msg_error "Template-Download fehlgeschlagen (Storage '${storage}' unterstützt möglicherweise kein vztmpl)."
     tmpl="${storage}:vztmpl/${available}"
   fi
 
-  msg_ok "Template: $(basename "$tmpl")"
+  msg_ok "Template: $(basename "$tmpl")" >&2
   echo "$tmpl"
 }
 
@@ -224,8 +241,8 @@ read -rp "  Jetzt starten? [j/N]: " CONFIRM
 # ─── 3 · Template & LXC erstellen ────────────────────────────────────────────
 msg_step "3 / 5  Template & Container"
 
-TMPL_STORAGE="local"
-pvesm status "$TMPL_STORAGE" &>/dev/null || TMPL_STORAGE="${CT_STORAGE}"
+TMPL_STORAGE="$(find_tmpl_storage)"
+msg_info "Template-Storage: ${TMPL_STORAGE}"
 TEMPLATE="$(ensure_template "$TMPL_STORAGE")"
 
 NET_STR="name=eth0,bridge=${CT_BRIDGE}"
