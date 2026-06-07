@@ -195,7 +195,12 @@ ADMIN_EMAIL="$(ask    "Admin-Email"    "admin@kraftkurve.local")"
 ADMIN_PASSWORD="$(ask_secret "Admin-Passwort")"
 
 # JWT Secret automatisch generieren
-JWT_SECRET="$(openssl rand -hex 32)"
+if python3 -c '' &>/dev/null; then
+  JWT_SECRET="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
+else
+  JWT_SECRET="$(dd if=/dev/urandom bs=1 count=32 2>/dev/null | od -A n -t x1 | tr -d ' \n')"
+fi
+[[ -n "$JWT_SECRET" ]] || msg_error "JWT-Secret konnte nicht generiert werden."
 
 # Zusammenfassung vor dem Start
 echo ""
