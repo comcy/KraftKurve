@@ -72,8 +72,12 @@ next_ct_id() {
 
 # ─── rootdir-fähige Storages ─────────────────────────────────────────────────
 list_storages() {
-  pvesm status --content rootdir 2>/dev/null \
-    | awk 'NR>1 && $2=="active" {print $1}' || true
+  # $1=Name $2=Type $3=Status — filter active storages that support container rootfs
+  pvesm status 2>/dev/null \
+    | awk 'NR>1 && $3=="active" {print $1}' \
+    | while read -r s; do
+        pvesm list "$s" --content rootdir &>/dev/null && echo "$s" || true
+      done
 }
 
 # ─── Debian 12 Template sicherstellen ────────────────────────────────────────

@@ -34,7 +34,7 @@ pnpm -C apps/api test  # API tests (Node built-in runner)
 Auf dem Proxmox-Host als root einfügen — erstellt automatisch einen Debian 12 LXC mit Docker und deployt KraftKurve:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/comcy/KraftKurve/main/proxmox-install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/comcy/KraftKurve/master/proxmox-install.sh)"
 ```
 
 Das Script fragt interaktiv nach CT-ID, Passwörtern und Admin-Credentials. Alles andere (Template, LXC, Docker, Clone, Compose) läuft vollautomatisch.
