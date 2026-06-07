@@ -53,13 +53,13 @@ header() {
 
 # ─── Checks ──────────────────────────────────────────────────────────────────
 check_proxmox() {
-  [[ -f /etc/pve/version ]] \
+  command -v pveversion &>/dev/null || [[ -d /etc/pve ]] \
     || msg_error "Dieses Script muss auf einem Proxmox VE Host ausgeführt werden."
   [[ $EUID -eq 0 ]] \
     || msg_error "Bitte als root ausführen."
-  for cmd in pct pvesm pveam curl git; do
+  for cmd in pct pvesm pveam curl; do
     command -v "$cmd" &>/dev/null \
-      || msg_error "Befehl nicht gefunden: '$cmd'"
+      || msg_error "Befehl nicht gefunden: '$cmd' — ist das ein Proxmox VE Host?"
   done
 }
 
