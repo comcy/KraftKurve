@@ -172,8 +172,10 @@ pct status "$CT_ID" &>/dev/null \
 
 CT_HOSTNAME="$(ask "Hostname"     "kraftkurve")"
 
-echo -e "\n  ${BOLD}Container Root-Passwort${CL}"
-CT_PASSWORD="$(ask_secret "Root-Passwort")"
+# Root-Passwort wird automatisch generiert — Zugang via "pct enter <ID>" ohne Passwort
+CT_PASSWORD="$(python3 -c 'import secrets; print(secrets.token_hex(12))' 2>/dev/null \
+  || openssl rand -hex 12 2>/dev/null \
+  || echo "kraftkurve$(od -A n -t x1 /dev/urandom 2>/dev/null | head -c 8 | tr -d ' ')")"
 
 # Storage
 mapfile -t STORAGES < <(list_storages)
@@ -210,8 +212,13 @@ APP_PORT="$(ask "App-Port" "8080")"
 
 echo ""
 echo -e "  ${BOLD}Admin-Zugangsdaten${CL}"
-ADMIN_EMAIL="$(ask    "Admin-Email"    "admin@kraftkurve.local")"
-ADMIN_PASSWORD="$(ask_secret "Admin-Passwort")"
+ADMIN_EMAIL="$(ask "Admin-Email" "admin@kraftkurve.local")"
+# Admin-Passwort wird automatisch generiert und am Ende angezeigt
+ADMIN_PASSWORD="$(python3 -c '
+import secrets, string
+chars = string.ascii_letters + string.digits
+print("".join(secrets.choice(chars) for _ in range(16)))
+' 2>/dev/null || openssl rand -base64 12 | tr -dc "A-Za-z0-9" | head -c 16)"
 
 # JWT Secret automatisch generieren
 if python3 -c '' &>/dev/null; then
@@ -233,6 +240,7 @@ printf "  %-18s %s\n"  "Ressourcen:" "${CT_RAM}MB RAM  ${CT_CORES} Cores"
 printf "  %-18s %s\n"  "Netzwerk:"   "IP=${CT_IP}  Bridge=${CT_BRIDGE}"
 printf "  %-18s %s\n"  "App-Port:"   "$APP_PORT"
 printf "  %-18s %s\n"  "Admin:"      "$ADMIN_EMAIL"
+printf "  %-18s ${YW}%s${CL}\n" "Admin-Passwort:" "$ADMIN_PASSWORD"
 printf "  %-18s %s\n"  "Repo:"       "$KRAFTKURVE_REPO"
 echo ""
 msg_line
@@ -342,9 +350,11 @@ echo -e "  ${GN}${BOLD}╚══════════════════
 echo ""
 echo -e "  ${BOLD}── Zugang ──────────────────────────────────${CL}"
 echo ""
-printf "  %-22s ${BOLD}${GN}http://%s:%s${CL}\n"  "App (Mobile):"   "$CT_IP_ACTUAL" "$APP_PORT"
-printf "  %-22s ${BOLD}%s${CL}\n"                  "Admin-Login:"    "$ADMIN_EMAIL"
-printf "  %-22s ${BOLD}%s${CL}\n"                  "Admin-App:"      "http://${CT_IP_ACTUAL}:${APP_PORT}/admin"
+printf "  %-22s ${BOLD}${GN}http://%s:%s${CL}\n"  "App (Mobile):"    "$CT_IP_ACTUAL" "$APP_PORT"
+printf "  %-22s ${BOLD}%s${CL}\n"                  "Admin-Login:"     "$ADMIN_EMAIL"
+printf "  %-22s ${BOLD}${YW}%s${CL}\n"             "Admin-Passwort:"  "$ADMIN_PASSWORD"
+printf "  %-22s ${BOLD}%s${CL}\n"                  "Admin-App:"       "http://${CT_IP_ACTUAL}:${APP_PORT}/admin"
+echo -e "  ${DIM}(Passwort in den App-Einstellungen änderbar)${CL}"
 echo ""
 echo -e "  ${BOLD}── Container ${CT_ID} ──────────────────────────${CL}"
 echo ""
