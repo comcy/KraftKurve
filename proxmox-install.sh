@@ -140,15 +140,17 @@ ask() {
 
 ask_secret() {
   # ask_secret "Prompt" → gibt Passwort zurück (kein Echo, Bestätigung)
+  # IMPORTANT: all terminal output goes to stderr so callers can use $() without
+  # capturing newlines from echo "" into the password value.
   local prompt="${1}" pass confirm
   while true; do
-    read -rsp "  ${prompt}: "        pass;    echo ""
-    [[ -z "$pass" ]] && echo -e "  ${YW}Darf nicht leer sein.${CL}" && continue
-    read -rsp "  Bestätigen:  " confirm; echo ""
+    read -rsp "  ${prompt}: "        pass;    printf '\n' >&2
+    [[ -z "$pass" ]] && printf "  ${YW}Darf nicht leer sein.${CL}\n" >&2 && continue
+    read -rsp "  Bestätigen:  " confirm; printf '\n' >&2
     [[ "$pass" == "$confirm" ]] && break
-    echo -e "  ${YW}Stimmt nicht überein — erneut.${CL}"
+    printf "  ${YW}Stimmt nicht überein — erneut.${CL}\n" >&2
   done
-  echo "$pass"
+  printf '%s' "$pass"
 }
 
 # ─── Befehl im Container ausführen ───────────────────────────────────────────
@@ -309,11 +311,11 @@ msg_ok "Repository geklont"
 msg_info "Konfiguration schreiben"
 TMP_ENV="$(mktemp)"
 cat > "${TMP_ENV}" <<EOF
-ADMIN_EMAIL=${ADMIN_EMAIL}
-ADMIN_PASSWORD=${ADMIN_PASSWORD}
-PORT=${APP_PORT}
-DATA_DIR=${APP_DIR}/data
-JWT_SECRET=${JWT_SECRET}
+ADMIN_EMAIL="${ADMIN_EMAIL}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD}"
+PORT="${APP_PORT}"
+DATA_DIR="${APP_DIR}/data"
+JWT_SECRET="${JWT_SECRET}"
 EOF
 pct push "${CT_ID}" "${TMP_ENV}" "${APP_DIR}/.env"
 rm -f "${TMP_ENV}"
