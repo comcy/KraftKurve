@@ -2,15 +2,16 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Pin pnpm version — pnpm@latest changes behaviour across releases
+RUN corepack enable && corepack prepare pnpm@10.11.0 --activate
 
 # Copy workspace configuration
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/web/package.json ./apps/web/
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install without running post-install scripts (avoids ERR_PNPM_IGNORED_BUILDS),
+# then rebuild esbuild explicitly so Angular's application builder works.
+RUN pnpm install --frozen-lockfile --ignore-scripts && pnpm rebuild esbuild
 
 # Copy source (including libraries and all apps needed for the build)
 COPY apps/web ./apps/web
