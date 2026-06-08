@@ -37,7 +37,8 @@
     "@angular/service-worker": "^21.2.12",
     "es-module-shims": "^1.5.12",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^21.2.12",
