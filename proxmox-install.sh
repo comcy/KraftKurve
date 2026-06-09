@@ -202,7 +202,13 @@ echo -e "  ${DIM}IP: 'dhcp' oder z.B. 192.168.1.50/24${CL}"
 CT_IP="$(ask "IP-Adresse" "dhcp")"
 CT_GW=""
 if [[ "$CT_IP" != "dhcp" ]]; then
-  CT_GW="$(ask "Gateway" "")"
+  HOST_GW="$(ip route show default 2>/dev/null | awk '/default/ {print $3; exit}')"
+  DEFAULT_GW="${HOST_GW:-$(echo "$CT_IP" | sed 's|\.[0-9]*\/.*|.1|')}"
+  while true; do
+    CT_GW="$(ask "Gateway" "$DEFAULT_GW")"
+    [[ -n "$CT_GW" ]] && break
+    msg_warn "Gateway ist erforderlich bei statischer IP."
+  done
 fi
 
 # ─── 2 · KraftKurve-Konfiguration ────────────────────────────────────────────
