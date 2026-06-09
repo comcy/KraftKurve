@@ -334,6 +334,29 @@ run_ct "cd '${APP_DIR}' && docker compose up -d --build" \
   || msg_error "docker compose fehlgeschlagen — prüfe mit: pct enter ${CT_ID}"
 msg_ok "KraftKurve gestartet"
 
+msg_info "Systemd Auto-Start einrichten"
+TMP_SVC="$(mktemp)"
+cat > "${TMP_SVC}" <<EOF
+[Unit]
+Description=KraftKurve Docker Compose Stack
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=${APP_DIR}
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
+
+[Install]
+WantedBy=multi-user.target
+EOF
+pct push "${CT_ID}" "${TMP_SVC}" /etc/systemd/system/kraftkurve.service
+rm -f "${TMP_SVC}"
+run_ct "systemctl daemon-reload && systemctl enable kraftkurve"
+msg_ok "Auto-Start aktiviert (kraftkurve.service)"
+
 # ─── 5 · Ergebnis ────────────────────────────────────────────────────────────
 msg_step "5 / 5  Installation abgeschlossen"
 
